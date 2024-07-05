@@ -25,8 +25,7 @@ jobs:
           tar -xvf /tmp/yq.tgz -C /tmp
           chmod +x /tmp/yq_linux_amd64
           export VERSION=$(/tmp/yq_linux_amd64 '.librenms.image.tag' charts/librenms/values.yaml)
-           /tmp/yq_linux_amd64 -e -i '.appVersion = $VERSION' charts/librenms/Chart.yaml
-          rm yq
+          /tmp/yq_linux_amd64 -e -i '.appVersion = $VERSION' charts/librenms/Chart.yaml
 
       
       # Commit all changed files back to the repository
