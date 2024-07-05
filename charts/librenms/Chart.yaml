@@ -9,7 +9,7 @@ appVersion: "24.5.0"
 
 dependencies:
 - name: redis
-  version: "~19.5.0"
+  version: "~19.6.0"
   repository: "https://charts.bitnami.com/bitnami"
   when: redis.enabled == true
 - name: mysql
