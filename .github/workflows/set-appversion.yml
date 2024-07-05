@@ -1,5 +1,4 @@
 name: Updste LibreNMS appVersion
-
 on: 
   push:
     branches: 
@@ -7,7 +6,7 @@ on:
 
 jobs:
   set-appverions:
-    runs-on: ubuntu:24.04
+    runs-on: ubuntu-24.04
 
     permissions:
       # Give the default GITHUB_TOKEN write permission to commit and push the
@@ -25,6 +24,5 @@ jobs:
           sudo apt update
           sudo apt install yq -y 
       
-
       # Commit all changed files back to the repository
       - uses: stefanzweifel/git-auto-commit-action@v5
