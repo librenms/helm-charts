@@ -1,18 +1,15 @@
 apiVersion: v2
 name: librenms
 description: LibreNMS is an autodiscovering PHP/MySQL-based network monitoring system.
-
 type: application
-
 version: 3.9.0
 appVersion: "24.5.0"
-
 dependencies:
-- name: redis
-  version: "~19.5.0"
-  repository: "https://charts.bitnami.com/bitnami"
-  when: redis.enabled == true
-- name: mysql
-  version: "~11.1.0"
-  repository: "https://charts.bitnami.com/bitnami"
-  when: mysql.enabled == true
+  - name: redis
+    version: "~19.5.0"
+    repository: "https://charts.bitnami.com/bitnami"
+    when: redis.enabled == true
+  - name: mysql
+    version: "~11.1.0"
+    repository: "https://charts.bitnami.com/bitnami"
+    when: mysql.enabled == true
