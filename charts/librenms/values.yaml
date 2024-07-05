@@ -32,18 +32,18 @@ librenms:
       initialDelaySeconds: 30
       periodSeconds: 60
       timeoutSeconds: 10
-    resources:
-      requests:
-        cpu: 50m
-        memory: 150M
+    resources: {}
+      # requests:
+      #   cpu: 50m
+      #   memory: 150M
 
   # Distributed poller container configurations options
   poller:
     replicas: 2
-    resources:
-      requests:
-        cpu: 500m
-        memory: 200M
+    resources: {}
+      # requests:
+      #   cpu: 500m
+      #   memory: 200M
 
   # SNMP network discovery scanner cron job. This job is optional and only use
   # when having snmp network discovery enabled. For this to work either set the 
@@ -53,10 +53,10 @@ librenms:
   snmp_scanner:
     enabled: false
     cron: 15 * * * *
-    resources:
-      requests:
-        cpu: 500m
-        memory: 200M
+    resources: {}
+      # requests:
+      #   cpu: 500m
+      #   memory: 200M
     # Extra environment variable for LibreNMS SNMP scanner container
     extraEnvs: {}
 
@@ -73,13 +73,13 @@ librenms:
     persistence:
       enabled: true
       journal:
-        size: 20Gi
+        size: 1Gi
       rrdcached:
-        size: 100Gi
-    resources:
-      requests:
-        cpu: 100m
-        memory: 500M
+        size: 10Gi
+    resources: {}
+      # requests:
+      #   cpu: 100m
+      #   memory: 500M
     livenessProbe:
       tcpSocket:
         port: 42217
