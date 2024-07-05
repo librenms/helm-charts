@@ -18,11 +18,13 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
 
-      - name: Install YQ
+                    
+      - name: Find image version
+        uses: mikefarah/yq@v4.44.2
         run: |
-          sudo add-apt-repository ppa:rmescandon/yq
-          sudo apt update
-          sudo apt install yq -y 
+          export VERSION=$(yq '.librenms.image.tag' charts/librenms/values.yaml)
+          yq -e -i '.appVersion = $VERSION' charts/librenms/Chart.yaml
+
       
       # Commit all changed files back to the repository
       - uses: stefanzweifel/git-auto-commit-action@v5
