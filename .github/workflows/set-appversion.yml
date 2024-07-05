@@ -21,7 +21,7 @@ jobs:
                     
       - name: Find image version
         run: |
-          wget https://github.com/mikefarah/yq/releases/download/v4.2.0/yq_linux_amd64.tar.gz -O - |\
+          wget https://github.com/mikefarah/yq/releases/download/v4.44.2/yq_linux_amd64.tar.gz -O - |\
           tar xz && mv yq_linux_amd64 yq
           chmod +x yq
           export VERSION=$(./yq '.librenms.image.tag' charts/librenms/values.yaml)
