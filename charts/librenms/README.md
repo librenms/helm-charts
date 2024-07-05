@@ -7,7 +7,7 @@ data center infrastructure management (DCIM) tool.
 
 ```shell
 $ helm repo add thechef23 https://thechef23.github.io/helm-librenms
-$ helm install my-release thechef23-librenms/librenms
+$ helm install my-release thechef23-librenms/librenms --set appkey=<LibreNMS Application key>
 ```
 
 ## Prerequisites
@@ -21,12 +21,18 @@ To install the chart with the release name `my-release` and default configuratio
 
 ```shell
 $ helm repo add thechef23 https://thechef23.github.io/helm-librenms
-$ helm install my-release thechef23-librenms/librenms
+$ helm install my-release thechef23-librenms/librenms --set appkey=<LibreNMS Application key>
 ```
 
 ## Values
-Check the [values.yml](/TheChef23/helm-librenms/blob/main/values.yaml) file for the available settings for this chart and its
+Check the [values.yaml](/TheChef23/helm-librenms/blob/main/values.yaml) file for the available settings for this chart and its
 dependencies.
+
+### Required values:
+```
+librenms:
+  appkey: 
+```
 
 ## Uninstalling the Chart
 

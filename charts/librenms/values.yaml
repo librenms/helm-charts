@@ -1,12 +1,15 @@
 # Default values for librenms.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
-
-
 librenms:
   image:
     repository: librenms/librenms
     tag: 24.5.0
+
+  # Laravel appkey used by LibreNMS, a default is set for useability it is
+  # recommended to replace this with your own key
+  # THIS A REQUIRED SETTINGS
+  appkey: 
 
   # Timezone used by librenms for communication with RRD cached
   timezone: UTC
@@ -18,9 +21,7 @@ librenms:
     $config['distributed_poller_group']          = '0';
     $config['distributed_poller']                = true;
   
-  # Laravel appkey used by LibreNMS, a default is set for useability it is
-  # recommended to replace this with your own key
-  appkey: base64:Qh1eBwRfpgNHWByDDqhaX0I/0hnE/VDRiLHLnjwrZRw=
+
   
   # Frontend container configurations options
   frontend:
