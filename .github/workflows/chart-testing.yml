@@ -39,13 +39,21 @@ jobs:
           fi
 
       - name: Run chart-testing (lint)
-        if: steps.list-changed.outputs.changed == 'true'
+        if: steps.list-changed.outputs.changed == 'true' && github.ref != 'refs/heads/develop'
         run: ct lint --target-branch ${{ github.event.repository.default_branch }} --check-version-increment=false
+
+      - name: Run chart-testing (lint & version)
+        if: github.ref == 'refs/heads/develop'
+        run: ct lint --target-branch main
 
       - name: Create kind cluster
         if: steps.list-changed.outputs.changed == 'true'
         uses: helm/kind-action@v1.10.0
 
       - name: Run chart-testing (install)
-        if: steps.list-changed.outputs.changed == 'true'
+        if: steps.list-changed.outputs.changed == 'true' && github.ref != 'refs/heads/develop'
         run: ct install --target-branch ${{ github.event.repository.default_branch }} --skip-clean-up
+      
+      - name: Run chart-testing (install & upgrades)
+        if: github.ref == 'refs/heads/develop'
+        run: ct install --target-branch main --skip-clean-up --upgrade
