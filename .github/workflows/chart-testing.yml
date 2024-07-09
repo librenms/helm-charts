@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
@@ -43,11 +43,11 @@ jobs:
         run: ct lint --target-branch ${{ github.event.repository.default_branch }} --check-version-increment=false
 
       - name: Run chart-testing (lint & version)
-        if: github.ref == 'refs/heads/develop'
+        if: github.event.pull_request.base.ref == 'main' 
         run: ct lint --target-branch main
 
       - name: Create kind cluster
-        if: steps.list-changed.outputs.changed == 'true'
+        if: steps.list-changed.outputs.changed == 'true' || github.event.pull_request.base.ref == 'main' 
         uses: helm/kind-action@v1.10.0
 
       - name: Run chart-testing (install)
@@ -55,5 +55,5 @@ jobs:
         run: ct install --target-branch ${{ github.event.repository.default_branch }} --skip-clean-up
       
       - name: Run chart-testing (install & upgrades)
-        if: github.ref == 'refs/heads/develop'
-        run: ct install --target-branch main --skip-clean-up --upgrade
+        if: github.event.pull_request.base.ref == 'main' 
+        run: ct install --target-branch main --upgrade
