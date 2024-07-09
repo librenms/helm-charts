@@ -9,7 +9,7 @@ librenms:
   # Laravel appkey used by LibreNMS, a default is set for useability it is
   # recommended to replace this with your own key
   # THIS A REQUIRED SETTINGS
-  appkey: 
+  appkey:
 
   # Timezone used by librenms for communication with RRD cached
   timezone: UTC
@@ -20,9 +20,7 @@ librenms:
   configuration: |-
     $config['distributed_poller_group']          = '0';
     $config['distributed_poller']                = true;
-  
 
-  
   # Frontend container configurations options
   frontend:
     replicas: 1
@@ -47,9 +45,9 @@ librenms:
       #   memory: 200M
 
   # SNMP network discovery scanner cron job. This job is optional and only use
-  # when having snmp network discovery enabled. For this to work either set the 
+  # when having snmp network discovery enabled. For this to work either set the
   # 'nets' confifuration in the custom config on in the admin interface
-  # See the following link for more information: 
+  # See the following link for more information:
   # https://docs.librenms.org/Extensions/Auto-Discovery/
   snmp_scanner:
     enabled: false
@@ -65,7 +63,7 @@ librenms:
   extraEnvs: {}
 
   # RRD cached is the tool that allows for distributed polling and is mandatory
-  # in this LibreNMS helm chart. See the rrdcached documentation for more 
+  # in this LibreNMS helm chart. See the rrdcached documentation for more
   # information: https://oss.oetiker.ch/rrdtool/doc/rrdcached.en.html
   rrdcached:
     image:
@@ -97,7 +95,7 @@ librenms:
     # Extra environment variable for RRDCACHED container
     extraEnvs: {}
 
-# Configuration for MySQL dependency chart by Bitnami. See their chart for 
+# Configuration for MySQL dependency chart by Bitnami. See their chart for
 # more information: https://github.com/bitnami/charts/tree/master/bitnami/mysql
 mysql:
   enabled: true
@@ -105,7 +103,7 @@ mysql:
     username: librenms
     database: librenms
 
-# Configuration for redis dependency chart by Bitnami. See their chart for 
+# Configuration for redis dependency chart by Bitnami. See their chart for
 # more information: https://github.com/bitnami/charts/tree/master/bitnami/redis
 redis:
   enabled: true
