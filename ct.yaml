@@ -1,0 +1,9 @@
+remote: origin
+validate-maintainers: false
+target-branch: main
+chart-repos:
+  - librenms=https://www.librenms.org/helm-charts/
+  - bitnami=https://charts.bitnami.com/bitnami/
+helm-extra-args: --timeout 800s
+chart-dirs:
+  - charts
