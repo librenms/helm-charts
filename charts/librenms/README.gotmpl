@@ -1,0 +1,66 @@
+# LibreNMS
+{{ template "chart.badgesSection" . }}
+
+## TL;DR
+
+```shell
+$ helm repo add librenms https://www.librenms.org/helm-charts
+$ helm install my-release librenms/librenms --set appkey=<LibreNMS Application key>
+```
+
+## Prerequisites
+
+- This chart has only been tested on Kubernetes 1.18+, but should work on 1.14+
+- Recent versions of Helm 3 are supported
+
+## Installing the Chart
+
+To install the chart with the release name `my-release` and default configuration:
+
+```shell
+$ helm repo add librenms https://www.librenms.org/helm-charts
+$ helm install my-release librenms/librenms --set appkey=<LibreNMS Application key>
+```
+
+## Values
+Check the [values.yaml](./values.yaml) file for the available settings for this chart and its
+dependencies.
+
+### Required values:
+```
+librenms:
+  appkey: 
+```
+
+This should be filled with a laravel appkey, this can be generated using the laravel artisan command:
+```
+php artisan key:generate
+```
+The value should look like:
+```
+librenms:
+  appkey: base64:RTMmh+i10E2RMcDxookMu47BTzJQy87hOU+k/zcuPnA=
+```
+### Recommendations
+
+* `librenms.poller.replicas`: Depending on the scale of your installation, the amount of poller pods needs to b scaled up. Use the poller page in the LibreNMS interface to check for scaling issues. 
+
+### Available values
+
+The following table lists the main configurable parameters of the {{ template "chart.name" . }} chart v{{ template "chart.version" . }} and their default values. Please, refer to [values.yaml](./values.yaml) for the full list of configurable parameters.
+
+{{ template "chart.valuesSection" . }}
+
+## Uninstalling the Chart
+
+To delete the chart:
+
+```shell
+$ helm delete my-release
+```
+
+{{ template "chart.requirementsSection" . }}
+
+{{ template "chart.maintainersSection" . }}
+
+{{ template "helm-docs.versionFooter" . }}
