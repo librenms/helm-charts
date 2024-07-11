@@ -1,5 +1,5 @@
 # LibreNMS
-![Version: 3.11.1](https://img.shields.io/badge/Version-3.11.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 24.5.0](https://img.shields.io/badge/AppVersion-24.5.0-informational?style=flat-square)
+![Version: 3.12.0](https://img.shields.io/badge/Version-3.12.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 24.5.0](https://img.shields.io/badge/AppVersion-24.5.0-informational?style=flat-square)
 
 ## TL;DR
 
@@ -47,7 +47,7 @@ librenms:
 
 ### Available values
 
-The following table lists the main configurable parameters of the librenms chart v3.11.1 and their default values. Please, refer to [values.yaml](./values.yaml) for the full list of configurable parameters.
+The following table lists the main configurable parameters of the librenms chart v3.12.0 and their default values. Please, refer to [values.yaml](./values.yaml) for the full list of configurable parameters.
 
 ## Values
 
