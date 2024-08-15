@@ -3,6 +3,29 @@ entries:
   librenms:
   - apiVersion: v2
     appVersion: 24.6.0
+    created: "2024-08-15T12:32:55.294614287Z"
+    dependencies:
+    - condition: redis.enabled
+      name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: ~20.0.0
+    - condition: mysql.enabled
+      name: mysql
+      repository: https://charts.bitnami.com/bitnami
+      version: ~11.1.0
+    description: LibreNMS is an autodiscovering PHP/MySQL-based network monitoring
+      system.
+    digest: 2824feb52a499362063028633c2656b56710c1c0c8387323dad4d5379f0bcf6e
+    maintainers:
+    - name: jochbru
+      url: https://github.com/jochbru
+    name: librenms
+    type: application
+    urls:
+    - https://github.com/librenms/helm-charts/releases/download/librenms-3.14.0/librenms-3.14.0.tgz
+    version: 3.14.0
+  - apiVersion: v2
+    appVersion: 24.6.0
     created: "2024-07-31T10:34:08.414346621Z"
     dependencies:
     - condition: redis.enabled
@@ -124,4 +147,4 @@ entries:
     urls:
     - https://github.com/librenms/helm-charts/releases/download/librenms-3.8.0/librenms-3.8.0.tgz
     version: 3.8.0
-generated: "2024-07-31T10:34:08.414365907Z"
+generated: "2024-08-15T12:32:55.294647519Z"
