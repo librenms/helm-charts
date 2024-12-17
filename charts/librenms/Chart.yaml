@@ -9,7 +9,7 @@ maintainers:
     url: https://github.com/jochbru
 dependencies:
   - name: redis
-    version: "~20.4.0"
+    version: "~20.6.0"
     repository: "https://charts.bitnami.com/bitnami"
     condition: redis.enabled
   - name: mysql
