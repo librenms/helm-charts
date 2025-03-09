@@ -55,7 +55,7 @@ spec:
         - name: files
           mountPath: /data/files
         - name: files
-          mountPath: /opt/librenms/custom.php
+          mountPath: /data/config/custom.php
           subPath: custom.php
           readOnly: true
         - name: mysql
