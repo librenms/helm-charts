@@ -3,7 +3,10 @@ kind: StatefulSet
 metadata:
   name: {{ .Release.Name }}-poller
 spec:
-  replicas: {{ .Values.librenms.poller.replicas }}
+  {{- with .Values.poller }}
+  serviceAccountName: {{ .serviceAccountName }}
+  replicas: {{ .replicas  | default "2" }}
+  {{- end }}
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ .Release.Name }}
