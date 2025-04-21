@@ -3,6 +3,9 @@ kind: Deployment
 metadata:
   name: {{ .Release.Name }}-frontend
 spec:
+  {{- if .Values.poller.serviceAccountName }}
+  serviceAccountName: {{ .Values.poller.serviceAccountName }}
+  {{- end }}
   replicas: {{ .Values.librenms.frontend.replicas }}
   selector:
     matchLabels:
