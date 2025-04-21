@@ -3,6 +3,9 @@ kind: Deployment
 metadata:
   name: {{ .Release.Name }}-rrdcached
 spec:
+  {{- with .Values.rrdcached }}
+  serviceAccountName: {{ .serviceAccountName }}
+  {{- end }}
   strategy: 
     type: Recreate
   replicas: 1
