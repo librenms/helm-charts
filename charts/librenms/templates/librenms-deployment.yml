@@ -3,10 +3,10 @@ kind: Deployment
 metadata:
   name: {{ .Release.Name }}-frontend
 spec:
-  {{- if .Values.poller.serviceAccountName }}
-  serviceAccountName: {{ .Values.poller.serviceAccountName }}
+  {{- with .Values.librenms.frontend }}
+  serviceAccountName: {{ .serviceAccountName }}
+  replicas: {{ .replicas }}
   {{- end }}
-  replicas: {{ .Values.librenms.frontend.replicas }}
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ .Release.Name }}
