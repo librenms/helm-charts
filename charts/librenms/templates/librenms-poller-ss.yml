@@ -20,6 +20,9 @@ spec:
       volumes:
       - name: env-volume
         emptyDir: {}
+      - name: key
+        secret:
+          secretName: {{ include "librenms.secretName" . }}
       - name: files
         configMap:
           name: {{ .Release.Name }}-files
@@ -33,6 +36,8 @@ spec:
           volumeMounts:
           - name: env-volume
             mountPath: /data/env-volume
+          - name: key
+            mountPath: /data/key
           - name: files
             mountPath: /data/files
       containers:

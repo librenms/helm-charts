@@ -12,6 +12,10 @@ librenms:
   # required setting. See the README for more information
   appkey:
 
+  # -- Existing secret name to use for appkey
+  # Must have the key 'appkey' as above
+  existingSecret: false
+
   # -- Timezone used by librenms for communication with RRD cached
   timezone: UTC
 
