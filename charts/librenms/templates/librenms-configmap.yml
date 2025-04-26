@@ -23,7 +23,5 @@ metadata:
 data:
   custom.php: |-
 {{ tpl (.Files.Get "files/custom.php") . | indent 4 }}
-  env: |-
-{{ tpl (.Files.Get "files/env") . | indent 4 }}
   init.sh: |-
-{{ tpl (.Files.Get "files/init.sh") . | indent 4 }}
+{{ .Files.Get "files/init.sh" | indent 4 }}
