@@ -23,6 +23,15 @@ spec:
             envFrom:
             - configMapRef:
                 name: {{ .Release.Name }}
+            env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-mysql
+                  key: mysql-password
+            {{- with .Values.librenms.extraEnvs }}
+            {{- toYaml . | nindent 8 }}
+            {{- end }}
             volumeMounts:
             - name: files
               mountPath: /opt/librenms/config.d/custom.php
