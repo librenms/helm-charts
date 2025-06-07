@@ -27,10 +27,6 @@ spec:
         persistentVolumeClaim:
           claimName: {{ .Release.Name }}-rrdcached-journal
       {{end}}
-      - name: mysql
-        secret:
-          secretName: {{ .Release.Name }}-mysql
-          optional: false # default setting; "mysecret" must exist
       
       containers:
       - name: rrdcached
@@ -42,9 +38,6 @@ spec:
           mountPath: /data/db
         - name: journal
           mountPath: /data/journal
-        - name: mysql
-          mountPath: "/opt/mysql/"
-          readOnly: true
         {{end}}
         env:
         {{- with .Values.librenms.rrdcached.envs }}
