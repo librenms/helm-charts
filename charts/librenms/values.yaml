@@ -26,6 +26,10 @@ librenms:
     $config['distributed_poller_group']          = '0';
     $config['distributed_poller']                = true;
 
+  # Global setting to run components as privileged, set as a bool
+  # Optionally, the frontend and pollers can be individually run as privileged 
+  privileged: false
+
   # Frontend container configurations options
   frontend:
     # -- Frontend replicas
@@ -51,6 +55,10 @@ librenms:
       #   memory: 150M
 
   # Distributed poller container configurations options
+
+  # Bool to conrol running the frontend pods as privileged
+  # The default is false.
+  privileged: false
   poller:
     # -- Poller replicas
     replicas: 2
@@ -60,6 +68,10 @@ librenms:
       # requests:
       #   cpu: 500m
       #   memory: 200M
+
+    # Bool to control running the poller pods as privileged
+    # The default is false
+    privileged: false
 
   # -- SNMP network discovery scanner cron job. This job is optional and only use
   # when having snmp network discovery enabled. For this to work either set the
