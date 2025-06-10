@@ -64,3 +64,14 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Create the name of the secret to use
+*/}}
+{{- define "librenms.secretName" -}}
+{{- if .Values.librenms.existingSecret -}}
+{{- .Values.librenms.existingSecret -}}
+{{- else -}}
+{{- .Release.Name -}}
+{{- end -}}
+{{- end -}}
