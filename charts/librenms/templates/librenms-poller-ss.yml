@@ -4,7 +4,6 @@ metadata:
   name: {{ .Release.Name }}-poller
 spec:
   {{- with .Values.poller }}
-  serviceAccountName: {{ .serviceAccountName }}
   replicas: {{ .replicas  | default "2" }}
   {{- end }}
   selector:
@@ -20,6 +19,9 @@ spec:
         app.kubernetes.io/name: {{ .Release.Name }}
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
+      {{- with .Values.poller }}
+      serviceAccountName: {{ .serviceAccountName }}
+      {{- end }}
       volumes:
       - name: env-volume
         emptyDir: {}
@@ -42,6 +44,8 @@ spec:
       - name: poller
         image: '{{ .Values.librenms.image.repository }}:{{ .Values.librenms.image.tag }}'
         imagePullPolicy: Always
+        securityContext:
+          privileged: true
         env:
         - name: SIDECAR_DISPATCHER
           value: "1"
