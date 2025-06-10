@@ -49,8 +49,10 @@ spec:
       - name: poller
         image: '{{ .Values.librenms.image.repository }}:{{ .Values.librenms.image.tag }}'
         imagePullPolicy: Always
+        {{- if or ((.Values.librenms).privileged) (((.Values.librenms).poller).privileged) }}
         securityContext:
           privileged: true
+        {{- end }}
         env:
         - name: SIDECAR_DISPATCHER
           value: "1"

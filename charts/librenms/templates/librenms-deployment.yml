@@ -49,8 +49,10 @@ spec:
       - name: librenms
         image: '{{ .Values.librenms.image.repository }}:{{ .Values.librenms.image.tag }}'
         imagePullPolicy: Always
+        {{- if or ((.Values.librenms).privileged) (((.Values.librenms).frontend).privileged) }}
         securityContext:
           privileged: true
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}
