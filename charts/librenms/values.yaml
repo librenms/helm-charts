@@ -27,7 +27,7 @@ librenms:
     $config['distributed_poller']                = true;
 
   # Global setting to run components as privileged, set as a bool
-  # Optionally, the frontend and pollers can be individually run as privileged 
+  # Optionally, the frontend and pollers can be individually run as privileged
   privileged: false
 
   # Frontend container configurations options
@@ -54,11 +54,11 @@ librenms:
       #   cpu: 50m
       #   memory: 150M
 
-  # Distributed poller container configurations options
+    # Bool to conrol running the frontend pods as privileged
+    # The default is false.
+     privileged: false
 
-  # Bool to conrol running the frontend pods as privileged
-  # The default is false.
-  privileged: false
+  # Distributed poller container configurations options
   poller:
     # -- Poller replicas
     replicas: 2
