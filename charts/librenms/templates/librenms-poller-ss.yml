@@ -3,7 +3,9 @@ kind: StatefulSet
 metadata:
   name: {{ .Release.Name }}-poller
 spec:
-  replicas: {{ .Values.librenms.poller.replicas }}
+  {{- with .Values.poller }}
+  replicas: {{ .replicas  | default "2" }}
+  {{- end }}
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ .Release.Name }}
@@ -17,6 +19,9 @@ spec:
         app.kubernetes.io/name: {{ .Release.Name }}
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
+      {{- with .Values.poller }}
+      serviceAccountName: {{ .serviceAccountName }}
+      {{- end }}
       volumes:
       - name: env-volume
         emptyDir: {}
@@ -44,6 +49,10 @@ spec:
       - name: poller
         image: '{{ .Values.librenms.image.repository }}:{{ .Values.librenms.image.tag }}'
         imagePullPolicy: Always
+        {{- if or ((.Values.librenms).privileged) (((.Values.librenms).poller).privileged) }}
+        securityContext:
+          privileged: true
+        {{- end }}
         env:
         - name: SIDECAR_DISPATCHER
           value: "1"

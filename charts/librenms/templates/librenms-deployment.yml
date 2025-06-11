@@ -3,7 +3,9 @@ kind: Deployment
 metadata:
   name: {{ .Release.Name }}-frontend
 spec:
-  replicas: {{ .Values.librenms.frontend.replicas }}
+  {{- with .Values.librenms.frontend }}
+  replicas: {{ .replicas }}
+  {{- end }}
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ .Release.Name }}
@@ -16,6 +18,9 @@ spec:
         app.kubernetes.io/name: {{ .Release.Name }}
         app.kubernetes.io/instance: frontend
     spec:
+      {{- with .Values.librenms.frontend }}
+      serviceAccountName: {{ .serviceAccountName }}
+      {{- end }}
       volumes:
       - name: env-volume
         emptyDir: {}
@@ -44,6 +49,10 @@ spec:
       - name: librenms
         image: '{{ .Values.librenms.image.repository }}:{{ .Values.librenms.image.tag }}'
         imagePullPolicy: Always
+        {{- if or ((.Values.librenms).privileged) (((.Values.librenms).frontend).privileged) }}
+        securityContext:
+          privileged: true
+        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}

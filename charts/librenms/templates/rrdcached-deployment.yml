@@ -16,6 +16,9 @@ spec:
         app.kubernetes.io/name: {{ .Release.Name }}
         app.kubernetes.io/instance: rrdcached
     spec:
+      {{- with .Values.librenms.rrdcached }}
+      serviceAccountName: {{ .serviceAccountName }}
+      {{- end }}
       securityContext:
         fsGroup: 1000
       volumes:
