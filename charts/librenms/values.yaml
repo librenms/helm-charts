@@ -56,7 +56,7 @@ librenms:
 
     # Bool to conrol running the frontend pods as privileged
     # The default is false.
-     privileged: false
+    privileged: false
 
   # Distributed poller container configurations options
   poller:
