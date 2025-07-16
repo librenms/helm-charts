@@ -27,8 +27,8 @@ spec:
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Release.Name }}-mysql
-                  key: mysql-password
+                  name: {{ include "librenms.mysqlSecret" . }}
+                  key: {{ include "librenms.mysqlSecretKey" . }}
             {{- with .Values.librenms.extraEnvs }}
             {{- toYaml . | nindent 8 }}
             {{- end }}

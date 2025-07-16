@@ -32,7 +32,7 @@ spec:
           name: {{ .Release.Name }}-files
       - name: mysql
         secret:
-          secretName: {{ .Release.Name }}-mysql
+          secretName: {{ include "librenms.mysqlSecret" . }}
           optional: false 
       initContainers:
         - name: init
@@ -60,8 +60,15 @@ spec:
         - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ .Release.Name }}-mysql
-              key: mysql-password
+              name: {{ include "librenms.mysqlSecret" . }}
+              key: {{ include "librenms.mysqlSecretKey" . }}
+        {{ if not .Values.redis.enabled }}
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.redis.external.existingSecret }}
+              key: {{ .Values.redis.external.existingSecretKey }}
+        {{- end }}
         {{- with .Values.librenms.extraEnvs }}
         {{- toYaml . | nindent 8 }}
         {{- end }}

@@ -56,3 +56,4 @@ spec:
         {{- if .Values.librenms.rrdcached.resources }}
         resources: {{ toYaml .Values.librenms.rrdcached.resources | nindent 10 }}
         {{- end }}
+

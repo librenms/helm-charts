@@ -6,13 +6,14 @@ metadata:
 data:
   TZ: {{ .Values.librenms.timezone}}
   DB_TIMEOUT: "60"
-  REDIS_HOST: {{ .Release.Name }}-redis-master
-  REDIS_PORT: "6379"
+  REDIS_HOST: "{{ include "librenms.redisHost" . }}"
+  REDIS_PORT: "{{ include "librenms.redisPort" . }}"
   REDIS_DB: "0"
   RRDCACHED_SERVER: "{{ .Release.Name }}-rrdcached:42217"
   CACHE_DRIVER: redis
   SESSION_DRIVER: redis
-  DB_HOST: {{ .Release.Name }}-mysql
+  DB_HOST: "{{ include "librenms.mysqlHost" . }}"
+  DB_PORT: "{{ include "librenms.mysqlPort" . }}"
   DB_USERNAME: {{.Values.mysql.auth.username}}
   DB_DATABASE: {{.Values.mysql.auth.database}}
 --- 
