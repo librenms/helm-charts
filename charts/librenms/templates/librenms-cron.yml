@@ -32,6 +32,9 @@ spec:
             {{- with .Values.librenms.extraEnvs }}
             {{- toYaml . | nindent 8 }}
             {{- end }}
+            {{- with .Values.librenms.snmp_scanner.extraEnvs }}
+            {{- toYaml . | nindent 8 }}
+            {{- end }}
             volumeMounts:
             - name: files
               mountPath: /opt/librenms/config.d/custom.php
@@ -42,10 +45,6 @@ spec:
             - '-v'
             {{- if .Values.librenms.snmp_scanner.resources }}
             resources: {{ toYaml .Values.librenms.snmp_scanner.resources | nindent 14 }}
-            {{- end }}
-            {{- with .Values.librenms.snmp_scanner.extraEnvs }}
-            env:
-            {{- toYaml . | nindent 8 }}
             {{- end }}
           restartPolicy: OnFailure
 {{ end }}
