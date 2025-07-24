@@ -53,6 +53,10 @@ spec:
         - containerPort: 42217
           name: rrdcached
           protocol: TCP
+        {{- with .Values.librenms.rrdcached.readinessProbe }}
+        readinessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
         {{- with .Values.librenms.rrdcached.livenessProbe }}
         livenessProbe:
           {{- toYaml . | nindent 10 }}

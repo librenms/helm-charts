@@ -121,6 +121,11 @@ librenms:
       # requests:
       #   cpu: 100m
       #   memory: 500M
+    readinessProbe:
+      tcpSocket:
+        port: 42217
+      initialDelaySeconds: 5
+      periodSeconds: 10
     livenessProbe:
       # -- RRD cached liveness probe
       tcpSocket:
