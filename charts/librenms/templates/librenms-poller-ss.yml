@@ -31,9 +31,6 @@ spec:
       - name: files
         configMap:
           name: {{ .Release.Name }}-files
-      - name: mysql
-        secret:
-          secretName: {{ include "librenms.mysqlSecret" . }}
       initContainers:
         - name: init
           image: busybox:1.28
@@ -82,9 +79,6 @@ spec:
         - name: env-volume
           mountPath: /data/.env
           subPath: env
-        - name: mysql
-          mountPath: "/opt/secrets/mysql/"
-          readOnly: true
         {{- if .Values.librenms.poller.resources }}
         resources: {{ toYaml .Values.librenms.poller.resources | nindent 10 }}
         {{- end }}
