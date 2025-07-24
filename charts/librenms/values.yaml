@@ -134,8 +134,6 @@ librenms:
       periodSeconds: 20
     envs:
     # -- env variables RRD Cached
-    - name: TZ
-      value: "Europe/Amsterdam"
     - name: WRITE_JITTER
       value: "1800"
     - name: WRITE_TIMEOUT
