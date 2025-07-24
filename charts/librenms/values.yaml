@@ -137,9 +137,9 @@ librenms:
     - name: TZ
       value: "Europe/Amsterdam"
     - name: WRITE_JITTER
-      value: '1800'
+      value: "1800"
     - name: WRITE_TIMEOUT
-      value: '1800'
+      value: "1800"
 
     # -- Extra environment variable for RRDCACHED container
     extraEnvs: {}
