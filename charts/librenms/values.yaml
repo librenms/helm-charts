@@ -121,6 +121,11 @@ librenms:
       # requests:
       #   cpu: 100m
       #   memory: 500M
+    readinessProbe:
+      tcpSocket:
+        port: 42217
+      initialDelaySeconds: 5
+      periodSeconds: 10
     livenessProbe:
       # -- RRD cached liveness probe
       tcpSocket:
@@ -129,12 +134,10 @@ librenms:
       periodSeconds: 20
     envs:
     # -- env variables RRD Cached
-    - name: TZ
-      value: "Europe/Amsterdam"
     - name: WRITE_JITTER
-      value: '1800'
+      value: "1800"
     - name: WRITE_TIMEOUT
-      value: '1800'
+      value: "1800"
 
     # -- Extra environment variable for RRDCACHED container
     extraEnvs: {}
@@ -168,6 +171,23 @@ mysql:
     username: librenms
     database: librenms
 
+  # -- External MySQL configuration
+  # -- Only used when mysql.enabled is set to false
+  # -- Configure these settings to connect to an existing MySQL instance
+  external:
+    # -- External MySQL host address
+    host: your-mysql-host
+    # -- External MySQL port
+    port: 3306
+    # -- External MySQL username for LibreNMS
+    username: librenms
+    # -- External MySQL database name
+    database: librenms
+    # -- Name of existing Kubernetes secret containing the MySQL password
+    existingSecret: mysql-credentials-secret
+    # -- Key in the existing secret that contains the MySQL password
+    existingSecretKey: mysql-password
+
 # -- Configuration for redis dependency chart by Bitnami. See their chart for
 # more information: https://github.com/bitnami/charts/tree/master/bitnami/redis
 redis:
@@ -183,3 +203,16 @@ redis:
     disableCommands: []
 
   architecture: standalone
+
+  # -- External Redis configuration
+  # -- Only used when redis.enabled is set to false
+  # -- Configure these settings to connect to an existing Redis instance
+  external:
+    # -- External Redis host address
+    host: your-redis-host
+    # -- External Redis port
+    port: 6379
+    # -- Name of existing Kubernetes secret containing the Redis password
+    existingSecret: redis-credentials-secret
+    # -- Key in the existing secret that contains the Redis password
+    existingSecretKey: REDIS_PASSWORD
