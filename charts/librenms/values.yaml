@@ -1,6 +1,12 @@
 # Default values for librenms.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
+
+# Allow use of images from bitnamilegacy repository
+global:
+  security:
+    allowInsecureImages: true
+
 librenms:
   image:
     # -- repository is the image repository to pull from.
@@ -164,6 +170,11 @@ ingress:
 # more information: https://github.com/bitnami/charts/tree/master/bitnami/mysql
 mysql:
   enabled: true
+  # Work around for Bitnami dropping support
+  # https://github.com/bitnami/charts/issues/35164
+  # https://github.com/bitnami/charts/issues/35256
+  image:
+    repository: bitnamilegacy/mysql
   auth:
     username: librenms
     database: librenms
@@ -175,11 +186,8 @@ redis:
   auth:
     enabled: false
     sentinel: false
-
   sentinel:
     enabled: false
-
   master:
     disableCommands: []
-
   architecture: standalone
