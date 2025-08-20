@@ -1,9 +1,9 @@
 dependencies:
 - name: redis
   repository: https://charts.bitnami.com/bitnami
-  version: 22.0.1
+  version: 21.2.14
 - name: mysql
   repository: https://charts.bitnami.com/bitnami
-  version: 14.0.2
-digest: sha256:7686fe2e52f8b031aaa487eab853b02c0cf69c4c1d6b1aa6bcb3f205d4fcb951
-generated: "2025-08-10T13:06:53.282986716Z"
+  version: 14.0.3
+digest: sha256:97fc40fd1d99d29893a3c9fde2ad70fa44d4aba603486585e6ad5127ac9c769a
+generated: "2025-08-20T20:11:28.241851+12:00"
