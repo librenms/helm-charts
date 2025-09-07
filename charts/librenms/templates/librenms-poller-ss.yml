@@ -3,7 +3,7 @@ kind: StatefulSet
 metadata:
   name: {{ .Release.Name }}-poller
 spec:
-  {{- with .Values.poller }}
+  {{- with .Values.librenms.poller }}
   replicas: {{ .replicas  | default "2" }}
   {{- end }}
   selector:
@@ -19,7 +19,7 @@ spec:
         app.kubernetes.io/name: {{ .Release.Name }}
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
-      {{- with .Values.poller }}
+      {{- with .Values.librenms.poller }}
       serviceAccountName: {{ .serviceAccountName }}
       {{- end }}
       volumes:
