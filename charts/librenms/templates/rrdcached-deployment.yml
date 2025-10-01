@@ -43,6 +43,8 @@ spec:
           mountPath: /data/journal
         {{end}}
         env:
+        - name: TZ
+          value: "{{ .Values.librenms.timezone}}"
         {{- with .Values.librenms.rrdcached.envs }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
