@@ -43,11 +43,21 @@ spec:
           mountPath: /data/journal
         {{end}}
         env:
+        - name: TZ
+          value: "{{ .Values.librenms.timezone}}"
         {{- with .Values.librenms.rrdcached.envs }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
         {{- with .Values.librenms.rrdcached.extraEnvs }}
         {{- toYaml . | nindent 8 }}
+        {{- end }}
+        ports:
+        - containerPort: 42217
+          name: rrdcached
+          protocol: TCP
+        {{- with .Values.librenms.rrdcached.readinessProbe }}
+        readinessProbe:
+          {{- toYaml . | nindent 10 }}
         {{- end }}
         {{- with .Values.librenms.rrdcached.livenessProbe }}
         livenessProbe:
