@@ -49,6 +49,10 @@ spec:
         {{- with .Values.librenms.rrdcached.extraEnvs }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
+        {{- with .Values.librenms.rrdcached.readinessProbe }}
+        readinessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
         {{- with .Values.librenms.rrdcached.livenessProbe }}
         livenessProbe:
           {{- toYaml . | nindent 10 }}
