@@ -33,7 +33,7 @@ spec:
           name: {{ .Release.Name }}-files
       initContainers:
         - name: init
-          image: busybox:1.28
+          image: '{{ .Values.librenms.initContainer.image.repository }}:{{ .Values.librenms.initContainer.image.tag }}'
           command: ["/bin/sh","/data/files/init.sh"]
           volumeMounts:
           - name: env-volume
