@@ -21,6 +21,10 @@ spec:
       {{- with .Values.librenms.frontend }}
       serviceAccountName: {{ .serviceAccountName }}
       {{- end }}
+      {{- with .Values.librenms.frontend.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       volumes:
       - name: env-volume
         emptyDir: {}
@@ -30,6 +34,9 @@ spec:
       - name: files
         configMap:
           name: {{ .Release.Name }}-files
+      {{- with .Values.librenms.frontend.extraVolumes }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
       initContainers:
         - name: init
           image: '{{ .Values.librenms.initContainer.image.repository }}:{{ .Values.librenms.initContainer.image.tag }}'
@@ -74,6 +81,9 @@ spec:
         - name: env-volume
           mountPath: /data/.env
           subPath: env
+        {{- with .Values.librenms.frontend.extraVolumeMounts }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
         {{- if .Values.librenms.frontend.resources }}
         resources: {{ toYaml .Values.librenms.frontend.resources | nindent 10 }}
         {{- end }}
