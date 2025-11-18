@@ -80,6 +80,15 @@ librenms:
     # The default is false.
     privileged: false
 
+    # -- nodeSelector for frontend pods
+    nodeSelector: {}
+
+    # -- Extra volumes for frontend pods
+    extraVolumes: []
+
+    # -- Extra volume mounts for frontend containers
+    extraVolumeMounts: []
+
   # Distributed poller container configurations options
   poller:
     # -- Poller replicas
@@ -94,6 +103,15 @@ librenms:
     # Bool to control running the poller pods as privileged
     # The default is false
     privileged: false
+
+    # -- nodeSelector for poller pods
+    nodeSelector: {}
+
+    # -- Extra volumes for poller pods
+    extraVolumes: []
+
+    # -- Extra volume mounts for poller containers
+    extraVolumeMounts: []
 
   # -- SNMP network discovery scanner cron job. This job is optional and only use
   # when having snmp network discovery enabled. For this to work either set the
@@ -134,9 +152,13 @@ librenms:
       journal:
         # -- RRDCached journal PV size
         size: 1Gi
+        # -- RRDCached journal storage class name
+        storageClassName: ""
       rrdcached:
         # -- RRDCached RRD storage PV size
         size: 10Gi
+        # -- RRDCached RRD storage class name
+        storageClassName: ""
     # -- resources defines the computing resources (CPU and memory)
     # that are allocated to the containers running within the Pod.
     resources: {}
@@ -164,6 +186,15 @@ librenms:
 
     # -- Extra environment variable for RRDCACHED container
     extraEnvs: {}
+
+    # -- nodeSelector for rrdcached pods
+    nodeSelector: {}
+
+    # -- Extra volumes for rrdcached pods
+    extraVolumes: []
+
+    # -- Extra volume mounts for rrdcached containers
+    extraVolumeMounts: []
 
 # -- LibreNMS ingress configuration
 ingress:
