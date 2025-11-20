@@ -63,6 +63,9 @@ spec:
         {{- with .Values.librenms.rrdcached.envs }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
+        {{- with .Values.librenms.extraEnvs }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
         {{- with .Values.librenms.rrdcached.extraEnvs }}
         {{- toYaml . | nindent 8 }}
         {{- end }}

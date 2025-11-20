@@ -71,6 +71,9 @@ spec:
         {{- with .Values.librenms.extraEnvs }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
+        {{- with .Values.librenms.frontend.extraEnvs }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
         volumeMounts:
         - name: files
           mountPath: /data/files

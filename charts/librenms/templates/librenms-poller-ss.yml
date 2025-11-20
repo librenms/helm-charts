@@ -68,6 +68,9 @@ spec:
             secretKeyRef:
               name: {{ .Release.Name }}-mysql
               key: mysql-password
+        {{- with .Values.librenms.extraEnvs }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
         {{- with .Values.librenms.poller.extraEnvs }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
