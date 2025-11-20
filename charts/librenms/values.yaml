@@ -48,7 +48,7 @@ librenms:
       # -- repository is the init container image repository to pull from.
       repository: busybox
       # -- tag is the init container image tag to pull.
-      tag: 1.37
+      tag: "1.37"
     # -- resources defines the computing resources (CPU and memory)
     # that are allocated to the init container.
     resources: {}
