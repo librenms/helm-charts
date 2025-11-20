@@ -377,6 +377,9 @@
               "type": "object",
               "description": "Computing resources for SNMP scanner containers"
             },
+            "nodeSelector": {
+              "$ref": "#/definitions/nodeSelector"
+            },
             "extraEnvs": {
               "type": "array",
               "items": { "$ref": "#/definitions/envVar" },
