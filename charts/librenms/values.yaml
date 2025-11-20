@@ -35,6 +35,9 @@ librenms:
   # -- Extra environment variables applied to all LibreNMS components
   extraEnvs: []
 
+  # -- Extra envFrom sources applied to all LibreNMS components
+  extraEnvFrom: []
+
   # Global setting to run components as privileged, set as a bool
   # Optionally, the frontend and pollers can be individually run as privileged
   privileged: false
@@ -96,6 +99,9 @@ librenms:
     # -- Extra environment variables for frontend containers
     extraEnvs: []
 
+    # -- Extra envFrom sources for frontend containers
+    extraEnvFrom: []
+
   # Distributed poller container configurations options
   poller:
     # -- Poller replicas
@@ -123,6 +129,9 @@ librenms:
     # -- Extra environment variables for poller containers
     extraEnvs: []
 
+    # -- Extra envFrom sources for poller containers
+    extraEnvFrom: []
+
   # -- SNMP network discovery scanner cron job. This job is optional and only use
   # when having snmp network discovery enabled. For this to work either set the
   # 'nets' configuration in the custom config on in the admin interface
@@ -141,6 +150,9 @@ librenms:
       #   memory: 200M
     # -- Extra environment variables for SNMP scanner containers
     extraEnvs: []
+
+    # -- Extra envFrom sources for SNMP scanner containers
+    extraEnvFrom: []
 
   # -- RRD cached is the tool that allows for distributed polling and is mandatory
   # in this LibreNMS helm chart. See the rrdcached documentation for more
@@ -191,6 +203,9 @@ librenms:
 
     # -- Extra environment variables for RRDCached containers
     extraEnvs: []
+
+    # -- Extra envFrom sources for RRDCached containers
+    extraEnvFrom: []
 
     # -- nodeSelector for rrdcached pods
     nodeSelector: {}

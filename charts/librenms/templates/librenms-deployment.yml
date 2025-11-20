@@ -62,6 +62,12 @@ spec:
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}
+        {{- with .Values.librenms.extraEnvFrom }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with .Values.librenms.frontend.extraEnvFrom }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
         env:
         - name: DB_PASSWORD
           valueFrom:
