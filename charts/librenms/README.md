@@ -1,5 +1,5 @@
 # LibreNMS
-![Version: 5.1.1](https://img.shields.io/badge/Version-5.1.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 25.9.1](https://img.shields.io/badge/AppVersion-25.9.1-informational?style=flat-square) 
+![Version: 5.2.0](https://img.shields.io/badge/Version-5.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 25.11.0](https://img.shields.io/badge/AppVersion-25.11.0-informational?style=flat-square) 
 
 ## TL;DR
 
@@ -47,7 +47,7 @@ librenms:
 
 ### Available values
 
-The following table lists the main configurable parameters of the librenms chart v5.1.1 and their default values. Please, refer to [values.yaml](./values.yaml) for the full list of configurable parameters.
+The following table lists the main configurable parameters of the librenms chart v5.2.0 and their default values. Please, refer to [values.yaml](./values.yaml) for the full list of configurable parameters.
 
 ## Values
 
@@ -78,7 +78,7 @@ The following table lists the main configurable parameters of the librenms chart
 | librenms.frontend.replicas | int | `1` | Frontend replicas |
 | librenms.frontend.resources | object | `{}` | resources defines the computing resources (CPU and memory) that are allocated to the containers running within the Pod. |
 | librenms.image.repository | string | `"librenms/librenms"` | repository is the image repository to pull from. |
-| librenms.image.tag | string | `"25.9.1"` | tag is image tag to pull. |
+| librenms.image.tag | string | `"25.11.0"` | tag is image tag to pull. |
 | librenms.initContainer | object | `{"image":{"repository":"busybox","tag":"1.37"},"resources":{}}` | initContainer configuration options |
 | librenms.initContainer.image.repository | string | `"busybox"` | repository is the init container image repository to pull from. |
 | librenms.initContainer.image.tag | string | `"1.37"` | tag is the init container image tag to pull. |
@@ -109,11 +109,12 @@ The following table lists the main configurable parameters of the librenms chart
 | librenms.rrdcached.persistence.rrdcached.storageClassName | string | `""` | RRDCached RRD storage class name |
 | librenms.rrdcached.readinessProbe.tcpSocket | object | `{"port":42217}` | RRD cached readiness probe |
 | librenms.rrdcached.resources | object | `{}` | resources defines the computing resources (CPU and memory) that are allocated to the containers running within the Pod. |
-| librenms.snmp_scanner | object | `{"cron":"15 * * * *","enabled":false,"extraEnvFrom":[],"extraEnvs":[],"resources":{}}` | SNMP network discovery scanner cron job. This job is optional and only use when having snmp network discovery enabled. For this to work either set the 'nets' configuration in the custom config on in the admin interface See the following link for more information: https://docs.librenms.org/Extensions/Auto-Discovery/ |
+| librenms.snmp_scanner | object | `{"cron":"15 * * * *","enabled":false,"extraEnvFrom":[],"extraEnvs":[],"nodeSelector":{},"resources":{}}` | SNMP network discovery scanner cron job. This job is optional and only use when having snmp network discovery enabled. For this to work either set the 'nets' configuration in the custom config on in the admin interface See the following link for more information: https://docs.librenms.org/Extensions/Auto-Discovery/ |
 | librenms.snmp_scanner.cron | string | `"15 * * * *"` | SNMP scanner cornjob syntac interval |
 | librenms.snmp_scanner.enabled | bool | `false` | SNMP scanner enabled |
 | librenms.snmp_scanner.extraEnvFrom | list | `[]` | Extra envFrom sources for SNMP scanner containers |
 | librenms.snmp_scanner.extraEnvs | list | `[]` | Extra environment variables for SNMP scanner containers |
+| librenms.snmp_scanner.nodeSelector | object | `{}` | nodeSelector for SNMP scanner pods |
 | librenms.snmp_scanner.resources | object | `{}` | resources defines the computing resources (CPU and memory) that are allocated to the containers running within the Pod. |
 | librenms.timezone | string | `"UTC"` | Timezone used by librenms for communication with RRD cached |
 | mysql | object | `{"auth":{"database":"librenms","username":"librenms"},"enabled":true,"image":{"repository":"bitnamilegacy/mysql"}}` | Configuration for MySQL dependency chart by Bitnami. See their chart for more information: https://github.com/bitnami/charts/tree/master/bitnami/mysql |
