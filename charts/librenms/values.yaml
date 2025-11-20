@@ -148,6 +148,8 @@ librenms:
       # requests:
       #   cpu: 500m
       #   memory: 200M
+    # -- nodeSelector for SNMP scanner pods
+    nodeSelector: {}
     # -- Extra environment variables for SNMP scanner containers
     extraEnvs: []
 
