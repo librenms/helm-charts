@@ -12,6 +12,10 @@ spec:
           annotations:
             checksum/config: {{ include "librenms.configChecksum" . }}
         spec:
+          {{- with .Values.librenms.snmp_scanner.nodeSelector }}
+          nodeSelector:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           volumes:
           - name: files
             configMap:
@@ -23,6 +27,12 @@ spec:
             envFrom:
             - configMapRef:
                 name: {{ .Release.Name }}
+            {{- with .Values.librenms.extraEnvFrom }}
+            {{- toYaml . | nindent 8 }}
+            {{- end }}
+            {{- with .Values.librenms.snmp_scanner.extraEnvFrom }}
+            {{- toYaml . | nindent 8 }}
+            {{- end }}
             env:
             - name: DB_PASSWORD
               valueFrom:
