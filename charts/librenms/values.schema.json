@@ -1,0 +1,551 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://www.librenms.org/helm-charts/librenms/values.schema.json",
+  "title": "LibreNMS Helm Chart Values",
+  "description": "Schema for LibreNMS Helm Chart values.yaml configuration",
+  "type": "object",
+  "required": ["librenms"],
+  "additionalProperties": true,
+  "definitions": {
+    "envVar": {
+      "type": "object",
+      "description": "Kubernetes environment variable definition",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Environment variable name"
+        },
+        "value": {
+          "type": "string",
+          "description": "Environment variable value"
+        },
+        "valueFrom": {
+          "type": "object",
+          "description": "Source for the environment variable's value"
+        }
+      },
+      "required": ["name"],
+      "additionalProperties": false
+    },
+    "envFromSource": {
+      "type": "object",
+      "description": "Kubernetes envFrom source (ConfigMap or Secret reference)",
+      "oneOf": [
+        {
+          "properties": {
+            "configMapRef": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "Name of the ConfigMap"
+                },
+                "optional": {
+                  "type": "boolean",
+                  "description": "Whether the ConfigMap must be defined"
+                }
+              },
+              "required": ["name"],
+              "additionalProperties": false
+            }
+          },
+          "required": ["configMapRef"],
+          "additionalProperties": false
+        },
+        {
+          "properties": {
+            "secretRef": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "Name of the Secret"
+                },
+                "optional": {
+                  "type": "boolean",
+                  "description": "Whether the Secret must be defined"
+                }
+              },
+              "required": ["name"],
+              "additionalProperties": false
+            }
+          },
+          "required": ["secretRef"],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "resources": {
+      "type": "object",
+      "description": "Kubernetes resource requests and limits",
+      "properties": {
+        "requests": {
+          "type": "object",
+          "properties": {
+            "cpu": {
+              "type": "string",
+              "description": "CPU request"
+            },
+            "memory": {
+              "type": "string",
+              "description": "Memory request"
+            }
+          },
+          "additionalProperties": false
+        },
+        "limits": {
+          "type": "object",
+          "properties": {
+            "cpu": {
+              "type": "string",
+              "description": "CPU limit"
+            },
+            "memory": {
+              "type": "string",
+              "description": "Memory limit"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "nodeSelector": {
+      "type": "object",
+      "description": "Node selector for pod assignment",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "volume": {
+      "type": "object",
+      "description": "Kubernetes volume definition"
+    },
+    "volumeMount": {
+      "type": "object",
+      "description": "Kubernetes volumeMount definition"
+    }
+  },
+  "properties": {
+    "global": {
+      "type": "object",
+      "description": "Global Helm chart values",
+      "properties": {
+        "security": {
+          "type": "object",
+          "properties": {
+            "allowInsecureImages": {
+              "type": "boolean",
+              "description": "Allow use of images from bitnamilegacy repository",
+              "default": true
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": true
+    },
+    "librenms": {
+      "type": "object",
+      "required": ["image"],
+      "additionalProperties": false,
+      "properties": {
+        "image": {
+          "type": "object",
+          "required": ["repository", "tag"],
+          "additionalProperties": false,
+          "properties": {
+            "repository": {
+              "type": "string",
+              "description": "Image repository to pull from",
+              "default": "librenms/librenms"
+            },
+            "tag": {
+              "type": "string",
+              "description": "Image tag to pull"
+            }
+          }
+        },
+        "initContainer": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "image": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "repository": {
+                  "type": "string",
+                  "description": "Init container image repository",
+                  "default": "busybox"
+                },
+                "tag": {
+                  "type": "string",
+                  "description": "Init container image tag",
+                  "default": "1.37"
+                }
+              }
+            },
+            "resources": {
+              "$ref": "#/definitions/resources"
+            }
+          }
+        },
+        "appkey": {
+          "type": "string",
+          "description": "Laravel appkey used by LibreNMS (required, format: base64:...)"
+        },
+        "existingSecret": {
+          "type": ["string", "boolean"],
+          "description": "Existing secret name to use for appkey",
+          "default": false
+        },
+        "timezone": {
+          "type": "string",
+          "description": "Timezone used by LibreNMS",
+          "default": "UTC"
+        },
+        "configuration": {
+          "type": "string",
+          "description": "Custom configuration options for LibreNMS (PHP code)"
+        },
+        "extraEnvs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/envVar"
+          },
+          "description": "Extra environment variables applied to all LibreNMS components",
+          "default": []
+        },
+        "extraEnvFrom": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/envFromSource"
+          },
+          "description": "Extra envFrom sources applied to all LibreNMS components",
+          "default": []
+        },
+        "privileged": {
+          "type": "boolean",
+          "description": "Global setting to run components as privileged",
+          "default": false
+        },
+        "frontend": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "replicas": {
+              "type": "integer",
+              "description": "Frontend replicas",
+              "default": 1,
+              "minimum": 1
+            },
+            "readinessProbe": {
+              "type": "object",
+              "properties": {
+                "httpGet": {
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string",
+                      "description": "Check endpoint path"
+                    },
+                    "port": {
+                      "type": ["integer", "string"],
+                      "description": "Check endpoint port"
+                    }
+                  }
+                },
+                "initialDelaySeconds": {
+                  "type": "integer"
+                },
+                "periodSeconds": {
+                  "type": "integer"
+                },
+                "timeoutSeconds": {
+                  "type": "integer"
+                }
+              }
+            },
+            "resources": {
+              "type": "object",
+              "description": "Computing resources for frontend containers"
+            },
+            "privileged": {
+              "type": "boolean",
+              "description": "Run frontend pods as privileged",
+              "default": false
+            },
+            "nodeSelector": {
+              "type": "object",
+              "description": "Node selector for frontend pods"
+            },
+            "extraVolumes": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Extra volumes for frontend pods"
+            },
+            "extraVolumeMounts": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Extra volume mounts for frontend containers"
+            },
+            "extraEnvs": {
+              "type": "array",
+              "items": { "$ref": "#/definitions/envVar" },
+              "description": "Extra environment variables for frontend containers",
+              "default": []
+            },
+            "extraEnvFrom": {
+              "type": "array",
+              "items": { "$ref": "#/definitions/envFromSource" },
+              "description": "Extra envFrom sources for frontend containers",
+              "default": []
+            }
+          }
+        },
+        "poller": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "replicas": {
+              "type": "integer",
+              "description": "Poller replicas",
+              "default": 2,
+              "minimum": 1
+            },
+            "resources": {
+              "type": "object",
+              "description": "Computing resources for poller containers"
+            },
+            "privileged": {
+              "type": "boolean",
+              "description": "Run poller pods as privileged",
+              "default": false
+            },
+            "nodeSelector": {
+              "type": "object",
+              "description": "Node selector for poller pods"
+            },
+            "extraVolumes": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Extra volumes for poller pods"
+            },
+            "extraVolumeMounts": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Extra volume mounts for poller containers"
+            },
+            "extraEnvs": {
+              "type": "array",
+              "items": { "$ref": "#/definitions/envVar" },
+              "description": "Extra environment variables for poller containers",
+              "default": []
+            },
+            "extraEnvFrom": {
+              "type": "array",
+              "items": { "$ref": "#/definitions/envFromSource" },
+              "description": "Extra envFrom sources for poller containers",
+              "default": []
+            }
+          }
+        },
+        "snmp_scanner": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "SNMP scanner enabled",
+              "default": false
+            },
+            "cron": {
+              "type": "string",
+              "description": "SNMP scanner cron schedule",
+              "default": "15 * * * *"
+            },
+            "resources": {
+              "type": "object",
+              "description": "Computing resources for SNMP scanner containers"
+            },
+            "nodeSelector": {
+              "$ref": "#/definitions/nodeSelector"
+            },
+            "extraEnvs": {
+              "type": "array",
+              "items": { "$ref": "#/definitions/envVar" },
+              "description": "Extra environment variables for SNMP scanner containers",
+              "default": []
+            },
+            "extraEnvFrom": {
+              "type": "array",
+              "items": { "$ref": "#/definitions/envFromSource" },
+              "description": "Extra envFrom sources for SNMP scanner containers",
+              "default": []
+            }
+          }
+        },
+        "rrdcached": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "image": {
+              "type": "object",
+              "properties": {
+                "repository": {
+                  "type": "string",
+                  "description": "RRDCached image repository"
+                },
+                "tag": {
+                  "type": "string",
+                  "description": "RRDCached image tag"
+                }
+              },
+              "required": ["repository", "tag"]
+            },
+            "persistence": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "description": "RRDCached persistent volume enabled",
+                  "default": true
+                },
+                "journal": {
+                  "type": "object",
+                  "properties": {
+                    "size": {
+                      "type": "string",
+                      "description": "RRDCached journal PV size",
+                      "default": "1Gi"
+                    },
+                    "storageClassName": {
+                      "type": "string",
+                      "description": "RRDCached journal storage class name"
+                    }
+                  }
+                },
+                "rrdcached": {
+                  "type": "object",
+                  "properties": {
+                    "size": {
+                      "type": "string",
+                      "description": "RRDCached RRD storage PV size",
+                      "default": "10Gi"
+                    },
+                    "storageClassName": {
+                      "type": "string",
+                      "description": "RRDCached RRD storage storage class name"
+                    }
+                  }
+                }
+              }
+            },
+            "resources": {
+              "type": "object",
+              "description": "Computing resources for RRDCached containers"
+            },
+            "readinessProbe": {
+              "type": "object",
+              "properties": {
+                "tcpSocket": {
+                  "type": "object",
+                  "properties": {
+                    "port": {
+                      "type": ["integer", "string"]
+                    }
+                  }
+                },
+                "initialDelaySeconds": {
+                  "type": "integer"
+                },
+                "periodSeconds": {
+                  "type": "integer"
+                }
+              }
+            },
+            "livenessProbe": {
+              "type": "object",
+              "properties": {
+                "tcpSocket": {
+                  "type": "object",
+                  "properties": {
+                    "port": {
+                      "type": ["integer", "string"]
+                    }
+                  }
+                },
+                "initialDelaySeconds": {
+                  "type": "integer"
+                },
+                "periodSeconds": {
+                  "type": "integer"
+                }
+              }
+            },
+            "envs": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": "string"
+                  }
+                },
+                "required": ["name", "value"]
+              },
+              "description": "Environment variables for RRDCached"
+            },
+            "extraEnvs": {
+              "type": "array",
+              "items": { "$ref": "#/definitions/envVar" },
+              "description": "Extra environment variables for RRDCached containers",
+              "default": []
+            },
+            "extraEnvFrom": {
+              "type": "array",
+              "items": { "$ref": "#/definitions/envFromSource" },
+              "description": "Extra envFrom sources for RRDCached containers",
+              "default": []
+            },
+            "nodeSelector": {
+              "type": "object",
+              "description": "Node selector for rrdcached pods"
+            },
+            "extraVolumes": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Extra volumes for rrdcached pods"
+            },
+            "extraVolumeMounts": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Extra volume mounts for rrdcached containers"
+            }
+          }
+        }
+      }
+    },
+    "ingress": {
+      "type": "object",
+      "description": "LibreNMS ingress configuration",
+      "additionalProperties": true
+    }
+  }
+}

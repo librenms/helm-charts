@@ -57,10 +57,20 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
         {{end}}
+        envFrom:
+        {{- with .Values.librenms.extraEnvFrom }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with .Values.librenms.rrdcached.extraEnvFrom }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
         env:
         - name: TZ
           value: "{{ .Values.librenms.timezone}}"
         {{- with .Values.librenms.rrdcached.envs }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with .Values.librenms.extraEnvs }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
         {{- with .Values.librenms.rrdcached.extraEnvs }}
