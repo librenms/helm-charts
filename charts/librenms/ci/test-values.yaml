@@ -1,4 +1,5 @@
 librenms:
-  appkey: base64:RTMmh+i10E2RMcDxookMu47BTzJQy87hOU+k/zcuPnA=
+  # appkey is now auto-generated, no need to set it explicitly
+  appkey:
 ingress:
   enabled: true

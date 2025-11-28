@@ -5,7 +5,7 @@
 
 ```shell
 $ helm repo add librenms https://www.librenms.org/helm-charts
-$ helm install my-release librenms/librenms --set appkey=<LibreNMS Application key>
+$ helm install my-release librenms/librenms
 ```
 
 ## Prerequisites
@@ -19,27 +19,31 @@ To install the chart with the release name `my-release` and default configuratio
 
 ```shell
 $ helm repo add librenms https://www.librenms.org/helm-charts
-$ helm install my-release librenms/librenms --set appkey=<LibreNMS Application key>
+$ helm install my-release librenms/librenms
 ```
+
+The chart will automatically generate a secure Laravel appkey on first deployment.
 
 ## Values
 Check the [values.yaml](./values.yaml) file for the available settings for this chart and its
 dependencies.
 
-### Required values:
+### Optional: Custom appkey
+
+By default, a secure appkey is auto-generated on first deployment and preserved across upgrades. To manually set an appkey, use:
+
 ```
 librenms:
-  appkey: 
+  appkey: base64:YOUR_BASE64_ENCODED_STRING
 ```
 
-This should be filled with a laravel appkey, this can be generated using the laravel artisan command:
-```
+Generate a custom appkey with either:
+```bash
+# Using openssl (no PHP required)
+echo "base64:$(openssl rand -base64 32)"
+
+# Or using Laravel artisan (requires PHP/Laravel)
 php artisan key:generate
-```
-The value should look like:
-```
-librenms:
-  appkey: base64:RTMmh+i10E2RMcDxookMu47BTzJQy87hOU+k/zcuPnA=
 ```
 ### Recommendations
 
