@@ -68,12 +68,21 @@ spec:
             secretKeyRef:
               name: {{ .Release.Name }}-mysql
               key: mysql-password
+        {{- with .Values.librenms.extraEnvs }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
         {{- with .Values.librenms.poller.extraEnvs }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}
+        {{- with .Values.librenms.extraEnvFrom }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with .Values.librenms.poller.extraEnvFrom }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
         volumeMounts:
         - name: files
           mountPath: /data/config/custom.php
