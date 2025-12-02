@@ -26,6 +26,33 @@ $ helm install my-release librenms/librenms
 
 LibreNMS automatically generates a secure Laravel APP_KEY on first run and stores it in the persistent `/data` volume.
 
+## Persistence
+
+By default, the frontend uses a PersistentVolumeClaim to store the `/data` directory, which contains:
+- Application configuration (including the auto-generated APP_KEY in `/data/.env`)
+- RRD database files
+- Logs
+- Custom plugins
+
+To disable persistence (not recommended for production):
+
+```yaml
+librenms:
+  frontend:
+    persistence:
+      enabled: false
+```
+
+To customize the storage class or size:
+
+```yaml
+librenms:
+  frontend:
+    persistence:
+      storageClassName: "fast-ssd"
+      size: 5Gi
+```
+
 ## Values
 Check the [values.yaml](./values.yaml) file for the available settings for this chart and its dependencies.
 

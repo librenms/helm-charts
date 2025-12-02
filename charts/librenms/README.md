@@ -27,6 +27,33 @@ $ helm install my-release librenms/librenms
 
 LibreNMS automatically generates a secure Laravel APP_KEY on first run and stores it in the persistent `/data` volume.
 
+## Persistence
+
+By default, the frontend uses a PersistentVolumeClaim to store the `/data` directory, which contains:
+- Application configuration (including the auto-generated APP_KEY in `/data/.env`)
+- RRD database files
+- Logs
+- Custom plugins
+
+To disable persistence (not recommended for production):
+
+```yaml
+librenms:
+  frontend:
+    persistence:
+      enabled: false
+```
+
+To customize the storage class or size:
+
+```yaml
+librenms:
+  frontend:
+    persistence:
+      storageClassName: "fast-ssd"
+      size: 5Gi
+```
+
 ## Values
 Check the [values.yaml](./values.yaml) file for the available settings for this chart and its dependencies.
 
@@ -72,6 +99,10 @@ The following table lists the main configurable parameters of the librenms chart
 | librenms.frontend.extraVolumeMounts | list | `[]` | Extra volume mounts for frontend containers |
 | librenms.frontend.extraVolumes | list | `[]` | Extra volumes for frontend pods |
 | librenms.frontend.nodeSelector | object | `{}` | nodeSelector for frontend pods |
+| librenms.frontend.persistence | object | `{"enabled":true,"size":"1Gi","storageClassName":""}` | Persistent storage for frontend /data directory (required for APP_KEY persistence) |
+| librenms.frontend.persistence.enabled | bool | `true` | Enable persistent volume for frontend |
+| librenms.frontend.persistence.size | string | `"1Gi"` | Size of the frontend persistent volume |
+| librenms.frontend.persistence.storageClassName | string | `""` | Storage class name for frontend PVC |
 | librenms.frontend.privileged | bool | `false` |  |
 | librenms.frontend.readinessProbe.httpGet.path | string | `"/login"` | Check endpoint path |
 | librenms.frontend.readinessProbe.httpGet.port | int | `8000` | Check endpoint port |

@@ -66,6 +66,16 @@ librenms:
   frontend:
     # -- Frontend replicas
     replicas: 1
+
+    # -- Persistent storage for frontend /data directory (required for APP_KEY persistence)
+    persistence:
+      # -- Enable persistent volume for frontend
+      enabled: true
+      # -- Storage class name for frontend PVC
+      storageClassName: ""
+      # -- Size of the frontend persistent volume
+      size: 1Gi
+
     readinessProbe:
       httpGet:
         # -- Check endpoint path

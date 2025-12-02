@@ -29,6 +29,11 @@ spec:
       - name: files
         configMap:
           name: {{ .Release.Name }}-files
+      {{- if .Values.librenms.frontend.persistence.enabled }}
+      - name: data
+        persistentVolumeClaim:
+          claimName: {{ .Release.Name }}-frontend-data
+      {{- end }}
       {{- with .Values.librenms.frontend.extraVolumes }}
       {{- toYaml . | nindent 6 }}
       {{- end }}
@@ -69,6 +74,10 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
         volumeMounts:
+        {{- if .Values.librenms.frontend.persistence.enabled }}
+        - name: data
+          mountPath: /data
+        {{- end }}
         - name: files
           mountPath: /data/files
         - name: files

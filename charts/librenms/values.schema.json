@@ -248,6 +248,29 @@
               "default": 1,
               "minimum": 1
             },
+            "persistence": {
+              "type": "object",
+              "description": "Persistent storage for frontend /data directory",
+              "additionalProperties": false,
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "description": "Enable persistent volume for frontend",
+                  "default": true
+                },
+                "storageClassName": {
+                  "type": "string",
+                  "description": "Storage class name for frontend PVC",
+                  "default": ""
+                },
+                "size": {
+                  "type": "string",
+                  "description": "Size of the frontend persistent volume",
+                  "default": "1Gi",
+                  "pattern": "^[0-9]+(\\.[0-9]+)?(Ei|Pi|Ti|Gi|Mi|Ki|E|P|T|G|M|K)?$"
+                }
+              }
+            },
             "readinessProbe": {
               "type": "object",
               "properties": {
