@@ -1,11 +1,13 @@
-# LibreNMS
+{{ template "chart.header" . }}
 {{ template "chart.badgesSection" . }}
+
+{{ template "chart.description" . }}
 
 ## TL;DR
 
 ```shell
 $ helm repo add librenms https://www.librenms.org/helm-charts
-$ helm install my-release librenms/librenms --set appkey=<LibreNMS Application key>
+$ helm install my-release librenms/librenms
 ```
 
 ## Prerequisites
@@ -19,31 +21,31 @@ To install the chart with the release name `my-release` and default configuratio
 
 ```shell
 $ helm repo add librenms https://www.librenms.org/helm-charts
-$ helm install my-release librenms/librenms --set appkey=<LibreNMS Application key>
+$ helm install my-release librenms/librenms
 ```
+
+LibreNMS automatically generates a secure Laravel APP_KEY on first run and stores it in the persistent `/data` volume.
 
 ## Values
-Check the [values.yaml](./values.yaml) file for the available settings for this chart and its
-dependencies.
+Check the [values.yaml](./values.yaml) file for the available settings for this chart and its dependencies.
 
-### Required values:
-```
+### Optional: Custom APP_KEY
+
+By default, LibreNMS auto-generates the APP_KEY on first container startup. To manually set an APP_KEY (e.g., for migration from another instance):
+
+```yaml
 librenms:
-  appkey: 
+  appkey: base64:YOUR_BASE64_ENCODED_32_BYTES
 ```
 
-This should be filled with a laravel appkey, this can be generated using the laravel artisan command:
+Generate a custom APP_KEY using Laravel's artisan command:
+```bash
+php artisan key:generate --show
 ```
-php artisan key:generate
-```
-The value should look like:
-```
-librenms:
-  appkey: base64:RTMmh+i10E2RMcDxookMu47BTzJQy87hOU+k/zcuPnA=
-```
+
 ### Recommendations
 
-* `librenms.poller.replicas`: Depending on the scale of your installation, the amount of poller pods needs to b scaled up. Use the poller page in the LibreNMS interface to check for scaling issues. 
+* `librenms.poller.replicas`: Depending on the scale of your installation, the amount of poller pods needs to be scaled up. Use the poller page in the LibreNMS interface to check for scaling issues.
 
 ### Available values
 
