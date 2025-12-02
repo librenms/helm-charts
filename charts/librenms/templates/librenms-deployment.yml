@@ -26,31 +26,12 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       volumes:
-      - name: env-volume
-        emptyDir: {}
-      - name: key
-        secret:
-          secretName: {{ include "librenms.secretName" . }}
       - name: files
         configMap:
           name: {{ .Release.Name }}-files
       {{- with .Values.librenms.frontend.extraVolumes }}
       {{- toYaml . | nindent 6 }}
       {{- end }}
-      initContainers:
-        - name: init
-          image: '{{ .Values.librenms.initContainer.image.repository }}:{{ .Values.librenms.initContainer.image.tag }}'
-          command: ["/bin/sh","/data/files/init.sh"]
-          {{- if .Values.librenms.initContainer.resources }}
-          resources: {{ toYaml .Values.librenms.initContainer.resources | nindent 12 }}
-          {{- end }}
-          volumeMounts:
-          - name: env-volume
-            mountPath: /data/env-volume
-          - name: key
-            mountPath: /data/key
-          - name: files
-            mountPath: /data/files
       containers:
       - name: librenms
         image: '{{ .Values.librenms.image.repository }}:{{ .Values.librenms.image.tag }}'
@@ -74,6 +55,13 @@ spec:
             secretKeyRef:
               name: {{ .Release.Name }}-mysql
               key: mysql-password
+        {{- if or .Values.librenms.appkey .Values.librenms.existingSecret }}
+        - name: APP_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "librenms.secretName" . }}
+              key: appkey
+        {{- end }}
         {{- with .Values.librenms.extraEnvs }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -87,9 +75,6 @@ spec:
           mountPath: /data/config/custom.php
           subPath: custom.php
           readOnly: true
-        - name: env-volume
-          mountPath: /data/.env
-          subPath: env
         {{- with .Values.librenms.frontend.extraVolumeMounts }}
         {{- toYaml . | nindent 8 }}
         {{- end }}

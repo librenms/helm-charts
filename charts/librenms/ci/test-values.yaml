@@ -1,4 +1,2 @@
-librenms:
-  appkey: base64:RTMmh+i10E2RMcDxookMu47BTzJQy87hOU+k/zcuPnA=
 ingress:
   enabled: true

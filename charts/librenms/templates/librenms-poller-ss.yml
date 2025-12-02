@@ -29,9 +29,6 @@ spec:
       volumes:
       - name: env-volume
         emptyDir: {}
-      - name: key
-        secret:
-          secretName: {{ include "librenms.secretName" . }}
       - name: files
         configMap:
           name: {{ .Release.Name }}-files
@@ -48,8 +45,6 @@ spec:
           volumeMounts:
           - name: env-volume
             mountPath: /data/env-volume
-          - name: key
-            mountPath: /data/key
           - name: files
             mountPath: /data/files
       containers:
@@ -68,6 +63,13 @@ spec:
             secretKeyRef:
               name: {{ .Release.Name }}-mysql
               key: mysql-password
+        {{- if or .Values.librenms.appkey .Values.librenms.existingSecret }}
+        - name: APP_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "librenms.secretName" . }}
+              key: appkey
+        {{- end }}
         {{- with .Values.librenms.extraEnvs }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -100,6 +102,6 @@ spec:
         readinessProbe: 
           exec:
             command: ["nc", "-z", "-v", "-w1", "{{ .Release.Name }}-mysql", "3306"]
-          initialDelaySeconds: 0
-          periodSeconds: 1
+          initialDelaySeconds: 30
+          periodSeconds: 10
           failureThreshold: 3
