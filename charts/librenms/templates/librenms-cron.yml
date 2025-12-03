@@ -28,10 +28,10 @@ spec:
             - configMapRef:
                 name: {{ .Release.Name }}
             {{- with .Values.librenms.extraEnvFrom }}
-            {{- toYaml . | nindent 8 }}
+            {{- toYaml . | nindent 12 }}
             {{- end }}
             {{- with .Values.librenms.snmp_scanner.extraEnvFrom }}
-            {{- toYaml . | nindent 8 }}
+            {{- toYaml . | nindent 12 }}
             {{- end }}
             env:
             - name: DB_PASSWORD
@@ -40,10 +40,10 @@ spec:
                   name: {{ .Release.Name }}-mysql
                   key: mysql-password
             {{- with .Values.librenms.extraEnvs }}
-            {{- toYaml . | nindent 8 }}
+            {{- toYaml . | nindent 12 }}
             {{- end }}
             {{- with .Values.librenms.snmp_scanner.extraEnvs }}
-            {{- toYaml . | nindent 8 }}
+            {{- toYaml . | nindent 12 }}
             {{- end }}
             volumeMounts:
             - name: files
