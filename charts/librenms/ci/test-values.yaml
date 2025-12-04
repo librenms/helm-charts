@@ -1,4 +1,60 @@
 librenms:
   appkey: base64:RTMmh+i10E2RMcDxookMu47BTzJQy87hOU+k/zcuPnA=
+  extraEnvs:
+    - name: GLOBAL_DEBUG
+      value: "true"
+  snmp_scanner:
+    enabled: true
+    extraEnvs:
+      - name: SCAN_DEBUG
+        value: "true"
+    resources:
+      limits:
+        cpu: 200m
+        memory: 256Mi
+      requests:
+        cpu: 50m
+        memory: 128Mi
+  frontend:
+    extraEnvs:
+      - name: FRONTEND_DEBUG
+        value: "true"
+    extraVolumeMounts:
+      - name: files
+        mountPath: /data/extra/frontend.txt
+        subPath: custom.php
+    resources:
+      limits:
+        cpu: 300m
+        memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 256Mi
+  poller:
+    extraEnvs:
+      - name: POLLER_DEBUG
+        value: "true"
+    extraVolumeMounts:
+      - name: files
+        mountPath: /data/extra/poller.txt
+        subPath: custom.php
+    resources:
+      limits:
+        cpu: 300m
+        memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 256Mi
+  rrdcached:
+    extraEnvs:
+      - name: RRD_DEBUG
+        value: "true"
+    extraVolumeMounts:
+      - name: db
+        mountPath: /data/extra-db
+        subPath: extra
+      - name: journal
+        mountPath: /data/extra-journal
+        subPath: extra
 ingress:
   enabled: true
