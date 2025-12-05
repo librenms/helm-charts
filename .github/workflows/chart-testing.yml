@@ -56,3 +56,20 @@ jobs:
       - name: Run chart-testing (install & upgrades)
         if: github.event.pull_request.base.ref == 'main' 
         run: ct install --target-branch main --upgrade
+
+      - name: Debug - Check pod status (on failure)
+        if: failure() && (steps.list-changed.outputs.changed == 'true' || github.event.pull_request.base.ref == 'main')
+        run: |
+          echo "=== Pod Status ==="
+          kubectl get pods -A
+          echo -e "\n=== Events ==="
+          kubectl get events -A --sort-by='.lastTimestamp' | tail -50
+
+      - name: Debug - Pod logs (on failure)
+        if: failure() && (steps.list-changed.outputs.changed == 'true' || github.event.pull_request.base.ref == 'main')
+        run: |
+          echo "=== Logs from failed pods ==="
+          for pod in $(kubectl get pods -A -o json | jq -r '.items[] | select(.status.containerStatuses[]?.ready == false) | "\(.metadata.namespace)/\(.metadata.name)"'); do
+            echo -e "\n--- Logs for $pod ---"
+            kubectl logs -n ${pod%/*} ${pod#*/} --all-containers=true --tail=100 2>&1 || true
+          done

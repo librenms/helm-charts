@@ -71,7 +71,7 @@ Create the name of the secret to use
 {{- define "librenms.secretName" -}}
 {{- if .Values.librenms.existingSecret -}}
 {{- .Values.librenms.existingSecret -}}
-{{- else -}}
-{{- .Release.Name -}}
+{{- else if .Values.librenms.appkey -}}
+{{- .Release.Name -}}-appkey
 {{- end -}}
 {{- end -}}
