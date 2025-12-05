@@ -391,6 +391,15 @@
               "items": { "$ref": "#/definitions/envFromSource" },
               "description": "Extra envFrom sources for SNMP scanner containers",
               "default": []
+            },
+            "securityContext": {
+            "type": "object",
+            "description": "Security context for the snmp_scanner pod. Required to run as non-root user (UID 1000) since lnms refuses to run as root.",
+            "properties": {
+              "runAsNonRoot": { "type": "boolean" },
+              "runAsUser": { "type": "integer" },
+              "runAsGroup": { "type": "integer" },
+              "fsGroup": { "type": "integer" }
             }
           }
         },
