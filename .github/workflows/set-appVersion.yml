@@ -1,11 +1,11 @@
-name: Updste LibreNMS appVersion
+name: Update LibreNMS appVersion
 on: 
   push:
     branches: 
       - renovate/*
 
 jobs:
-  set-appverions:
+  set-appversion:
     runs-on: ubuntu-24.04
 
     permissions:
