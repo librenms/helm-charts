@@ -24,51 +24,52 @@ $ helm repo add librenms https://www.librenms.org/helm-charts
 $ helm install my-release librenms/librenms
 ```
 
-LibreNMS automatically generates a secure Laravel APP_KEY on first run and stores it in the persistent `/data` volume.
-
 ## Persistence
 
-By default, the frontend uses a PersistentVolumeClaim to store the `/data` directory, which contains:
-- Application configuration (including the auto-generated APP_KEY in `/data/.env`)
-- RRD database files
-- Logs
-- Custom plugins
+RRDCached uses persistent storage for time-series database files. Two separate PersistentVolumeClaims are configured:
 
-To disable persistence (not recommended for production):
-
-```yaml
-librenms:
-  frontend:
-    persistence:
-      enabled: false
-```
+- **RRD Database** (`/data/db/rrd`): Stores the actual RRD files (default: `10Gi`)
+- **Journal** (`/data/db/journal`): Stores write journal for durability (default: `1Gi`)
 
 To customize the storage class or size:
 
 ```yaml
 librenms:
-  frontend:
+  rrdcached:
     persistence:
-      storageClassName: "fast-ssd"
-      size: 5Gi
+      rrdcached:
+        size: 10Gi
+        storageClassName: "fast-ssd"
+      journal:
+        size: 1Gi
+        storageClassName: "fast-ssd"
 ```
 
 ## Values
 Check the [values.yaml](./values.yaml) file for the available settings for this chart and its dependencies.
 
-### Optional: Custom APP_KEY
 
-By default, LibreNMS auto-generates the APP_KEY on first container startup. To manually set an APP_KEY (e.g., for migration from another instance):
+### APP_KEY Handling
 
-```yaml
-librenms:
-  appkey: base64:YOUR_BASE64_ENCODED_32_BYTES
-```
+By default, LibreNMS auto-generates a secure Laravel APP_KEY on first install and persists it in a Kubernetes Secret. You only need to set `librenms.appkey` if you want to provide your own key (e.g., for migration or backup consistency).
 
-Generate a custom APP_KEY using Laravel's artisan command:
+Alternatively, you can reference an existing Kubernetes secret by setting `librenms.existingSecret` to the name of a secret containing the `appkey` key. This is useful for advanced scenarios or when sharing a key between releases.
+
+To generate a custom APP_KEY:
 ```bash
 php artisan key:generate --show
 ```
+Set the value in your `values.yaml` as:
+```yaml
+librenms:
+  appkey: base64:YOUR_BASE64_KEY
+```
+Or reference an existing secret:
+```yaml
+librenms:
+  existingSecret: my-librenms-appkey-secret
+```
+If both are left blank, the chart will generate and persist a random key automatically.
 
 ### Recommendations
 
