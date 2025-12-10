@@ -193,7 +193,8 @@
         },
         "appkey": {
           "type": "string",
-          "description": "Laravel appkey used by LibreNMS (required, format: base64:...)"
+          "description": "Laravel APP_KEY for encryption. If blank, a random 32-character key will be auto-generated. Format: base64:...",
+          "default": ""
         },
         "existingSecret": {
           "type": ["string", "boolean"],
