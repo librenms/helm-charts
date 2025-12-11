@@ -76,6 +76,27 @@ If both are left blank, the chart will generate and persist a random key automat
 
 * `librenms.poller.replicas`: Depending on the scale of your installation, the amount of poller pods needs to be scaled up. Use the poller page in the LibreNMS interface to check for scaling issues.
 
+### Security Context
+
+- Main workloads: use the `privileged` flags (global `librenms.privileged` or component overrides `librenms.frontend.privileged`, `librenms.poller.privileged`).
+- Init containers: optionally set `librenms.initContainer.securityContext` for stricter clusters.
+
+Example:
+```yaml
+librenms:
+  privileged: false     # global default
+  frontend:
+    privileged: false   # component override
+  poller:
+    privileged: false   # component override
+
+  initContainer:
+    securityContext:
+      allowPrivilegeEscalation: false
+      runAsNonRoot: true
+      runAsUser: 1000
+```
+
 ### Available values
 
 The following table lists the main configurable parameters of the librenms chart v6.1.0 and their default values. Please, refer to [values.yaml](./values.yaml) for the full list of configurable parameters.
@@ -110,10 +131,11 @@ The following table lists the main configurable parameters of the librenms chart
 | librenms.frontend.resources | object | `{}` | resources defines the computing resources (CPU and memory) that are allocated to the containers running within the Pod. |
 | librenms.image.repository | string | `"librenms/librenms"` | repository is the image repository to pull from. |
 | librenms.image.tag | string | `"25.11.0"` | tag is image tag to pull. |
-| librenms.initContainer | object | `{"image":{"repository":"busybox","tag":"1.37"},"resources":{}}` | initContainer configuration options |
+| librenms.initContainer | object | `{"image":{"repository":"busybox","tag":"1.37"},"resources":{},"securityContext":{}}` | initContainer configuration options |
 | librenms.initContainer.image.repository | string | `"busybox"` | repository is the init container image repository to pull from. |
 | librenms.initContainer.image.tag | string | `"1.37"` | tag is the init container image tag to pull. |
 | librenms.initContainer.resources | object | `{}` | resources defines the computing resources (CPU and memory) that are allocated to the init container. |
+| librenms.initContainer.securityContext | object | `{}` | securityContext defines the security settings for the init container. |
 | librenms.poller.extraEnvFrom | list | `[]` | Extra envFrom sources for poller containers |
 | librenms.poller.extraEnvs | list | `[]` | Extra environment variables for poller containers |
 | librenms.poller.extraVolumeMounts | list | `[]` | Extra volume mounts for poller containers |
