@@ -45,6 +45,10 @@ spec:
           {{- if .Values.librenms.initContainer.resources }}
           resources: {{ toYaml .Values.librenms.initContainer.resources | nindent 12 }}
           {{- end }}
+          {{- with .Values.librenms.initContainer.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           volumeMounts:
           - name: env-volume
             mountPath: /data/env-volume
