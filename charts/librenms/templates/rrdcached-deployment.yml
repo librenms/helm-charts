@@ -88,6 +88,7 @@ spec:
         livenessProbe:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-        {{- if .Values.librenms.rrdcached.resources }}
-        resources: {{ toYaml .Values.librenms.rrdcached.resources | nindent 10 }}
+        {{- with .Values.librenms.rrdcached.resources }}
+        resources:
+          {{- toYaml . | nindent 10 }}
         {{- end }}

@@ -57,8 +57,9 @@ spec:
             command:
             - '/opt/librenms/snmp-scan.py'
             - '-v'
-            {{- if .Values.librenms.snmp_scanner.resources }}
-            resources: {{ toYaml .Values.librenms.snmp_scanner.resources | nindent 14 }}
+            {{- with .Values.librenms.snmp_scanner.resources }}
+            resources:
+              {{- toYaml . | nindent 14 }}
             {{- end }}
           restartPolicy: OnFailure
 {{ end }}
