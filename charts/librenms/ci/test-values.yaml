@@ -2,6 +2,9 @@ librenms:
   extraEnvs:
     - name: GLOBAL_DEBUG
       value: "true"
+  initContainer:
+    securityContext:
+      allowPrivilegeEscalation: false
   snmp_scanner:
     enabled: true
     extraEnvs:
