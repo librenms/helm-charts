@@ -43,8 +43,9 @@ spec:
           image: '{{ .Values.librenms.initContainer.image.repository }}:{{ .Values.librenms.initContainer.image.tag }}'
           imagePullPolicy: {{ .Values.librenms.initContainer.image.pullPolicy }}
           command: ["/bin/sh","/data/files/init.sh"]
-          {{- if .Values.librenms.initContainer.resources }}
-          resources: {{ toYaml .Values.librenms.initContainer.resources | nindent 12 }}
+          {{- with .Values.librenms.initContainer.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
           {{- end }}
           {{- with .Values.librenms.initContainer.securityContext }}
           securityContext:
@@ -99,8 +100,9 @@ spec:
         {{- with .Values.librenms.poller.extraVolumeMounts }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
-        {{- if .Values.librenms.poller.resources }}
-        resources: {{ toYaml .Values.librenms.poller.resources | nindent 10 }}
+        {{- with .Values.librenms.poller.resources }}
+        resources:
+          {{- toYaml . | nindent 10 }}
         {{- end }}
         readinessProbe: 
           exec:
