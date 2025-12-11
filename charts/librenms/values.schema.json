@@ -188,6 +188,10 @@
             },
             "resources": {
               "$ref": "#/definitions/resources"
+            },
+            "securityContext": {
+              "type": "object",
+              "description": "Security context settings for init container"
             }
           }
         },

@@ -59,6 +59,11 @@ librenms:
       # limits:
       #   cpu: 50m
       #   memory: 32Mi
+    # -- securityContext defines the security settings for the init container.
+    securityContext: {}
+      # allowPrivilegeEscalation: false
+      # runAsNonRoot: true
+      # runAsUser: 1000
 
   # Frontend container configurations options
   frontend:
