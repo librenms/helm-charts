@@ -163,6 +163,11 @@
             "tag": {
               "type": "string",
               "description": "Image tag to pull"
+            },
+            "pullPolicy": {
+              "type": "string",
+              "description": "Image pull policy",
+              "enum": ["IfNotPresent", "Always", "Never"]
             }
           }
         },
@@ -183,6 +188,11 @@
                   "type": "string",
                   "description": "Init container image tag",
                   "default": "1.37"
+                },
+                "pullPolicy": {
+                  "type": "string",
+                  "description": "Image pull policy",
+                  "enum": ["IfNotPresent", "Always", "Never"]
                 }
               }
             },
