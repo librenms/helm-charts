@@ -75,6 +75,27 @@ If both are left blank, the chart will generate and persist a random key automat
 
 * `librenms.poller.replicas`: Depending on the scale of your installation, the amount of poller pods needs to be scaled up. Use the poller page in the LibreNMS interface to check for scaling issues.
 
+### Security Context
+
+- Main workloads: use the `privileged` flags (global `librenms.privileged` or component overrides `librenms.frontend.privileged`, `librenms.poller.privileged`).
+- Init containers: optionally set `librenms.initContainer.securityContext` for stricter clusters.
+
+Example:
+```yaml
+librenms:
+  privileged: false     # global default
+  frontend:
+    privileged: false   # component override
+  poller:
+    privileged: false   # component override
+
+  initContainer:
+    securityContext:
+      allowPrivilegeEscalation: false
+      runAsNonRoot: true
+      runAsUser: 1000
+```
+
 ### Available values
 
 The following table lists the main configurable parameters of the {{ template "chart.name" . }} chart v{{ template "chart.version" . }} and their default values. Please, refer to [values.yaml](./values.yaml) for the full list of configurable parameters.

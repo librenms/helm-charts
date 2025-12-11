@@ -1,6 +1,6 @@
 # librenms
 
-![Version: 6.1.0](https://img.shields.io/badge/Version-6.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 25.11.0](https://img.shields.io/badge/AppVersion-25.11.0-informational?style=flat-square) 
+![Version: 7.0.0](https://img.shields.io/badge/Version-7.0.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 25.11.0](https://img.shields.io/badge/AppVersion-25.11.0-informational?style=flat-square) 
 
 LibreNMS is an autodiscovering PHP/MySQL-based network monitoring system.
 
@@ -76,9 +76,30 @@ If both are left blank, the chart will generate and persist a random key automat
 
 * `librenms.poller.replicas`: Depending on the scale of your installation, the amount of poller pods needs to be scaled up. Use the poller page in the LibreNMS interface to check for scaling issues.
 
+### Security Context
+
+- Main workloads: use the `privileged` flags (global `librenms.privileged` or component overrides `librenms.frontend.privileged`, `librenms.poller.privileged`).
+- Init containers: optionally set `librenms.initContainer.securityContext` for stricter clusters.
+
+Example:
+```yaml
+librenms:
+  privileged: false     # global default
+  frontend:
+    privileged: false   # component override
+  poller:
+    privileged: false   # component override
+
+  initContainer:
+    securityContext:
+      allowPrivilegeEscalation: false
+      runAsNonRoot: true
+      runAsUser: 1000
+```
+
 ### Available values
 
-The following table lists the main configurable parameters of the librenms chart v6.1.0 and their default values. Please, refer to [values.yaml](./values.yaml) for the full list of configurable parameters.
+The following table lists the main configurable parameters of the librenms chart v7.0.0 and their default values. Please, refer to [values.yaml](./values.yaml) for the full list of configurable parameters.
 
 ## Values
 
@@ -89,7 +110,7 @@ The following table lists the main configurable parameters of the librenms chart
 | ingress.annotations | object | `{}` | Ingress annotations |
 | ingress.className | string | `""` | Ingress class name |
 | ingress.enabled | bool | `false` | Enable or disable ingress |
-| ingress.hosts | list | `[{"host":"chart-example.local","paths":[{"path":"/","pathType":"ImplementationSpecific"}]}]` | Ingress ingress rules |
+| ingress.hosts | list | `[{"host":"chart-example.local","paths":[{"path":"/","pathType":"ImplementationSpecific"}]}]` | Ingress rules |
 | librenms.appkey | string | `""` | Laravel APP_KEY for encryption. If blank, a random 32-character key will be generated and persisted in a Kubernetes Secret. You may also provide a base64-encoded key (prefix with 'base64:'). Example: appkey: "base64:QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm==" |
 | librenms.configuration | string | `"$config['distributed_poller_group']          = '0';\n$config['distributed_poller']                = true;\n"` | Custom configuration options for LibreNMS. For more information on options in this file check the following link: https://docs.librenms.org/Support/Configuration/ |
 | librenms.existingSecret | bool | `false` | Existing secret name to use for appkey Must have the key 'appkey' as above |
@@ -108,12 +129,15 @@ The following table lists the main configurable parameters of the librenms chart
 | librenms.frontend.readinessProbe.timeoutSeconds | int | `10` |  |
 | librenms.frontend.replicas | int | `1` | Frontend replicas |
 | librenms.frontend.resources | object | `{}` | resources defines the computing resources (CPU and memory) that are allocated to the containers running within the Pod. |
+| librenms.image.pullPolicy | string | `"Always"` | pullPolicy is the Kubernetes image pull policy for the main LibreNMS image. |
 | librenms.image.repository | string | `"librenms/librenms"` | repository is the image repository to pull from. |
 | librenms.image.tag | string | `"25.11.0"` | tag is image tag to pull. |
-| librenms.initContainer | object | `{"image":{"repository":"busybox","tag":"1.37"},"resources":{}}` | initContainer configuration options |
+| librenms.initContainer | object | `{"image":{"pullPolicy":"Always","repository":"busybox","tag":"1.37"},"resources":{},"securityContext":{}}` | initContainer configuration options |
+| librenms.initContainer.image.pullPolicy | string | `"Always"` | pullPolicy is the Kubernetes image pull policy for the init container image. |
 | librenms.initContainer.image.repository | string | `"busybox"` | repository is the init container image repository to pull from. |
 | librenms.initContainer.image.tag | string | `"1.37"` | tag is the init container image tag to pull. |
 | librenms.initContainer.resources | object | `{}` | resources defines the computing resources (CPU and memory) that are allocated to the init container. |
+| librenms.initContainer.securityContext | object | `{}` | securityContext defines the security settings for the init container. |
 | librenms.poller.extraEnvFrom | list | `[]` | Extra envFrom sources for poller containers |
 | librenms.poller.extraEnvs | list | `[]` | Extra environment variables for poller containers |
 | librenms.poller.extraVolumeMounts | list | `[]` | Extra volume mounts for poller containers |
@@ -123,12 +147,13 @@ The following table lists the main configurable parameters of the librenms chart
 | librenms.poller.replicas | int | `2` | Poller replicas |
 | librenms.poller.resources | object | `{}` | resources defines the computing resources (CPU and memory) that are allocated to the containers running within the Pod. |
 | librenms.privileged | bool | `false` |  |
-| librenms.rrdcached | object | `{"envs":[{"name":"WRITE_JITTER","value":"1800"},{"name":"WRITE_TIMEOUT","value":"1800"}],"extraEnvFrom":[],"extraEnvs":[],"extraVolumeMounts":[],"extraVolumes":[],"image":{"repository":"crazymax/rrdcached","tag":"1.8.0"},"livenessProbe":{"initialDelaySeconds":15,"periodSeconds":20,"tcpSocket":{"port":42217}},"nodeSelector":{},"persistence":{"enabled":true,"journal":{"size":"1Gi","storageClassName":""},"rrdcached":{"size":"10Gi","storageClassName":""}},"readinessProbe":{"initialDelaySeconds":5,"periodSeconds":10,"tcpSocket":{"port":42217}},"resources":{}}` | RRD cached is the tool that allows for distributed polling and is mandatory in this LibreNMS helm chart. See the rrdcached documentation for more information: https://oss.oetiker.ch/rrdtool/doc/rrdcached.en.html |
+| librenms.rrdcached | object | `{"envs":[{"name":"WRITE_JITTER","value":"1800"},{"name":"WRITE_TIMEOUT","value":"1800"}],"extraEnvFrom":[],"extraEnvs":[],"extraVolumeMounts":[],"extraVolumes":[],"image":{"pullPolicy":"Always","repository":"crazymax/rrdcached","tag":"1.8.0"},"livenessProbe":{"initialDelaySeconds":15,"periodSeconds":20,"tcpSocket":{"port":42217}},"nodeSelector":{},"persistence":{"enabled":true,"journal":{"size":"1Gi","storageClassName":""},"rrdcached":{"size":"10Gi","storageClassName":""}},"readinessProbe":{"initialDelaySeconds":5,"periodSeconds":10,"tcpSocket":{"port":42217}},"resources":{}}` | RRD cached is the tool that allows for distributed polling and is mandatory in this LibreNMS helm chart. See the rrdcached documentation for more information: https://oss.oetiker.ch/rrdtool/doc/rrdcached.en.html |
 | librenms.rrdcached.envs[0] | object | `{"name":"WRITE_JITTER","value":"1800"}` | env variables RRD Cached |
 | librenms.rrdcached.extraEnvFrom | list | `[]` | Extra envFrom sources for RRDCached containers |
 | librenms.rrdcached.extraEnvs | list | `[]` | Extra environment variables for RRDCached containers |
 | librenms.rrdcached.extraVolumeMounts | list | `[]` | Extra volume mounts for rrdcached containers |
 | librenms.rrdcached.extraVolumes | list | `[]` | Extra volumes for rrdcached pods |
+| librenms.rrdcached.image.pullPolicy | string | `"Always"` | pullPolicy is the Kubernetes image pull policy for the RRDCached image. |
 | librenms.rrdcached.image.repository | string | `"crazymax/rrdcached"` | repository is the image repository to pull from. |
 | librenms.rrdcached.image.tag | string | `"1.8.0"` | tag is image tag to pull. |
 | librenms.rrdcached.livenessProbe.tcpSocket | object | `{"port":42217}` | RRD cached liveness probe |
@@ -141,7 +166,7 @@ The following table lists the main configurable parameters of the librenms chart
 | librenms.rrdcached.readinessProbe.tcpSocket | object | `{"port":42217}` | RRD cached readiness probe |
 | librenms.rrdcached.resources | object | `{}` | resources defines the computing resources (CPU and memory) that are allocated to the containers running within the Pod. |
 | librenms.snmp_scanner | object | `{"cron":"15 * * * *","enabled":false,"extraEnvFrom":[],"extraEnvs":[],"nodeSelector":{},"resources":{},"securityContext":{"fsGroup":1000,"runAsGroup":1000,"runAsNonRoot":true,"runAsUser":1000}}` | SNMP network discovery scanner cron job. This job is optional and only use when having snmp network discovery enabled. For this to work either set the 'nets' configuration in the custom config on in the admin interface See the following link for more information: https://docs.librenms.org/Extensions/Auto-Discovery/ |
-| librenms.snmp_scanner.cron | string | `"15 * * * *"` | SNMP scanner cornjob syntac interval |
+| librenms.snmp_scanner.cron | string | `"15 * * * *"` | SNMP scanner cronjob syntax interval |
 | librenms.snmp_scanner.enabled | bool | `false` | SNMP scanner enabled |
 | librenms.snmp_scanner.extraEnvFrom | list | `[]` | Extra envFrom sources for SNMP scanner containers |
 | librenms.snmp_scanner.extraEnvs | list | `[]` | Extra environment variables for SNMP scanner containers |
