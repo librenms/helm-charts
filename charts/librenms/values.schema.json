@@ -89,9 +89,13 @@
             "memory": {
               "type": "string",
               "description": "Memory request"
+            },
+            "ephemeral-storage": {
+              "type": "string",
+              "description": "Ephemeral storage request"
             }
           },
-          "additionalProperties": false
+          "additionalProperties": true
         },
         "limits": {
           "type": "object",
@@ -103,9 +107,13 @@
             "memory": {
               "type": "string",
               "description": "Memory limit"
+            },
+            "ephemeral-storage": {
+              "type": "string",
+              "description": "Ephemeral storage limit"
             }
           },
-          "additionalProperties": false
+          "additionalProperties": true
         }
       },
       "additionalProperties": false
@@ -153,7 +161,7 @@
         "image": {
           "type": "object",
           "required": ["repository", "tag"],
-          "additionalProperties": false,
+          "additionalProperties": true,
           "properties": {
             "repository": {
               "type": "string",
@@ -173,11 +181,11 @@
         },
         "initContainer": {
           "type": "object",
-          "additionalProperties": false,
+          "additionalProperties": true,
           "properties": {
             "image": {
               "type": "object",
-              "additionalProperties": false,
+              "additionalProperties": true,
               "properties": {
                 "repository": {
                   "type": "string",
@@ -283,8 +291,10 @@
               }
             },
             "resources": {
-              "type": "object",
-              "description": "Computing resources for frontend containers"
+              "allOf": [
+                { "$ref": "#/definitions/resources" },
+                { "description": "Computing resources for frontend containers" }
+              ]
             },
             "privileged": {
               "type": "boolean",
@@ -292,8 +302,10 @@
               "default": false
             },
             "nodeSelector": {
-              "type": "object",
-              "description": "Node selector for frontend pods"
+              "allOf": [
+                { "$ref": "#/definitions/nodeSelector" },
+                { "description": "Node selector for frontend pods" }
+              ]
             },
             "extraVolumes": {
               "type": "array",
@@ -334,8 +346,10 @@
               "minimum": 1
             },
             "resources": {
-              "type": "object",
-              "description": "Computing resources for poller containers"
+              "allOf": [
+                { "$ref": "#/definitions/resources" },
+                { "description": "Computing resources for poller containers" }
+              ]
             },
             "privileged": {
               "type": "boolean",
@@ -343,8 +357,10 @@
               "default": false
             },
             "nodeSelector": {
-              "type": "object",
-              "description": "Node selector for poller pods"
+              "allOf": [
+                { "$ref": "#/definitions/nodeSelector" },
+                { "description": "Node selector for poller pods" }
+              ]
             },
             "extraVolumes": {
               "type": "array",
@@ -394,8 +410,10 @@
               "additionalProperties": true
             },
             "resources": {
-              "type": "object",
-              "description": "Computing resources for SNMP scanner containers"
+              "allOf": [
+                { "$ref": "#/definitions/resources" },
+                { "description": "Computing resources for SNMP scanner containers" }
+              ]
             },
             "nodeSelector": {
               "$ref": "#/definitions/nodeSelector"
@@ -420,6 +438,7 @@
           "properties": {
             "image": {
               "type": "object",
+              "additionalProperties": true,
               "properties": {
                 "repository": {
                   "type": "string",
@@ -434,6 +453,7 @@
             },
             "persistence": {
               "type": "object",
+              "additionalProperties": true,
               "properties": {
                 "enabled": {
                   "type": "boolean",
@@ -471,11 +491,14 @@
               }
             },
             "resources": {
-              "type": "object",
-              "description": "Computing resources for RRDCached containers"
+              "allOf": [
+                { "$ref": "#/definitions/resources" },
+                { "description": "Computing resources for RRDCached containers" }
+              ]
             },
             "readinessProbe": {
               "type": "object",
+              "additionalProperties": true,
               "properties": {
                 "tcpSocket": {
                   "type": "object",
@@ -495,6 +518,7 @@
             },
             "livenessProbe": {
               "type": "object",
+              "additionalProperties": true,
               "properties": {
                 "tcpSocket": {
                   "type": "object",
@@ -515,16 +539,7 @@
             "envs": {
               "type": "array",
               "items": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string"
-                  },
-                  "value": {
-                    "type": "string"
-                  }
-                },
-                "required": ["name", "value"]
+                "$ref": "#/definitions/envVar"
               },
               "description": "Environment variables for RRDCached"
             },
@@ -541,8 +556,10 @@
               "default": []
             },
             "nodeSelector": {
-              "type": "object",
-              "description": "Node selector for rrdcached pods"
+              "allOf": [
+                { "$ref": "#/definitions/nodeSelector" },
+                { "description": "Node selector for rrdcached pods" }
+              ]
             },
             "extraVolumes": {
               "type": "array",
