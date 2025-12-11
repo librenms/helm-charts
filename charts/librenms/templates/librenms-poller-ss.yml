@@ -41,6 +41,7 @@ spec:
       initContainers:
         - name: init
           image: '{{ .Values.librenms.initContainer.image.repository }}:{{ .Values.librenms.initContainer.image.tag }}'
+          imagePullPolicy: {{ .Values.librenms.initContainer.image.pullPolicy }}
           command: ["/bin/sh","/data/files/init.sh"]
           {{- if .Values.librenms.initContainer.resources }}
           resources: {{ toYaml .Values.librenms.initContainer.resources | nindent 12 }}
@@ -59,7 +60,7 @@ spec:
       containers:
       - name: poller
         image: '{{ .Values.librenms.image.repository }}:{{ .Values.librenms.image.tag }}'
-        imagePullPolicy: Always
+        imagePullPolicy: {{ .Values.librenms.image.pullPolicy }}
         {{- if or ((.Values.librenms).privileged) (((.Values.librenms).poller).privileged) }}
         securityContext:
           privileged: true
