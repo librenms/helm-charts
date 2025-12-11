@@ -5,6 +5,15 @@ librenms:
   initContainer:
     securityContext:
       allowPrivilegeEscalation: false
+    resources:
+      limits:
+        cpu: 100m
+        memory: 128Mi
+        ephemeral-storage: 100Mi
+      requests:
+        cpu: 10m
+        memory: 32Mi
+        ephemeral-storage: 50Mi
   snmp_scanner:
     enabled: true
     extraEnvs:
@@ -14,9 +23,11 @@ librenms:
       limits:
         cpu: 200m
         memory: 256Mi
+        ephemeral-storage: 200Mi
       requests:
         cpu: 50m
         memory: 128Mi
+        ephemeral-storage: 100Mi
   frontend:
     extraEnvs:
       - name: FRONTEND_DEBUG
@@ -29,9 +40,11 @@ librenms:
       limits:
         cpu: 300m
         memory: 512Mi
+        ephemeral-storage: 500Mi
       requests:
         cpu: 100m
         memory: 256Mi
+        ephemeral-storage: 250Mi
   poller:
     extraEnvs:
       - name: POLLER_DEBUG
@@ -44,9 +57,11 @@ librenms:
       limits:
         cpu: 300m
         memory: 512Mi
+        ephemeral-storage: 500Mi
       requests:
         cpu: 100m
         memory: 256Mi
+        ephemeral-storage: 250Mi
   rrdcached:
     extraEnvs:
       - name: RRD_DEBUG
@@ -58,5 +73,14 @@ librenms:
       - name: journal
         mountPath: /data/extra-journal
         subPath: extra
+    resources:
+      limits:
+        cpu: 200m
+        memory: 512Mi
+        ephemeral-storage: 1Gi
+      requests:
+        cpu: 100m
+        memory: 256Mi
+        ephemeral-storage: 500Mi
 ingress:
   enabled: true
