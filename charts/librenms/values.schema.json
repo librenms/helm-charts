@@ -464,7 +464,7 @@
                     },
                     "storageClassName": {
                       "type": "string",
-                      "description": "RRDCached RRD storage storage class name"
+                      "description": "RRDCached RRD storage class name"
                     }
                   }
                 }
