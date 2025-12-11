@@ -41,7 +41,7 @@ spec:
       containers:
       - name: rrdcached
         image: '{{ .Values.librenms.rrdcached.image.repository }}:{{ .Values.librenms.rrdcached.image.tag }}'
-        imagePullPolicy: Always
+        imagePullPolicy: {{ .Values.librenms.rrdcached.image.pullPolicy }}
         {{- if .Values.librenms.rrdcached.persistence.enabled }}
         volumeMounts:
         - name: db
