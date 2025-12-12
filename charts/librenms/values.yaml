@@ -13,6 +13,8 @@ librenms:
     repository: librenms/librenms
     # -- tag is image tag to pull.
     tag: 25.11.0
+    # -- pullPolicy is the Kubernetes image pull policy for the main LibreNMS image.
+    pullPolicy: Always
 
   # -- Laravel APP_KEY for encryption. If blank, a random 32-character key will be generated and persisted in a Kubernetes Secret.
   # You may also provide a base64-encoded key (prefix with 'base64:').
@@ -50,6 +52,8 @@ librenms:
       repository: busybox
       # -- tag is the init container image tag to pull.
       tag: "1.37"
+      # -- pullPolicy is the Kubernetes image pull policy for the init container image.
+      pullPolicy: Always
     # -- resources defines the computing resources (CPU and memory)
     # that are allocated to the init container.
     resources: {}
@@ -59,6 +63,11 @@ librenms:
       # limits:
       #   cpu: 50m
       #   memory: 32Mi
+    # -- securityContext defines the security settings for the init container.
+    securityContext: {}
+      # allowPrivilegeEscalation: false
+      # runAsNonRoot: true
+      # runAsUser: 1000
 
   # Frontend container configurations options
   frontend:
@@ -141,7 +150,7 @@ librenms:
   snmp_scanner:
     # -- SNMP scanner enabled
     enabled: false
-    # -- SNMP scanner cornjob syntac interval
+    # -- SNMP scanner cronjob syntax interval
     cron: 15 * * * *
     # -- securityContext defines the security settings for the SNMP scanner pod.
     # These settings are required for the SNMP scanner to run properly.
@@ -176,6 +185,8 @@ librenms:
       repository: crazymax/rrdcached
       # -- tag is image tag to pull.
       tag: 1.8.0
+      # -- pullPolicy is the Kubernetes image pull policy for the RRDCached image.
+      pullPolicy: Always
     persistence:
       # -- RRDCached persistent volume enabled
       enabled: true
@@ -239,7 +250,7 @@ ingress:
   annotations: {}
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
-  # -- Ingress ingress rules
+  # -- Ingress rules
   hosts:
     - host: chart-example.local
       paths:

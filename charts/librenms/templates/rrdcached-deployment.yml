@@ -41,7 +41,7 @@ spec:
       containers:
       - name: rrdcached
         image: '{{ .Values.librenms.rrdcached.image.repository }}:{{ .Values.librenms.rrdcached.image.tag }}'
-        imagePullPolicy: Always
+        imagePullPolicy: {{ .Values.librenms.rrdcached.image.pullPolicy }}
         {{- if .Values.librenms.rrdcached.persistence.enabled }}
         volumeMounts:
         - name: db
@@ -88,6 +88,7 @@ spec:
         livenessProbe:
           {{- toYaml . | nindent 10 }}
         {{- end }}
-        {{- if .Values.librenms.rrdcached.resources }}
-        resources: {{ toYaml .Values.librenms.rrdcached.resources | nindent 10 }}
+        {{- with .Values.librenms.rrdcached.resources }}
+        resources:
+          {{- toYaml . | nindent 10 }}
         {{- end }}
