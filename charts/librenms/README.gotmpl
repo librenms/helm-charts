@@ -56,7 +56,7 @@ librenms:
       timeout: 60                        # database connection timeout in seconds
 ```
 
-**Note:** You can specify the port in either the `host` field (`mysql.example.com:3306`) OR the `port` field, but not both required.
+**Note:** You can specify the port in the `host` field (e.g., `mysql.example.com:3306`) or separately in the `port` field. If the `host` field contains a port, it takes precedence over the `port` field.
 
 **Example with existing Kubernetes secret:**
 
