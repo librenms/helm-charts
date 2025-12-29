@@ -35,6 +35,38 @@ librenms:
     $config['distributed_poller_group']          = '0';
     $config['distributed_poller']                = true;
 
+  # -- Database configuration for LibreNMS
+  database:
+    # -- Set to "internal" to use the bundled MySQL dependency (default behavior).
+    # -- Set to "external" to use an existing MySQL/MariaDB instance.
+    mode: internal
+
+    # -- External database configuration (only used when mode=external)
+    external:
+      # -- DB host (DNS name or IP). Example: "mysql.example.svc.cluster.local" or "10.0.0.12"
+      host: ""
+      # -- DB port (MySQL default 3306)
+      port: 3306
+      # -- Database name
+      name: "librenms"
+      # -- Database username
+      user: "librenms"
+
+      # -- Where to get the DB password:
+      # Option A: reference an existing Secret (recommended for production)
+      existingSecret:
+        # -- Name of the secret containing the database password
+        name: ""
+        # -- Key in the secret that contains the database password
+        key: "mysql-password"
+
+      # Option B: literal password (not recommended for production, but useful for testing)
+      # -- Database password (plain text). Use existingSecret instead for production.
+      password: ""
+
+      # -- Optional: DB connection timeout in seconds
+      timeout: 60
+
   # -- Extra environment variables applied to all LibreNMS components
   extraEnvs: []
 
