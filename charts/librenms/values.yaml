@@ -43,9 +43,11 @@ librenms:
 
     # -- External database configuration (only used when mode=external)
     external:
-      # -- DB host (DNS name or IP). Example: "mysql.example.svc.cluster.local" or "10.0.0.12"
+      # -- DB host (DNS name or IP). Supports both "hostname" or "hostname:port" formats.
+      # If port is included in the host field, it takes precedence over the separate port field.
+      # Example: "mysql.example.svc.cluster.local", "10.0.0.12", or "mysql.example.com:3307"
       host: ""
-      # -- DB port (MySQL default 3306)
+      # -- DB port (MySQL default 3306). Optional if port is included in the host field.
       port: 3306
       # -- Database name
       name: "librenms"

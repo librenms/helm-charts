@@ -250,11 +250,11 @@
               "properties": {
                 "host": {
                   "type": "string",
-                  "description": "Database host (DNS name or IP address)"
+                  "description": "Database host (DNS name or IP address). Supports both 'hostname' or 'hostname:port' formats. If port is included in the host field, it takes precedence over the separate port field."
                 },
                 "port": {
                   "type": "integer",
-                  "description": "Database port",
+                  "description": "Database port. Optional if port is included in the host field.",
                   "default": 3306
                 },
                 "name": {
