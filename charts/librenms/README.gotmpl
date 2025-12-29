@@ -24,6 +24,71 @@ $ helm repo add librenms https://www.librenms.org/helm-charts
 $ helm install my-release librenms/librenms
 ```
 
+## Database Configuration
+
+### Internal Database (Default)
+
+By default, the chart deploys MySQL as part of the release:
+
+```yaml
+librenms:
+  database:
+    mode: internal  # Uses the bundled MySQL via Bitnami dependency
+```
+
+### External Database
+
+To use an external MySQL or MariaDB database, set the database mode to `external` and provide connection details:
+
+```yaml
+librenms:
+  database:
+    mode: external
+    external:
+      host: mysql.example.com:3306      # hostname:port (port is optional, defaults to 3306)
+      port: 3306                         # (optional if included in host)
+      name: librenms
+      user: librenms
+      password: "your-password"          # or use existingSecret
+      # existingSecret:
+      #   name: my-db-secret             # reference to existing K8s secret
+      #   key: mysql-password            # key in the secret containing the password
+      timeout: 60                        # database connection timeout in seconds
+```
+
+**Note:** You can specify the port in either the `host` field (`mysql.example.com:3306`) OR the `port` field, but not both required.
+
+**Example with existing Kubernetes secret:**
+
+```bash
+# Create a secret with the database password
+kubectl create secret generic db-credentials \
+  --from-literal=mysql-password=your-password \
+  -n default
+```
+
+Then in your values:
+
+```yaml
+librenms:
+  database:
+    mode: external
+    external:
+      host: mysql.example.com
+      name: librenms
+      user: librenms
+      existingSecret:
+        name: db-credentials           # K8s secret name
+        key: mysql-password            # key in the secret
+      timeout: 60
+```
+
+**Pre-requisites for external database:**
+- MySQL 5.7+ or MariaDB 10.2+
+- Database user with CREATE, ALTER, DROP, INSERT, UPDATE, DELETE privileges
+- Network connectivity from cluster to database host
+- Pre-created database (ensure `CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`)
+
 ## Persistence
 
 RRDCached uses persistent storage for time-series database files. Two separate PersistentVolumeClaims are configured:
