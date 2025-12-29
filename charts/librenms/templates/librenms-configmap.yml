@@ -5,16 +5,17 @@ metadata:
   name: {{ .Release.Name }}
 data:
   TZ: {{ .Values.librenms.timezone}}
-  DB_TIMEOUT: "60"
+  DB_TIMEOUT: {{ include "librenms.dbTimeout" . | quote }}
   REDIS_HOST: {{ .Release.Name }}-redis-master
   REDIS_PORT: "6379"
   REDIS_DB: "0"
   RRDCACHED_SERVER: "{{ .Release.Name }}-rrdcached:42217"
   CACHE_DRIVER: redis
   SESSION_DRIVER: redis
-  DB_HOST: {{ .Release.Name }}-mysql
-  DB_USERNAME: {{.Values.mysql.auth.username}}
-  DB_DATABASE: {{.Values.mysql.auth.database}}
+  DB_HOST: {{ include "librenms.dbHost" . }}
+  DB_PORT: {{ include "librenms.dbPort" . | quote }}
+  DB_USERNAME: {{ include "librenms.dbUser" . }}
+  DB_DATABASE: {{ include "librenms.dbName" . }}
 --- 
 kind: ConfigMap
 apiVersion: v1
