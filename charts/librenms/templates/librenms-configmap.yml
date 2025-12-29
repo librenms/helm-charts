@@ -4,7 +4,7 @@ apiVersion: v1
 metadata:
   name: {{ .Release.Name }}
 data:
-  TZ: {{ .Values.librenms.timezone}}
+  TZ: {{ .Values.librenms.timezone }}
   DB_TIMEOUT: {{ include "librenms.dbTimeout" . | quote }}
   REDIS_HOST: {{ .Release.Name }}-redis-master
   REDIS_PORT: "6379"
