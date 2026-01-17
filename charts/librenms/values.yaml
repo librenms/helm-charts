@@ -12,7 +12,7 @@ librenms:
     # -- repository is the image repository to pull from.
     repository: librenms/librenms
     # -- tag is image tag to pull.
-    tag: 25.12.0
+    tag: 26.1.1
     # -- pullPolicy is the Kubernetes image pull policy for the main LibreNMS image.
     pullPolicy: Always
 
