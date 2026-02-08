@@ -232,6 +232,70 @@
           "type": "string",
           "description": "Custom configuration options for LibreNMS (PHP code)"
         },
+        "database": {
+          "type": "object",
+          "description": "Database configuration for LibreNMS",
+          "additionalProperties": false,
+          "properties": {
+            "mode": {
+              "type": "string",
+              "description": "Database mode: 'internal' for bundled MySQL or 'external' for existing database",
+              "enum": ["internal", "external"],
+              "default": "internal"
+            },
+            "external": {
+              "type": "object",
+              "description": "External database configuration (used when mode=external)",
+              "additionalProperties": false,
+              "properties": {
+                "host": {
+                  "type": "string",
+                  "description": "Database host (DNS name or IP address). Supports both 'hostname' or 'hostname:port' formats. If port is included in the host field, it takes precedence over the separate port field."
+                },
+                "port": {
+                  "type": "integer",
+                  "description": "Database port. Optional if port is included in the host field.",
+                  "default": 3306
+                },
+                "name": {
+                  "type": "string",
+                  "description": "Database name",
+                  "default": "librenms"
+                },
+                "user": {
+                  "type": "string",
+                  "description": "Database username",
+                  "default": "librenms"
+                },
+                "existingSecret": {
+                  "type": "object",
+                  "description": "Reference to existing secret containing database password",
+                  "additionalProperties": false,
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "description": "Name of the secret"
+                    },
+                    "key": {
+                      "type": "string",
+                      "description": "Key in the secret containing the password",
+                      "default": "mysql-password"
+                    }
+                  }
+                },
+                "password": {
+                  "type": "string",
+                  "description": "Database password (plain text, not recommended for production)"
+                },
+                "timeout": {
+                  "type": "integer",
+                  "description": "Database connection timeout in seconds",
+                  "default": 60
+                }
+              }
+            }
+          }
+        },
         "extraEnvs": {
           "type": "array",
           "items": {
