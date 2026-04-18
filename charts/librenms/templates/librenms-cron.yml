@@ -39,10 +39,7 @@ spec:
             {{- end }}
             env:
             - name: DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Release.Name }}-mysql
-                  key: mysql-password
+              {{- include "librenms.dbPasswordEnv" . | nindent 14 }}
             {{- with .Values.librenms.extraEnvs }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
