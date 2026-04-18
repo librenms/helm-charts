@@ -2,7 +2,7 @@ apiVersion: v2
 name: librenms
 description: LibreNMS is an autodiscovering PHP/MySQL-based network monitoring system.
 type: application
-version: 7.3.0
+version: 7.4.0
 appVersion: "26.3.1"
 maintainers:
   - name: jacobw

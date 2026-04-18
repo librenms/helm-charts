@@ -274,6 +274,35 @@ mysql:
     username: librenms
     database: librenms
 
+# -- External database configuration. Used when mysql.enabled is false.
+# When mysql.enabled is true (default), the bundled MySQL subchart is used and these values are ignored.
+externalDatabase:
+  # -- DB host (DNS name or IP). Supports both "hostname" or "hostname:port" formats.
+  # If port is included in the host field, it takes precedence over the separate port field.
+  # Example: "mysql.example.svc.cluster.local", "10.0.0.12", or "mysql.example.com:3307"
+  host: ""
+  # -- DB port (MySQL default 3306). Optional if port is included in the host field.
+  port: 3306
+  # -- Database name
+  name: "librenms"
+  # -- Database username
+  user: "librenms"
+
+  # -- Where to get the DB password:
+  # Option A: reference an existing Secret (recommended for production)
+  existingSecret:
+    # -- Name of the secret containing the database password
+    name: ""
+    # -- Key in the secret that contains the database password
+    key: "mysql-password"
+
+  # Option B: literal password (not recommended for production, but useful for testing)
+  # -- Database password (plain text). Use existingSecret instead for production.
+  password: ""
+
+  # -- Optional: DB connection timeout in seconds
+  timeout: 60
+
 # -- Configuration for redis dependency chart by Bitnami. See their chart for
 # more information: https://github.com/bitnami/charts/tree/master/bitnami/redis
 redis:

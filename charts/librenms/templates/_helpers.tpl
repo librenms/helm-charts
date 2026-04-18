@@ -75,3 +75,112 @@ Create the name of the secret to use
 {{- .Release.Name -}}
 {{- end -}}
 {{- end -}}
+
+{{/*
+Database host - returns the database host based on mode (without port)
+*/}}
+{{- define "librenms.dbHost" -}}
+{{- if not .Values.mysql.enabled -}}
+{{- $host := required "externalDatabase.host is required when mysql.enabled is false" .Values.externalDatabase.host -}}
+{{- if contains ":" $host -}}
+{{- $host | splitList ":" | first -}}
+{{- else -}}
+{{- $host -}}
+{{- end -}}
+{{- else -}}
+{{- printf "%s-mysql" .Release.Name -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Database port - returns the database port based on mode
+Extracts port from host string if present (host:port), otherwise uses explicit port field
+*/}}
+{{- define "librenms.dbPort" -}}
+{{- if not .Values.mysql.enabled -}}
+{{- $host := required "externalDatabase.host is required when mysql.enabled is false" .Values.externalDatabase.host -}}
+{{- if contains ":" $host -}}
+{{- $host | splitList ":" | last -}}
+{{- else -}}
+{{- .Values.externalDatabase.port | default 3306 -}}
+{{- end -}}
+{{- else -}}
+{{- print "3306" -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Database name - returns the database name based on mode
+*/}}
+{{- define "librenms.dbName" -}}
+{{- if not .Values.mysql.enabled -}}
+{{- required "externalDatabase.name is required when mysql.enabled is false" .Values.externalDatabase.name -}}
+{{- else -}}
+{{- .Values.mysql.auth.database -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Database user - returns the database username based on mode
+*/}}
+{{- define "librenms.dbUser" -}}
+{{- if not .Values.mysql.enabled -}}
+{{- required "externalDatabase.user is required when mysql.enabled is false" .Values.externalDatabase.user -}}
+{{- else -}}
+{{- .Values.mysql.auth.username -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Database timeout - returns the database timeout based on mode
+*/}}
+{{- define "librenms.dbTimeout" -}}
+{{- if not .Values.mysql.enabled -}}
+{{- .Values.externalDatabase.timeout | default 60 -}}
+{{- else -}}
+{{- print "60" -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Database password environment variable - returns the env var definition for DB_PASSWORD
+*/}}
+{{- define "librenms.dbPasswordEnv" -}}
+{{- if not .Values.mysql.enabled -}}
+{{- if .Values.externalDatabase.existingSecret.name -}}
+valueFrom:
+  secretKeyRef:
+    name: {{ .Values.externalDatabase.existingSecret.name }}
+    key: {{ .Values.externalDatabase.existingSecret.key | default "mysql-password" }}
+{{- else if .Values.externalDatabase.password -}}
+value: {{ .Values.externalDatabase.password | quote }}
+{{- else -}}
+{{- fail "Either externalDatabase.existingSecret.name or externalDatabase.password must be set when mysql.enabled is false" -}}
+{{- end -}}
+{{- else -}}
+valueFrom:
+  secretKeyRef:
+    name: {{ .Release.Name }}-mysql
+    key: mysql-password
+{{- end -}}
+{{- end -}}
+
+{{/*
+Validate external database configuration
+*/}}
+{{- define "librenms.validateExternalDB" -}}
+{{- if not .Values.mysql.enabled -}}
+{{- if not .Values.externalDatabase.host -}}
+{{- fail "externalDatabase.host is required when mysql.enabled is false" -}}
+{{- end -}}
+{{- if not .Values.externalDatabase.name -}}
+{{- fail "externalDatabase.name is required when mysql.enabled is false" -}}
+{{- end -}}
+{{- if not .Values.externalDatabase.user -}}
+{{- fail "externalDatabase.user is required when mysql.enabled is false" -}}
+{{- end -}}
+{{- if and (not .Values.externalDatabase.existingSecret.name) (not .Values.externalDatabase.password) -}}
+{{- fail "Either externalDatabase.existingSecret.name or externalDatabase.password must be set when mysql.enabled is false" -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
