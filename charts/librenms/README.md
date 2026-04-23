@@ -1,6 +1,6 @@
 # librenms
 
-![Version: 7.0.0](https://img.shields.io/badge/Version-7.0.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 25.11.0](https://img.shields.io/badge/AppVersion-25.11.0-informational?style=flat-square) 
+![Version: 7.5.0](https://img.shields.io/badge/Version-7.5.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 26.4.1](https://img.shields.io/badge/AppVersion-26.4.1-informational?style=flat-square)
 
 LibreNMS is an autodiscovering PHP/MySQL-based network monitoring system.
 
@@ -25,6 +25,66 @@ $ helm repo add librenms https://www.librenms.org/helm-charts
 $ helm install my-release librenms/librenms
 ```
 
+## Database Configuration
+
+### Internal Database (Default)
+
+By default, the chart deploys MySQL as part of the release (`mysql.enabled: true`).
+No additional database configuration is needed.
+
+### External Database
+
+To use an external MySQL or MariaDB database, disable the bundled MySQL subchart and configure `externalDatabase`:
+
+```yaml
+mysql:
+  enabled: false
+
+externalDatabase:
+  host: mysql.example.com:3306      # hostname:port (port is optional, defaults to 3306)
+  port: 3306                         # (optional if included in host)
+  name: librenms
+  user: librenms
+  password: "your-password"          # or use existingSecret
+  # existingSecret:
+  #   name: my-db-secret             # reference to existing K8s secret
+  #   key: mysql-password            # key in the secret containing the password
+  timeout: 60                        # database connection timeout in seconds
+```
+
+**Note:** You can specify the port in either the `host` field (`mysql.example.com:3306`) OR the `port` field, but not both required.
+
+**Example with existing Kubernetes secret:**
+
+```bash
+# Create a secret with the database password
+kubectl create secret generic db-credentials \
+  --from-literal=mysql-password=your-password \
+  -n default
+```
+
+Then in your values:
+
+```yaml
+mysql:
+  enabled: false
+
+externalDatabase:
+  host: mysql.example.com
+  name: librenms
+  user: librenms
+  existingSecret:
+    name: db-credentials           # K8s secret name
+    key: mysql-password            # key in the secret
+  timeout: 60
+```
+
+**Pre-requisites for external database:**
+- MySQL 5.7+ or MariaDB 10.2+
+- Database user with CREATE, ALTER, DROP, INSERT, UPDATE, DELETE privileges
+- Network connectivity from cluster to database host
+- Pre-created database (ensure `CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`)
+
 ## Persistence
 
 RRDCached uses persistent storage for time-series database files. Two separate PersistentVolumeClaims are configured:
@@ -48,7 +108,6 @@ librenms:
 
 ## Values
 Check the [values.yaml](./values.yaml) file for the available settings for this chart and its dependencies.
-
 
 ### APP_KEY Handling
 
@@ -99,12 +158,22 @@ librenms:
 
 ### Available values
 
-The following table lists the main configurable parameters of the librenms chart v7.0.0 and their default values. Please, refer to [values.yaml](./values.yaml) for the full list of configurable parameters.
+The following table lists the main configurable parameters of the librenms chart v7.5.0 and their default values. Please, refer to [values.yaml](./values.yaml) for the full list of configurable parameters.
 
 ## Values
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| externalDatabase | object | `{"existingSecret":{"key":"mysql-password","name":""},"host":"","name":"librenms","password":"","port":3306,"timeout":60,"user":"librenms"}` | External database configuration. Used when mysql.enabled is false. When mysql.enabled is true (default), the bundled MySQL subchart is used and these values are ignored. |
+| externalDatabase.existingSecret | object | `{"key":"mysql-password","name":""}` | Where to get the DB password: Option A: reference an existing Secret (recommended for production) |
+| externalDatabase.existingSecret.key | string | `"mysql-password"` | Key in the secret that contains the database password |
+| externalDatabase.existingSecret.name | string | `""` | Name of the secret containing the database password |
+| externalDatabase.host | string | `""` | DB host (DNS name or IP). Supports both "hostname" or "hostname:port" formats. If port is included in the host field, it takes precedence over the separate port field. Example: "mysql.example.svc.cluster.local", "10.0.0.12", or "mysql.example.com:3307" |
+| externalDatabase.name | string | `"librenms"` | Database name |
+| externalDatabase.password | string | `""` | Database password (plain text). Use existingSecret instead for production. |
+| externalDatabase.port | int | `3306` | DB port (MySQL default 3306). Optional if port is included in the host field. |
+| externalDatabase.timeout | int | `60` | Optional: DB connection timeout in seconds |
+| externalDatabase.user | string | `"librenms"` | Database username |
 | global.security.allowInsecureImages | bool | `true` |  |
 | ingress | object | `{"annotations":{},"className":"","enabled":false,"hosts":[{"host":"chart-example.local","paths":[{"path":"/","pathType":"ImplementationSpecific"}]}],"tls":[]}` | LibreNMS ingress configuration |
 | ingress.annotations | object | `{}` | Ingress annotations |
@@ -131,7 +200,7 @@ The following table lists the main configurable parameters of the librenms chart
 | librenms.frontend.resources | object | `{}` | resources defines the computing resources (CPU and memory) that are allocated to the containers running within the Pod. |
 | librenms.image.pullPolicy | string | `"Always"` | pullPolicy is the Kubernetes image pull policy for the main LibreNMS image. |
 | librenms.image.repository | string | `"librenms/librenms"` | repository is the image repository to pull from. |
-| librenms.image.tag | string | `"25.11.0"` | tag is image tag to pull. |
+| librenms.image.tag | string | `"26.4.1"` | tag is image tag to pull. |
 | librenms.initContainer | object | `{"image":{"pullPolicy":"Always","repository":"busybox","tag":"1.37"},"resources":{},"securityContext":{}}` | initContainer configuration options |
 | librenms.initContainer.image.pullPolicy | string | `"Always"` | pullPolicy is the Kubernetes image pull policy for the init container image. |
 | librenms.initContainer.image.repository | string | `"busybox"` | repository is the init container image repository to pull from. |
@@ -197,7 +266,6 @@ $ helm delete my-release
 | Name | Email | Url |
 | ---- | ------ | --- |
 | jacobw |  | <https://github.com/jacobw> |
-
 
 ----------------------------------------------
 Autogenerated from chart metadata using [helm-docs v1.14.2](https://github.com/norwoodj/helm-docs/releases/v1.14.2)
