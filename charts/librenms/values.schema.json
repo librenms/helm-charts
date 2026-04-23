@@ -144,7 +144,7 @@
           "properties": {
             "allowInsecureImages": {
               "type": "boolean",
-              "description": "Allow use of images from bitnamilegacy repository",
+              "description": "Allow use of images from bitnamilegacy repository (required for Redis subchart)",
               "default": true
             }
           },
@@ -632,6 +632,45 @@
           "type": "integer",
           "description": "Database connection timeout in seconds",
           "default": 60
+        }
+      }
+    },
+    "mysql": {
+      "type": "object",
+      "description": "Configuration for MySQL dependency chart by HelmForge (https://github.com/helmforgedev/charts/tree/main/charts/mysql). Additional properties are passed through to the subchart.",
+      "additionalProperties": true,
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable bundled MySQL subchart. Set to false to use externalDatabase instead.",
+          "default": true
+        },
+        "existingAuthSecret": {
+          "oneOf": [
+            {
+              "type": "object",
+              "description": "Use an existing secret for MySQL authentication. Useful when migrating from the Bitnami MySQL subchart, which created a secret named 'RELEASE-mysql' with key 'mysql-password'.",
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "Name of the existing secret containing the MySQL password"
+                },
+                "key": {
+                  "type": "string",
+                  "description": "Key in the secret containing the MySQL password",
+                  "default": "mysql-user-password"
+                }
+              },
+              "required": ["name"]
+            },
+            {
+              "type": "object",
+              "description": "Empty object disables the override (default behavior)",
+              "additionalProperties": false,
+              "maxProperties": 0
+            }
+          ]
         }
       }
     }

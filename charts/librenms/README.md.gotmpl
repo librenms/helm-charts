@@ -28,8 +28,64 @@ $ helm install my-release librenms/librenms
 
 ### Internal Database (Default)
 
-By default, the chart deploys MySQL as part of the release (`mysql.enabled: true`).
+By default, the chart deploys [HelmForge MySQL](https://github.com/helmforgedev/charts/tree/main/charts/mysql) as part of the release (`mysql.enabled: true`).
 No additional database configuration is needed.
+
+The chart sets `collation-server=utf8mb4_unicode_ci` by default, which satisfies the
+[LibreNMS database collation requirement](https://community.librenms.org/t/new-default-database-charset-collation/14956)
+automatically on fresh installs.
+
+### Migrating from Bitnami MySQL (chart versions < 8.0.0)
+
+Chart v8.0.0 replaced the Bitnami MySQL subchart with [HelmForge MySQL](https://github.com/helmforgedev/charts/tree/main/charts/mysql). The two charts use **different data-directory layouts** on disk (Bitnami: `/bitnami/mysql`, HelmForge: `/var/lib/mysql`), so a **backup and restore is required** even though the PVC name (`data-RELEASE-mysql-0`) is unchanged.
+
+> **Note:** Replace `RELEASE` and `NAMESPACE` below with your Helm release name and Kubernetes namespace.
+
+**Step 1: Back up your database**
+
+```bash
+kubectl exec -n NAMESPACE RELEASE-mysql-0 -- mysqldump -uroot \
+  -p"$(kubectl get secret RELEASE-mysql -n NAMESPACE -o jsonpath='{.data.mysql-root-password}' | base64 -d)" \
+  --all-databases > backup.sql
+```
+
+**Step 2: Delete the old MySQL StatefulSet and its PVC**
+
+```bash
+kubectl delete statefulset RELEASE-mysql -n NAMESPACE --cascade=orphan
+kubectl delete pod RELEASE-mysql-0 -n NAMESPACE
+kubectl delete pvc data-RELEASE-mysql-0 -n NAMESPACE
+```
+
+**Step 3: Upgrade the chart**
+
+Point LibreNMS at the old Bitnami secret during the first upgrade so it can connect while HelmForge MySQL initializes:
+
+```yaml
+mysql:
+  existingAuthSecret:
+    name: RELEASE-mysql        # old Bitnami secret name
+    key: mysql-password        # old Bitnami secret key
+```
+
+```bash
+helm upgrade RELEASE ./charts/librenms -f values.yaml
+```
+
+**Step 4: Restore the backup**
+
+> **Note:** After upgrading, the HelmForge chart creates a new secret named `RELEASE-mysql-auth` (replacing the old Bitnami `RELEASE-mysql` secret).
+
+```bash
+kubectl cp backup.sql NAMESPACE/RELEASE-mysql-0:/tmp/backup.sql
+kubectl exec -n NAMESPACE RELEASE-mysql-0 -- mysql -uroot \
+  -p"$(kubectl get secret RELEASE-mysql-auth -n NAMESPACE -o jsonpath='{.data.mysql-root-password}' | base64 -d)" \
+  -e "SOURCE /tmp/backup.sql;"
+```
+
+**Step 5: Once verified, remove the `existingAuthSecret` override**
+
+After confirming everything works, remove the `mysql.existingAuthSecret` block from your values and run `helm upgrade` again. The chart will use the new HelmForge-generated secret going forward.
 
 ### External Database
 
@@ -51,7 +107,7 @@ externalDatabase:
   timeout: 60                        # database connection timeout in seconds
 ```
 
-**Note:** You can specify the port in either the `host` field (`mysql.example.com:3306`) OR the `port` field, but not both required.
+**Note:** You can specify the port in either the `host` field (`mysql.example.com:3306`) OR the `port` field, but not both.
 
 **Example with existing Kubernetes secret:**
 
@@ -79,10 +135,11 @@ externalDatabase:
 ```
 
 **Pre-requisites for external database:**
-- MySQL 5.7+ or MariaDB 10.2+
+- MySQL 8.0+ or MariaDB 10.5+
 - Database user with CREATE, ALTER, DROP, INSERT, UPDATE, DELETE privileges
 - Network connectivity from cluster to database host
-- Pre-created database (ensure `CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`)
+- MySQL server configured with `character-set-server=utf8mb4` and `collation-server=utf8mb4_unicode_ci`
+  (see [LibreNMS collation docs](https://community.librenms.org/t/new-default-database-charset-collation/14956))
 
 ## Persistence
 

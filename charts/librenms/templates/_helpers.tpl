@@ -158,10 +158,17 @@ value: {{ .Values.externalDatabase.password | quote }}
 {{- fail "Either externalDatabase.existingSecret.name or externalDatabase.password must be set when mysql.enabled is false" -}}
 {{- end -}}
 {{- else -}}
+{{- if and .Values.mysql.existingAuthSecret .Values.mysql.existingAuthSecret.name -}}
 valueFrom:
   secretKeyRef:
-    name: {{ .Release.Name }}-mysql
-    key: mysql-password
+    name: {{ .Values.mysql.existingAuthSecret.name }}
+    key: {{ .Values.mysql.existingAuthSecret.key | default "mysql-user-password" }}
+{{- else -}}
+valueFrom:
+  secretKeyRef:
+    name: {{ .Release.Name }}-mysql-auth
+    key: mysql-user-password
+{{- end -}}
 {{- end -}}
 {{- end -}}
 
