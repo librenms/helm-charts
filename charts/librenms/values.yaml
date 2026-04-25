@@ -2,7 +2,7 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-# Allow use of images from bitnamilegacy repository
+# Allow use of images from bitnamilegacy repository (required for Redis subchart)
 global:
   security:
     allowInsecureImages: true
@@ -261,18 +261,34 @@ ingress:
   #    hosts:
   #      - chart-example.local
 
-# -- Configuration for MySQL dependency chart by Bitnami. See their chart for
-# more information: https://github.com/bitnami/charts/tree/master/bitnami/mysql
+# -- Configuration for MySQL dependency chart by HelmForge. See their chart for
+# more information: https://github.com/helmforgedev/charts/tree/main/charts/mysql
 mysql:
   enabled: true
-  # Work around for Bitnami dropping support
-  # https://github.com/bitnami/charts/issues/35164
-  # https://github.com/bitnami/charts/issues/35256
-  image:
-    repository: bitnamilegacy/mysql
+  architecture: standalone
   auth:
     username: librenms
     database: librenms
+  # -- Use an existing secret for MySQL authentication instead of the auto-generated one.
+  # This is useful when migrating from the Bitnami MySQL subchart, which created a secret
+  # named "RELEASE-mysql" with key "mysql-password".
+  # Example for Bitnami migration:
+  #   existingAuthSecret:
+  #     name: my-release-mysql
+  #     key: mysql-password
+  existingAuthSecret: {}
+  # -- Set the default collation to utf8mb4_unicode_ci, which is required by LibreNMS.
+  # MySQL 8.4 defaults to utf8mb4_0900_ai_ci, which causes validation warnings.
+  # See: https://community.librenms.org/t/new-default-database-charset-collation/14956
+  config:
+    myCnf: |
+      [mysqld]
+      character-set-server=utf8mb4
+      collation-server=utf8mb4_unicode_ci
+  standalone:
+    persistence:
+      enabled: true
+      size: 8Gi
 
 # -- External database configuration. Used when mysql.enabled is false.
 # When mysql.enabled is true (default), the bundled MySQL subchart is used and these values are ignored.
