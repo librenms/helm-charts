@@ -30,6 +30,15 @@ jobs:
             helm dependency list $dir 2> /dev/null | tail +2 | head -n -1 | awk '{ print "helm repo add " $1 " " $3 }' | while read cmd; do $cmd; done
           done
           
+      - name: Generate and commit helm docs
+        uses: losisin/helm-docs-github-action@v2
+        with:
+          chart-search-root: ./charts/librenms
+          template-files: README.md.gotmpl
+          output-file: README.md
+          git-push: true
+          git-commit-message: "docs: auto-update helm docs"
+
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.7.0
         env:
