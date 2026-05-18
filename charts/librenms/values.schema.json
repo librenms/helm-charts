@@ -1,639 +1,809 @@
 {
-  "$schema": "https://json-schema.org/draft-07/schema#",
-  "$id": "https://www.librenms.org/helm-charts/librenms/values.schema.json",
-  "title": "LibreNMS Helm Chart Values",
-  "description": "Schema for LibreNMS Helm Chart values.yaml configuration",
-  "type": "object",
-  "required": ["librenms"],
-  "additionalProperties": true,
-  "definitions": {
-    "envVar": {
-      "type": "object",
-      "description": "Kubernetes environment variable definition",
-      "properties": {
-        "name": {
-          "type": "string",
-          "description": "Environment variable name"
-        },
-        "value": {
-          "type": "string",
-          "description": "Environment variable value"
-        },
-        "valueFrom": {
-          "type": "object",
-          "description": "Source for the environment variable's value"
-        }
-      },
-      "required": ["name"],
-      "additionalProperties": false
-    },
-    "envFromSource": {
-      "type": "object",
-      "description": "Kubernetes envFrom source (ConfigMap or Secret reference)",
-      "oneOf": [
-        {
-          "properties": {
-            "configMapRef": {
-              "type": "object",
-              "properties": {
+    "$schema": "https://json-schema.org/draft-07/schema#",
+    "$id": "https://www.librenms.org/helm-charts/librenms/values.schema.json",
+    "title": "LibreNMS Helm Chart Values",
+    "description": "Schema for LibreNMS Helm Chart values.yaml configuration",
+    "type": "object",
+    "required": [
+        "librenms"
+    ],
+    "additionalProperties": true,
+    "definitions": {
+        "envVar": {
+            "type": "object",
+            "description": "Kubernetes environment variable definition",
+            "properties": {
                 "name": {
-                  "type": "string",
-                  "description": "Name of the ConfigMap"
+                    "type": "string",
+                    "description": "Environment variable name"
                 },
-                "optional": {
-                  "type": "boolean",
-                  "description": "Whether the ConfigMap must be defined"
+                "value": {
+                    "type": "string",
+                    "description": "Environment variable value"
+                },
+                "valueFrom": {
+                    "type": "object",
+                    "description": "Source for the environment variable's value"
                 }
-              },
-              "required": ["name"],
-              "additionalProperties": false
-            }
-          },
-          "required": ["configMapRef"],
-          "additionalProperties": false
-        },
-        {
-          "properties": {
-            "secretRef": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string",
-                  "description": "Name of the Secret"
-                },
-                "optional": {
-                  "type": "boolean",
-                  "description": "Whether the Secret must be defined"
-                }
-              },
-              "required": ["name"],
-              "additionalProperties": false
-            }
-          },
-          "required": ["secretRef"],
-          "additionalProperties": false
-        }
-      ]
-    },
-    "resources": {
-      "type": "object",
-      "description": "Kubernetes resource requests and limits",
-      "properties": {
-        "requests": {
-          "type": "object",
-          "properties": {
-            "cpu": {
-              "type": "string",
-              "description": "CPU request"
             },
-            "memory": {
-              "type": "string",
-              "description": "Memory request"
-            },
-            "ephemeral-storage": {
-              "type": "string",
-              "description": "Ephemeral storage request"
-            }
-          },
-          "additionalProperties": true
+            "required": [
+                "name"
+            ],
+            "additionalProperties": false
         },
-        "limits": {
-          "type": "object",
-          "properties": {
-            "cpu": {
-              "type": "string",
-              "description": "CPU limit"
-            },
-            "memory": {
-              "type": "string",
-              "description": "Memory limit"
-            },
-            "ephemeral-storage": {
-              "type": "string",
-              "description": "Ephemeral storage limit"
-            }
-          },
-          "additionalProperties": true
-        }
-      },
-      "additionalProperties": false
-    },
-    "nodeSelector": {
-      "type": "object",
-      "description": "Node selector for pod assignment",
-      "additionalProperties": {
-        "type": "string"
-      }
-    },
-    "volume": {
-      "type": "object",
-      "description": "Kubernetes volume definition"
-    },
-    "volumeMount": {
-      "type": "object",
-      "description": "Kubernetes volumeMount definition"
-    }
-  },
-  "properties": {
-    "global": {
-      "type": "object",
-      "description": "Global Helm chart values",
-      "properties": {
-        "security": {
-          "type": "object",
-          "properties": {
-            "allowInsecureImages": {
-              "type": "boolean",
-              "description": "Allow use of images from bitnamilegacy repository",
-              "default": true
-            }
-          },
-          "additionalProperties": false
-        }
-      },
-      "additionalProperties": true
-    },
-    "librenms": {
-      "type": "object",
-      "required": ["image"],
-      "additionalProperties": false,
-      "properties": {
-        "image": {
-          "type": "object",
-          "required": ["repository", "tag"],
-          "additionalProperties": true,
-          "properties": {
-            "repository": {
-              "type": "string",
-              "description": "Image repository to pull from",
-              "default": "librenms/librenms"
-            },
-            "tag": {
-              "type": "string",
-              "description": "Image tag to pull"
-            },
-            "pullPolicy": {
-              "type": "string",
-              "description": "Image pull policy",
-              "enum": ["IfNotPresent", "Always", "Never"]
-            }
-          }
-        },
-        "initContainer": {
-          "type": "object",
-          "additionalProperties": true,
-          "properties": {
-            "image": {
-              "type": "object",
-              "additionalProperties": true,
-              "properties": {
-                "repository": {
-                  "type": "string",
-                  "description": "Init container image repository",
-                  "default": "busybox"
-                },
-                "tag": {
-                  "type": "string",
-                  "description": "Init container image tag",
-                  "default": "1.37"
-                },
-                "pullPolicy": {
-                  "type": "string",
-                  "description": "Image pull policy",
-                  "enum": ["IfNotPresent", "Always", "Never"]
-                }
-              }
-            },
-            "resources": {
-              "$ref": "#/definitions/resources"
-            },
-            "securityContext": {
-              "type": "object",
-              "description": "Security context settings for init container"
-            }
-          }
-        },
-        "appkey": {
-          "type": "string",
-          "description": "Laravel APP_KEY for encryption. If blank, a random 32-character key will be auto-generated. Format: base64:...",
-          "default": ""
-        },
-        "existingSecret": {
-          "type": ["string", "boolean"],
-          "description": "Existing secret name to use for appkey",
-          "default": false
-        },
-        "timezone": {
-          "type": "string",
-          "description": "Timezone used by LibreNMS",
-          "default": "UTC"
-        },
-        "configuration": {
-          "type": "string",
-          "description": "Custom configuration options for LibreNMS (PHP code)"
-        },
-        "extraEnvs": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/envVar"
-          },
-          "description": "Extra environment variables applied to all LibreNMS components",
-          "default": []
-        },
-        "extraEnvFrom": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/envFromSource"
-          },
-          "description": "Extra envFrom sources applied to all LibreNMS components",
-          "default": []
-        },
-        "privileged": {
-          "type": "boolean",
-          "description": "Global setting to run components as privileged",
-          "default": false
-        },
-        "frontend": {
-          "type": "object",
-          "additionalProperties": false,
-          "properties": {
-            "replicas": {
-              "type": "integer",
-              "description": "Frontend replicas",
-              "default": 1,
-              "minimum": 1
-            },
-            "readinessProbe": {
-              "type": "object",
-              "properties": {
-                "httpGet": {
-                  "type": "object",
-                  "properties": {
-                    "path": {
-                      "type": "string",
-                      "description": "Check endpoint path"
+        "envFromSource": {
+            "type": "object",
+            "description": "Kubernetes envFrom source (ConfigMap or Secret reference)",
+            "oneOf": [
+                {
+                    "properties": {
+                        "configMapRef": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "type": "string",
+                                    "description": "Name of the ConfigMap"
+                                },
+                                "optional": {
+                                    "type": "boolean",
+                                    "description": "Whether the ConfigMap must be defined"
+                                }
+                            },
+                            "required": [
+                                "name"
+                            ],
+                            "additionalProperties": false
+                        }
                     },
-                    "port": {
-                      "type": ["integer", "string"],
-                      "description": "Check endpoint port"
-                    }
-                  }
+                    "required": [
+                        "configMapRef"
+                    ],
+                    "additionalProperties": false
                 },
-                "initialDelaySeconds": {
-                  "type": "integer"
-                },
-                "periodSeconds": {
-                  "type": "integer"
-                },
-                "timeoutSeconds": {
-                  "type": "integer"
-                }
-              }
-            },
-            "resources": {
-              "allOf": [
-                { "$ref": "#/definitions/resources" },
-                { "description": "Computing resources for frontend containers" }
-              ]
-            },
-            "privileged": {
-              "type": "boolean",
-              "description": "Run frontend pods as privileged",
-              "default": false
-            },
-            "nodeSelector": {
-              "allOf": [
-                { "$ref": "#/definitions/nodeSelector" },
-                { "description": "Node selector for frontend pods" }
-              ]
-            },
-            "extraVolumes": {
-              "type": "array",
-              "items": {
-                "type": "object"
-              },
-              "description": "Extra volumes for frontend pods"
-            },
-            "extraVolumeMounts": {
-              "type": "array",
-              "items": {
-                "type": "object"
-              },
-              "description": "Extra volume mounts for frontend containers"
-            },
-            "extraEnvs": {
-              "type": "array",
-              "items": { "$ref": "#/definitions/envVar" },
-              "description": "Extra environment variables for frontend containers",
-              "default": []
-            },
-            "extraEnvFrom": {
-              "type": "array",
-              "items": { "$ref": "#/definitions/envFromSource" },
-              "description": "Extra envFrom sources for frontend containers",
-              "default": []
-            }
-          }
-        },
-        "poller": {
-          "type": "object",
-          "additionalProperties": false,
-          "properties": {
-            "replicas": {
-              "type": "integer",
-              "description": "Poller replicas",
-              "default": 2,
-              "minimum": 1
-            },
-            "resources": {
-              "allOf": [
-                { "$ref": "#/definitions/resources" },
-                { "description": "Computing resources for poller containers" }
-              ]
-            },
-            "privileged": {
-              "type": "boolean",
-              "description": "Run poller pods as privileged",
-              "default": false
-            },
-            "nodeSelector": {
-              "allOf": [
-                { "$ref": "#/definitions/nodeSelector" },
-                { "description": "Node selector for poller pods" }
-              ]
-            },
-            "extraVolumes": {
-              "type": "array",
-              "items": {
-                "type": "object"
-              },
-              "description": "Extra volumes for poller pods"
-            },
-            "extraVolumeMounts": {
-              "type": "array",
-              "items": {
-                "type": "object"
-              },
-              "description": "Extra volume mounts for poller containers"
-            },
-            "extraEnvs": {
-              "type": "array",
-              "items": { "$ref": "#/definitions/envVar" },
-              "description": "Extra environment variables for poller containers",
-              "default": []
-            },
-            "extraEnvFrom": {
-              "type": "array",
-              "items": { "$ref": "#/definitions/envFromSource" },
-              "description": "Extra envFrom sources for poller containers",
-              "default": []
-            }
-          }
-        },
-        "snmp_scanner": {
-          "type": "object",
-          "additionalProperties": false,
-          "properties": {
-            "enabled": {
-              "type": "boolean",
-              "description": "SNMP scanner enabled",
-              "default": false
-            },
-            "cron": {
-              "type": "string",
-              "description": "SNMP scanner cron schedule",
-              "default": "15 * * * *"
-            },
-            "securityContext": {
-              "type": "object",
-              "description": "Security context for SNMP scanner pod",
-              "additionalProperties": true
-            },
-            "resources": {
-              "allOf": [
-                { "$ref": "#/definitions/resources" },
-                { "description": "Computing resources for SNMP scanner containers" }
-              ]
-            },
-            "nodeSelector": {
-              "$ref": "#/definitions/nodeSelector"
-            },
-            "extraEnvs": {
-              "type": "array",
-              "items": { "$ref": "#/definitions/envVar" },
-              "description": "Extra environment variables for SNMP scanner containers",
-              "default": []
-            },
-            "extraEnvFrom": {
-              "type": "array",
-              "items": { "$ref": "#/definitions/envFromSource" },
-              "description": "Extra envFrom sources for SNMP scanner containers",
-              "default": []
-            }
-          }
-        },
-        "rrdcached": {
-          "type": "object",
-          "additionalProperties": false,
-          "properties": {
-            "image": {
-              "type": "object",
-              "additionalProperties": true,
-              "properties": {
-                "repository": {
-                  "type": "string",
-                  "description": "RRDCached image repository"
-                },
-                "tag": {
-                  "type": "string",
-                  "description": "RRDCached image tag"
-                }
-              },
-              "required": ["repository", "tag"]
-            },
-            "persistence": {
-              "type": "object",
-              "additionalProperties": true,
-              "properties": {
-                "enabled": {
-                  "type": "boolean",
-                  "description": "RRDCached persistent volume enabled",
-                  "default": true
-                },
-                "journal": {
-                  "type": "object",
-                  "properties": {
-                    "size": {
-                      "type": "string",
-                      "description": "RRDCached journal PV size",
-                      "default": "1Gi"
+                {
+                    "properties": {
+                        "secretRef": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "type": "string",
+                                    "description": "Name of the Secret"
+                                },
+                                "optional": {
+                                    "type": "boolean",
+                                    "description": "Whether the Secret must be defined"
+                                }
+                            },
+                            "required": [
+                                "name"
+                            ],
+                            "additionalProperties": false
+                        }
                     },
-                    "storageClassName": {
-                      "type": "string",
-                      "description": "RRDCached journal storage class name"
+                    "required": [
+                        "secretRef"
+                    ],
+                    "additionalProperties": false
+                }
+            ]
+        },
+        "resources": {
+            "type": "object",
+            "description": "Kubernetes resource requests and limits",
+            "properties": {
+                "requests": {
+                    "type": "object",
+                    "properties": {
+                        "cpu": {
+                            "type": "string",
+                            "description": "CPU request"
+                        },
+                        "memory": {
+                            "type": "string",
+                            "description": "Memory request"
+                        },
+                        "ephemeral-storage": {
+                            "type": "string",
+                            "description": "Ephemeral storage request"
+                        }
+                    },
+                    "additionalProperties": true
+                },
+                "limits": {
+                    "type": "object",
+                    "properties": {
+                        "cpu": {
+                            "type": "string",
+                            "description": "CPU limit"
+                        },
+                        "memory": {
+                            "type": "string",
+                            "description": "Memory limit"
+                        },
+                        "ephemeral-storage": {
+                            "type": "string",
+                            "description": "Ephemeral storage limit"
+                        }
+                    },
+                    "additionalProperties": true
+                }
+            },
+            "additionalProperties": false
+        },
+        "nodeSelector": {
+            "type": "object",
+            "description": "Node selector for pod assignment",
+            "additionalProperties": {
+                "type": "string"
+            }
+        },
+        "volume": {
+            "type": "object",
+            "description": "Kubernetes volume definition"
+        },
+        "volumeMount": {
+            "type": "object",
+            "description": "Kubernetes volumeMount definition"
+        }
+    },
+    "properties": {
+        "global": {
+            "type": "object",
+            "description": "Global Helm chart values",
+            "properties": {
+                "security": {
+                    "type": "object",
+                    "properties": {
+                        "allowInsecureImages": {
+                            "type": "boolean",
+                            "description": "Allow use of images from bitnamilegacy repository (required for Redis subchart)",
+                            "default": true
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            },
+            "additionalProperties": true
+        },
+        "librenms": {
+            "type": "object",
+            "required": [
+                "image"
+            ],
+            "additionalProperties": false,
+            "properties": {
+                "image": {
+                    "type": "object",
+                    "required": [
+                        "repository",
+                        "tag"
+                    ],
+                    "additionalProperties": true,
+                    "properties": {
+                        "repository": {
+                            "type": "string",
+                            "description": "Image repository to pull from",
+                            "default": "librenms/librenms"
+                        },
+                        "tag": {
+                            "type": "string",
+                            "description": "Image tag to pull"
+                        },
+                        "pullPolicy": {
+                            "type": "string",
+                            "description": "Image pull policy",
+                            "enum": [
+                                "IfNotPresent",
+                                "Always",
+                                "Never"
+                            ]
+                        }
                     }
-                  }
+                },
+                "initContainer": {
+                    "type": "object",
+                    "additionalProperties": true,
+                    "properties": {
+                        "image": {
+                            "type": "object",
+                            "additionalProperties": true,
+                            "properties": {
+                                "repository": {
+                                    "type": "string",
+                                    "description": "Init container image repository",
+                                    "default": "busybox"
+                                },
+                                "tag": {
+                                    "type": "string",
+                                    "description": "Init container image tag",
+                                    "default": "1.37"
+                                },
+                                "pullPolicy": {
+                                    "type": "string",
+                                    "description": "Image pull policy",
+                                    "enum": [
+                                        "IfNotPresent",
+                                        "Always",
+                                        "Never"
+                                    ]
+                                }
+                            }
+                        },
+                        "resources": {
+                            "$ref": "#/definitions/resources"
+                        },
+                        "securityContext": {
+                            "type": "object",
+                            "description": "Security context settings for init container"
+                        }
+                    }
+                },
+                "appkey": {
+                    "type": "string",
+                    "description": "Laravel APP_KEY for encryption. If blank, a random 32-character key will be auto-generated. Format: base64:...",
+                    "default": ""
+                },
+                "existingSecret": {
+                    "type": [
+                        "string",
+                        "boolean"
+                    ],
+                    "description": "Existing secret name to use for appkey",
+                    "default": false
+                },
+                "timezone": {
+                    "type": "string",
+                    "description": "Timezone used by LibreNMS",
+                    "default": "UTC"
+                },
+                "configuration": {
+                    "type": "string",
+                    "description": "Custom configuration options for LibreNMS (PHP code)"
+                },
+                "extraEnvs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/envVar"
+                    },
+                    "description": "Extra environment variables applied to all LibreNMS components",
+                    "default": []
+                },
+                "extraEnvFrom": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/envFromSource"
+                    },
+                    "description": "Extra envFrom sources applied to all LibreNMS components",
+                    "default": []
+                },
+                "privileged": {
+                    "type": "boolean",
+                    "description": "Global setting to run components as privileged",
+                    "default": false
+                },
+                "frontend": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "replicas": {
+                            "type": "integer",
+                            "description": "Frontend replicas",
+                            "default": 1,
+                            "minimum": 1
+                        },
+                        "readinessProbe": {
+                            "type": "object",
+                            "properties": {
+                                "httpGet": {
+                                    "type": "object",
+                                    "properties": {
+                                        "path": {
+                                            "type": "string",
+                                            "description": "Check endpoint path"
+                                        },
+                                        "port": {
+                                            "type": [
+                                                "integer",
+                                                "string"
+                                            ],
+                                            "description": "Check endpoint port"
+                                        }
+                                    }
+                                },
+                                "initialDelaySeconds": {
+                                    "type": "integer"
+                                },
+                                "periodSeconds": {
+                                    "type": "integer"
+                                },
+                                "timeoutSeconds": {
+                                    "type": "integer"
+                                }
+                            }
+                        },
+                        "resources": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/resources"
+                                },
+                                {
+                                    "description": "Computing resources for frontend containers"
+                                }
+                            ]
+                        },
+                        "privileged": {
+                            "type": "boolean",
+                            "description": "Run frontend pods as privileged",
+                            "default": false
+                        },
+                        "nodeSelector": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/nodeSelector"
+                                },
+                                {
+                                    "description": "Node selector for frontend pods"
+                                }
+                            ]
+                        },
+                        "extraVolumes": {
+                            "type": "array",
+                            "items": {
+                                "type": "object"
+                            },
+                            "description": "Extra volumes for frontend pods"
+                        },
+                        "extraVolumeMounts": {
+                            "type": "array",
+                            "items": {
+                                "type": "object"
+                            },
+                            "description": "Extra volume mounts for frontend containers"
+                        },
+                        "extraEnvs": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/envVar"
+                            },
+                            "description": "Extra environment variables for frontend containers",
+                            "default": []
+                        },
+                        "extraEnvFrom": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/envFromSource"
+                            },
+                            "description": "Extra envFrom sources for frontend containers",
+                            "default": []
+                        }
+                    }
+                },
+                "poller": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "replicas": {
+                            "type": "integer",
+                            "description": "Poller replicas",
+                            "default": 2,
+                            "minimum": 1
+                        },
+                        "resources": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/resources"
+                                },
+                                {
+                                    "description": "Computing resources for poller containers"
+                                }
+                            ]
+                        },
+                        "privileged": {
+                            "type": "boolean",
+                            "description": "Run poller pods as privileged",
+                            "default": false
+                        },
+                        "nodeSelector": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/nodeSelector"
+                                },
+                                {
+                                    "description": "Node selector for poller pods"
+                                }
+                            ]
+                        },
+                        "extraVolumes": {
+                            "type": "array",
+                            "items": {
+                                "type": "object"
+                            },
+                            "description": "Extra volumes for poller pods"
+                        },
+                        "extraVolumeMounts": {
+                            "type": "array",
+                            "items": {
+                                "type": "object"
+                            },
+                            "description": "Extra volume mounts for poller containers"
+                        },
+                        "extraEnvs": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/envVar"
+                            },
+                            "description": "Extra environment variables for poller containers",
+                            "default": []
+                        },
+                        "extraEnvFrom": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/envFromSource"
+                            },
+                            "description": "Extra envFrom sources for poller containers",
+                            "default": []
+                        }
+                    }
+                },
+                "snmp_scanner": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean",
+                            "description": "SNMP scanner enabled",
+                            "default": false
+                        },
+                        "cron": {
+                            "type": "string",
+                            "description": "SNMP scanner cron schedule",
+                            "default": "15 * * * *"
+                        },
+                        "securityContext": {
+                            "type": "object",
+                            "description": "Security context for SNMP scanner pod",
+                            "additionalProperties": true
+                        },
+                        "resources": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/resources"
+                                },
+                                {
+                                    "description": "Computing resources for SNMP scanner containers"
+                                }
+                            ]
+                        },
+                        "nodeSelector": {
+                            "$ref": "#/definitions/nodeSelector"
+                        },
+                        "extraEnvs": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/envVar"
+                            },
+                            "description": "Extra environment variables for SNMP scanner containers",
+                            "default": []
+                        },
+                        "extraEnvFrom": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/envFromSource"
+                            },
+                            "description": "Extra envFrom sources for SNMP scanner containers",
+                            "default": []
+                        }
+                    }
                 },
                 "rrdcached": {
-                  "type": "object",
-                  "properties": {
-                    "size": {
-                      "type": "string",
-                      "description": "RRDCached RRD storage PV size",
-                      "default": "10Gi"
-                    },
-                    "storageClassName": {
-                      "type": "string",
-                      "description": "RRDCached RRD storage class name"
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "image": {
+                            "type": "object",
+                            "additionalProperties": true,
+                            "properties": {
+                                "repository": {
+                                    "type": "string",
+                                    "description": "RRDCached image repository"
+                                },
+                                "tag": {
+                                    "type": "string",
+                                    "description": "RRDCached image tag"
+                                }
+                            },
+                            "required": [
+                                "repository",
+                                "tag"
+                            ]
+                        },
+                        "persistence": {
+                            "type": "object",
+                            "additionalProperties": true,
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean",
+                                    "description": "RRDCached persistent volume enabled",
+                                    "default": true
+                                },
+                                "journal": {
+                                    "type": "object",
+                                    "properties": {
+                                        "size": {
+                                            "type": "string",
+                                            "description": "RRDCached journal PV size",
+                                            "default": "1Gi"
+                                        },
+                                        "storageClassName": {
+                                            "type": "string",
+                                            "description": "RRDCached journal storage class name"
+                                        }
+                                    }
+                                },
+                                "rrdcached": {
+                                    "type": "object",
+                                    "properties": {
+                                        "size": {
+                                            "type": "string",
+                                            "description": "RRDCached RRD storage PV size",
+                                            "default": "10Gi"
+                                        },
+                                        "storageClassName": {
+                                            "type": "string",
+                                            "description": "RRDCached RRD storage class name"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "resources": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/resources"
+                                },
+                                {
+                                    "description": "Computing resources for RRDCached containers"
+                                }
+                            ]
+                        },
+                        "readinessProbe": {
+                            "type": "object",
+                            "additionalProperties": true,
+                            "properties": {
+                                "tcpSocket": {
+                                    "type": "object",
+                                    "properties": {
+                                        "port": {
+                                            "type": [
+                                                "integer",
+                                                "string"
+                                            ]
+                                        }
+                                    }
+                                },
+                                "initialDelaySeconds": {
+                                    "type": "integer"
+                                },
+                                "periodSeconds": {
+                                    "type": "integer"
+                                }
+                            }
+                        },
+                        "livenessProbe": {
+                            "type": "object",
+                            "additionalProperties": true,
+                            "properties": {
+                                "tcpSocket": {
+                                    "type": "object",
+                                    "properties": {
+                                        "port": {
+                                            "type": [
+                                                "integer",
+                                                "string"
+                                            ]
+                                        }
+                                    }
+                                },
+                                "initialDelaySeconds": {
+                                    "type": "integer"
+                                },
+                                "periodSeconds": {
+                                    "type": "integer"
+                                }
+                            }
+                        },
+                        "envs": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/envVar"
+                            },
+                            "description": "Environment variables for RRDCached"
+                        },
+                        "extraEnvs": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/envVar"
+                            },
+                            "description": "Extra environment variables for RRDCached containers",
+                            "default": []
+                        },
+                        "extraEnvFrom": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/envFromSource"
+                            },
+                            "description": "Extra envFrom sources for RRDCached containers",
+                            "default": []
+                        },
+                        "nodeSelector": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/nodeSelector"
+                                },
+                                {
+                                    "description": "Node selector for rrdcached pods"
+                                }
+                            ]
+                        },
+                        "extraVolumes": {
+                            "type": "array",
+                            "items": {
+                                "type": "object"
+                            },
+                            "description": "Extra volumes for rrdcached pods"
+                        },
+                        "extraVolumeMounts": {
+                            "type": "array",
+                            "items": {
+                                "type": "object"
+                            },
+                            "description": "Extra volume mounts for rrdcached containers"
+                        }
                     }
-                  }
-                }
-              }
-            },
-            "resources": {
-              "allOf": [
-                { "$ref": "#/definitions/resources" },
-                { "description": "Computing resources for RRDCached containers" }
-              ]
-            },
-            "readinessProbe": {
-              "type": "object",
-              "additionalProperties": true,
-              "properties": {
-                "tcpSocket": {
-                  "type": "object",
-                  "properties": {
-                    "port": {
-                      "type": ["integer", "string"]
+                },
+                "syslogng": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean",
+                            "description": "Enable syslog-ng",
+                            "default": false
+                        },
+                        "replicas": {
+                            "type": "integer",
+                            "description": "syslogng replicas",
+                            "default": 1
+                        },
+                        "resources": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/resources"
+                                },
+                                {
+                                    "description": "Computing resources for syslog-ng containers"
+                                }
+                            ]
+                        },
+                        "nodeSelector": {
+                            "$ref": "#/definitions/nodeSelector"
+                        },
+                        "extraEnvs": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/envVar"
+                            },
+                            "description": "Extra environment variables for syslogng containers",
+                            "default": []
+                        },
+                        "extraEnvFrom": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/envFromSource"
+                            },
+                            "description": "Extra envFrom sources for syslogng containers",
+                            "default": []
+                        }
                     }
-                  }
-                },
-                "initialDelaySeconds": {
-                  "type": "integer"
-                },
-                "periodSeconds": {
-                  "type": "integer"
                 }
-              }
-            },
-            "livenessProbe": {
-              "type": "object",
-              "additionalProperties": true,
-              "properties": {
-                "tcpSocket": {
-                  "type": "object",
-                  "properties": {
-                    "port": {
-                      "type": ["integer", "string"]
-                    }
-                  }
-                },
-                "initialDelaySeconds": {
-                  "type": "integer"
-                },
-                "periodSeconds": {
-                  "type": "integer"
-                }
-              }
-            },
-            "envs": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/envVar"
-              },
-              "description": "Environment variables for RRDCached"
-            },
-            "extraEnvs": {
-              "type": "array",
-              "items": { "$ref": "#/definitions/envVar" },
-              "description": "Extra environment variables for RRDCached containers",
-              "default": []
-            },
-            "extraEnvFrom": {
-              "type": "array",
-              "items": { "$ref": "#/definitions/envFromSource" },
-              "description": "Extra envFrom sources for RRDCached containers",
-              "default": []
-            },
-            "nodeSelector": {
-              "allOf": [
-                { "$ref": "#/definitions/nodeSelector" },
-                { "description": "Node selector for rrdcached pods" }
-              ]
-            },
-            "extraVolumes": {
-              "type": "array",
-              "items": {
-                "type": "object"
-              },
-              "description": "Extra volumes for rrdcached pods"
-            },
-            "extraVolumeMounts": {
-              "type": "array",
-              "items": {
-                "type": "object"
-              },
-              "description": "Extra volume mounts for rrdcached containers"
             }
-          }
-        }
-      }
-    },
-    "ingress": {
-      "type": "object",
-      "description": "LibreNMS ingress configuration",
-      "additionalProperties": true
-    },
-    "externalDatabase": {
-      "type": "object",
-      "description": "External database configuration. Used when mysql.enabled is false.",
-      "additionalProperties": false,
-      "properties": {
-        "host": {
-          "type": "string",
-          "description": "Database host (DNS name or IP address). Supports both 'hostname' or 'hostname:port' formats. If port is included in the host field, it takes precedence over the separate port field."
         },
-        "port": {
-          "type": "integer",
-          "description": "Database port. Optional if port is included in the host field.",
-          "default": 3306
+        "ingress": {
+            "type": "object",
+            "description": "LibreNMS ingress configuration",
+            "additionalProperties": true
         },
-        "name": {
-          "type": "string",
-          "description": "Database name",
-          "default": "librenms"
-        },
-        "user": {
-          "type": "string",
-          "description": "Database username",
-          "default": "librenms"
-        },
-        "existingSecret": {
-          "type": "object",
-          "description": "Reference to existing secret containing database password",
-          "additionalProperties": false,
-          "properties": {
-            "name": {
-              "type": "string",
-              "description": "Name of the secret"
-            },
-            "key": {
-              "type": "string",
-              "description": "Key in the secret containing the password",
-              "default": "mysql-password"
+        "externalDatabase": {
+            "type": "object",
+            "description": "External database configuration. Used when mysql.enabled is false.",
+            "additionalProperties": false,
+            "properties": {
+                "host": {
+                    "type": "string",
+                    "description": "Database host (DNS name or IP address). Supports both 'hostname' or 'hostname:port' formats. If port is included in the host field, it takes precedence over the separate port field."
+                },
+                "port": {
+                    "type": "integer",
+                    "description": "Database port. Optional if port is included in the host field.",
+                    "default": 3306
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Database name",
+                    "default": "librenms"
+                },
+                "user": {
+                    "type": "string",
+                    "description": "Database username",
+                    "default": "librenms"
+                },
+                "existingSecret": {
+                    "type": "object",
+                    "description": "Reference to existing secret containing database password",
+                    "additionalProperties": false,
+                    "properties": {
+                        "name": {
+                            "type": "string",
+                            "description": "Name of the secret"
+                        },
+                        "key": {
+                            "type": "string",
+                            "description": "Key in the secret containing the password",
+                            "default": "mysql-password"
+                        }
+                    }
+                },
+                "password": {
+                    "type": "string",
+                    "description": "Database password (plain text, not recommended for production)"
+                },
+                "timeout": {
+                    "type": "integer",
+                    "description": "Database connection timeout in seconds",
+                    "default": 60
+                }
             }
-          }
         },
-        "password": {
-          "type": "string",
-          "description": "Database password (plain text, not recommended for production)"
-        },
-        "timeout": {
-          "type": "integer",
-          "description": "Database connection timeout in seconds",
-          "default": 60
+        "mysql": {
+            "type": "object",
+            "description": "Configuration for MySQL dependency chart by HelmForge (https://github.com/helmforgedev/charts/tree/main/charts/mysql). Additional properties are passed through to the subchart.",
+            "additionalProperties": true,
+            "properties": {
+                "enabled": {
+                    "type": "boolean",
+                    "description": "Enable bundled MySQL subchart. Set to false to use externalDatabase instead.",
+                    "default": true
+                },
+                "existingAuthSecret": {
+                    "oneOf": [
+                        {
+                            "type": "object",
+                            "description": "Use an existing secret for MySQL authentication. Useful when migrating from the Bitnami MySQL subchart, which created a secret named 'RELEASE-mysql' with key 'mysql-password'.",
+                            "additionalProperties": false,
+                            "properties": {
+                                "name": {
+                                    "type": "string",
+                                    "description": "Name of the existing secret containing the MySQL password"
+                                },
+                                "key": {
+                                    "type": "string",
+                                    "description": "Key in the secret containing the MySQL password",
+                                    "default": "mysql-user-password"
+                                }
+                            },
+                            "required": [
+                                "name"
+                            ]
+                        },
+                        {
+                            "type": "object",
+                            "description": "Empty object disables the override (default behavior)",
+                            "additionalProperties": false,
+                            "maxProperties": 0
+                        }
+                    ]
+                }
+            }
         }
-      }
     }
-  }
 }

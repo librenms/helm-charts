@@ -31,7 +31,7 @@ docs-%:
 	--volume "$$(pwd):/helm-docs" \
 	-u $$(id -u) \
 	jnorwood/helm-docs:$(DOCS_IMAGE_VERSION) \
-	helm-docs -c ./charts/$* -t ./README.gotmpl -o ./README.md
+	helm-docs -c ./charts/$* -t ./README.md.gotmpl -o ./README.md
 
 .PHONY: helm-deps-update
 helm-deps-update: $(addprefix helm-deps-update-, $(CHARTS_NAMES))

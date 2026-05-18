@@ -3,7 +3,7 @@ dependencies:
   repository: https://charts.bitnami.com/bitnami
   version: 24.0.0
 - name: mysql
-  repository: https://charts.bitnami.com/bitnami
-  version: 14.0.3
-digest: sha256:b6e64e09a90a665d2ae0bb30029e60b353f70dc0b75384575e2f070b1ea396f8
-generated: "2025-11-28T23:23:49.480554393Z"
+  repository: https://repo.helmforge.dev
+  version: 1.8.5
+digest: sha256:c47a0c664923f007ad9737ced46648a9b5c842166f83a9c0ce2c5e6b0a6e170a
+generated: "2026-04-21T13:55:08.727613995-05:00"

@@ -2,7 +2,7 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-# Allow use of images from bitnamilegacy repository
+# Allow use of images from bitnamilegacy repository (required for Redis subchart)
 global:
   security:
     allowInsecureImages: true
@@ -176,6 +176,30 @@ librenms:
     # -- Extra envFrom sources for SNMP scanner containers
     extraEnvFrom: []
 
+  # -- syslog-ng sidecar for receiving syslog messages from network devices on port 514.
+  # Requires $config['enable_syslog'] = true; in librenms.configuration to store messages.
+  # See: https://docs.librenms.org/Extensions/Syslog/
+  syslogng:
+    # -- Enable syslog-ng
+    enabled: false
+    # -- syslogng replicas
+    replicas: 1
+    # -- resources defines the computing resources (CPU and memory)
+    # that are allocated to the syslog-ng container.
+    resources: {}
+      # requests:
+      #   cpu: 100m
+      #   memory: 128M
+
+    # -- nodeSelector for syslogng pods
+    nodeSelector: {}
+
+    # -- Extra environment variables for syslogng containers
+    extraEnvs: []
+
+    # -- Extra envFrom sources for syslogng containers
+    extraEnvFrom: []
+
   # -- RRD cached is the tool that allows for distributed polling and is mandatory
   # in this LibreNMS helm chart. See the rrdcached documentation for more
   # information: https://oss.oetiker.ch/rrdtool/doc/rrdcached.en.html
@@ -261,18 +285,34 @@ ingress:
   #    hosts:
   #      - chart-example.local
 
-# -- Configuration for MySQL dependency chart by Bitnami. See their chart for
-# more information: https://github.com/bitnami/charts/tree/master/bitnami/mysql
+# -- Configuration for MySQL dependency chart by HelmForge. See their chart for
+# more information: https://github.com/helmforgedev/charts/tree/main/charts/mysql
 mysql:
   enabled: true
-  # Work around for Bitnami dropping support
-  # https://github.com/bitnami/charts/issues/35164
-  # https://github.com/bitnami/charts/issues/35256
-  image:
-    repository: bitnamilegacy/mysql
+  architecture: standalone
   auth:
     username: librenms
     database: librenms
+  # -- Use an existing secret for MySQL authentication instead of the auto-generated one.
+  # This is useful when migrating from the Bitnami MySQL subchart, which created a secret
+  # named "RELEASE-mysql" with key "mysql-password".
+  # Example for Bitnami migration:
+  #   existingAuthSecret:
+  #     name: my-release-mysql
+  #     key: mysql-password
+  existingAuthSecret: {}
+  # -- Set the default collation to utf8mb4_unicode_ci, which is required by LibreNMS.
+  # MySQL 8.4 defaults to utf8mb4_0900_ai_ci, which causes validation warnings.
+  # See: https://community.librenms.org/t/new-default-database-charset-collation/14956
+  config:
+    myCnf: |
+      [mysqld]
+      character-set-server=utf8mb4
+      collation-server=utf8mb4_unicode_ci
+  standalone:
+    persistence:
+      enabled: true
+      size: 8Gi
 
 # -- External database configuration. Used when mysql.enabled is false.
 # When mysql.enabled is true (default), the bundled MySQL subchart is used and these values are ignored.
