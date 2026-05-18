@@ -1,6 +1,6 @@
 # librenms
 
-![Version: 7.5.0](https://img.shields.io/badge/Version-7.5.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 26.4.1](https://img.shields.io/badge/AppVersion-26.4.1-informational?style=flat-square)
+![Version: 8.0.0](https://img.shields.io/badge/Version-8.0.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 26.4.1](https://img.shields.io/badge/AppVersion-26.4.1-informational?style=flat-square)
 
 LibreNMS is an autodiscovering PHP/MySQL-based network monitoring system.
 
@@ -29,8 +29,64 @@ $ helm install my-release librenms/librenms
 
 ### Internal Database (Default)
 
-By default, the chart deploys MySQL as part of the release (`mysql.enabled: true`).
+By default, the chart deploys [HelmForge MySQL](https://github.com/helmforgedev/charts/tree/main/charts/mysql) as part of the release (`mysql.enabled: true`).
 No additional database configuration is needed.
+
+The chart sets `collation-server=utf8mb4_unicode_ci` by default, which satisfies the
+[LibreNMS database collation requirement](https://community.librenms.org/t/new-default-database-charset-collation/14956)
+automatically on fresh installs.
+
+### Migrating from Bitnami MySQL (chart versions < 8.0.0)
+
+Chart v8.0.0 replaced the Bitnami MySQL subchart with [HelmForge MySQL](https://github.com/helmforgedev/charts/tree/main/charts/mysql). The two charts use **different data-directory layouts** on disk (Bitnami: `/bitnami/mysql`, HelmForge: `/var/lib/mysql`), so a **backup and restore is required** even though the PVC name (`data-RELEASE-mysql-0`) is unchanged.
+
+> **Note:** Replace `RELEASE` and `NAMESPACE` below with your Helm release name and Kubernetes namespace.
+
+**Step 1: Back up your database**
+
+```bash
+kubectl exec -n NAMESPACE RELEASE-mysql-0 -- mysqldump -uroot \
+  -p"$(kubectl get secret RELEASE-mysql -n NAMESPACE -o jsonpath='{.data.mysql-root-password}' | base64 -d)" \
+  --all-databases > backup.sql
+```
+
+**Step 2: Delete the old MySQL StatefulSet and its PVC**
+
+```bash
+kubectl delete statefulset RELEASE-mysql -n NAMESPACE --cascade=orphan
+kubectl delete pod RELEASE-mysql-0 -n NAMESPACE
+kubectl delete pvc data-RELEASE-mysql-0 -n NAMESPACE
+```
+
+**Step 3: Upgrade the chart**
+
+Point LibreNMS at the old Bitnami secret during the first upgrade so it can connect while HelmForge MySQL initializes:
+
+```yaml
+mysql:
+  existingAuthSecret:
+    name: RELEASE-mysql        # old Bitnami secret name
+    key: mysql-password        # old Bitnami secret key
+```
+
+```bash
+helm upgrade RELEASE ./charts/librenms -f values.yaml
+```
+
+**Step 4: Restore the backup**
+
+> **Note:** After upgrading, the HelmForge chart creates a new secret named `RELEASE-mysql-auth` (replacing the old Bitnami `RELEASE-mysql` secret).
+
+```bash
+kubectl cp backup.sql NAMESPACE/RELEASE-mysql-0:/tmp/backup.sql
+kubectl exec -n NAMESPACE RELEASE-mysql-0 -- mysql -uroot \
+  -p"$(kubectl get secret RELEASE-mysql-auth -n NAMESPACE -o jsonpath='{.data.mysql-root-password}' | base64 -d)" \
+  -e "SOURCE /tmp/backup.sql;"
+```
+
+**Step 5: Once verified, remove the `existingAuthSecret` override**
+
+After confirming everything works, remove the `mysql.existingAuthSecret` block from your values and run `helm upgrade` again. The chart will use the new HelmForge-generated secret going forward.
 
 ### External Database
 
@@ -52,7 +108,7 @@ externalDatabase:
   timeout: 60                        # database connection timeout in seconds
 ```
 
-**Note:** You can specify the port in either the `host` field (`mysql.example.com:3306`) OR the `port` field, but not both required.
+**Note:** You can specify the port in either the `host` field (`mysql.example.com:3306`) OR the `port` field, but not both.
 
 **Example with existing Kubernetes secret:**
 
@@ -80,10 +136,11 @@ externalDatabase:
 ```
 
 **Pre-requisites for external database:**
-- MySQL 5.7+ or MariaDB 10.2+
+- MySQL 8.0+ or MariaDB 10.5+
 - Database user with CREATE, ALTER, DROP, INSERT, UPDATE, DELETE privileges
 - Network connectivity from cluster to database host
-- Pre-created database (ensure `CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`)
+- MySQL server configured with `character-set-server=utf8mb4` and `collation-server=utf8mb4_unicode_ci`
+  (see [LibreNMS collation docs](https://community.librenms.org/t/new-default-database-charset-collation/14956))
 
 ## Persistence
 
@@ -158,7 +215,7 @@ librenms:
 
 ### Available values
 
-The following table lists the main configurable parameters of the librenms chart v7.5.0 and their default values. Please, refer to [values.yaml](./values.yaml) for the full list of configurable parameters.
+The following table lists the main configurable parameters of the librenms chart v8.0.0 and their default values. Please, refer to [values.yaml](./values.yaml) for the full list of configurable parameters.
 
 ## Values
 
@@ -242,8 +299,17 @@ The following table lists the main configurable parameters of the librenms chart
 | librenms.snmp_scanner.nodeSelector | object | `{}` | nodeSelector for SNMP scanner pods |
 | librenms.snmp_scanner.resources | object | `{}` | resources defines the computing resources (CPU and memory) that are allocated to the containers running within the Pod. |
 | librenms.snmp_scanner.securityContext | object | `{"fsGroup":1000,"runAsGroup":1000,"runAsNonRoot":true,"runAsUser":1000}` | securityContext defines the security settings for the SNMP scanner pod. These settings are required for the SNMP scanner to run properly. See: https://github.com/librenms/docker/pull/530 |
+| librenms.syslogng | object | `{"enabled":false,"extraEnvFrom":[],"extraEnvs":[],"nodeSelector":{},"replicas":1,"resources":{}}` | syslog-ng sidecar for receiving syslog messages from network devices on port 514. Requires $config['enable_syslog'] = true; in librenms.configuration to store messages. See: https://docs.librenms.org/Extensions/Syslog/ |
+| librenms.syslogng.enabled | bool | `false` | Enable syslog-ng |
+| librenms.syslogng.extraEnvFrom | list | `[]` | Extra envFrom sources for syslogng containers |
+| librenms.syslogng.extraEnvs | list | `[]` | Extra environment variables for syslogng containers |
+| librenms.syslogng.nodeSelector | object | `{}` | nodeSelector for syslogng pods |
+| librenms.syslogng.replicas | int | `1` | syslogng replicas |
+| librenms.syslogng.resources | object | `{}` | resources defines the computing resources (CPU and memory) that are allocated to the syslog-ng container. |
 | librenms.timezone | string | `"UTC"` | Timezone used by librenms for communication with RRD cached |
-| mysql | object | `{"auth":{"database":"librenms","username":"librenms"},"enabled":true,"image":{"repository":"bitnamilegacy/mysql"}}` | Configuration for MySQL dependency chart by Bitnami. See their chart for more information: https://github.com/bitnami/charts/tree/master/bitnami/mysql |
+| mysql | object | `{"architecture":"standalone","auth":{"database":"librenms","username":"librenms"},"config":{"myCnf":"[mysqld]\ncharacter-set-server=utf8mb4\ncollation-server=utf8mb4_unicode_ci\n"},"enabled":true,"existingAuthSecret":{},"standalone":{"persistence":{"enabled":true,"size":"8Gi"}}}` | Configuration for MySQL dependency chart by HelmForge. See their chart for more information: https://github.com/helmforgedev/charts/tree/main/charts/mysql |
+| mysql.config | object | `{"myCnf":"[mysqld]\ncharacter-set-server=utf8mb4\ncollation-server=utf8mb4_unicode_ci\n"}` | Set the default collation to utf8mb4_unicode_ci, which is required by LibreNMS. MySQL 8.4 defaults to utf8mb4_0900_ai_ci, which causes validation warnings. See: https://community.librenms.org/t/new-default-database-charset-collation/14956 |
+| mysql.existingAuthSecret | object | `{}` | Use an existing secret for MySQL authentication instead of the auto-generated one. This is useful when migrating from the Bitnami MySQL subchart, which created a secret named "RELEASE-mysql" with key "mysql-password". Example for Bitnami migration:   existingAuthSecret:     name: my-release-mysql     key: mysql-password |
 | redis | object | `{"architecture":"standalone","auth":{"enabled":false,"sentinel":false},"enabled":true,"image":{"repository":"bitnamilegacy/redis"},"master":{"disableCommands":[]},"sentinel":{"enabled":false}}` | Configuration for redis dependency chart by Bitnami. See their chart for more information: https://github.com/bitnami/charts/tree/master/bitnami/redis |
 
 ## Uninstalling the Chart
@@ -258,8 +324,8 @@ $ helm delete my-release
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://charts.bitnami.com/bitnami | mysql | ~14.0.0 |
 | https://charts.bitnami.com/bitnami | redis | 24.0.0 |
+| https://repo.helmforge.dev | mysql | ~1.8.0 |
 
 ## Maintainers
 
