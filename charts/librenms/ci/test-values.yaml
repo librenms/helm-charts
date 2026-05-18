@@ -62,6 +62,20 @@ librenms:
         cpu: 100m
         memory: 256Mi
         ephemeral-storage: 250Mi
+  syslogng:
+    enabled: true
+    extraEnvs:
+      - name: SYSLOG_DEBUG
+        value: "true"
+    resources:
+      limits:
+        cpu: 200m
+        memory: 256Mi
+        ephemeral-storage: 200Mi
+      requests:
+        cpu: 50m
+        memory: 128Mi
+        ephemeral-storage: 100Mi
   rrdcached:
     extraEnvs:
       - name: RRD_DEBUG

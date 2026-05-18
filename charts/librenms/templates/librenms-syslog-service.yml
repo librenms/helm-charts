@@ -1,0 +1,19 @@
+{{- if .Values.librenms.syslogng.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-syslogng
+spec:
+  selector:
+    app.kubernetes.io/name: {{ .Release.Name }}
+    app.kubernetes.io/instance: syslogng
+  ports:
+    - name: syslog-udp
+      protocol: UDP
+      port: 514
+      targetPort: 514
+    - name: syslog-tcp
+      protocol: TCP
+      port: 514
+      targetPort: 514
+{{- end }}

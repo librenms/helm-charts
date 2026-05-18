@@ -176,6 +176,30 @@ librenms:
     # -- Extra envFrom sources for SNMP scanner containers
     extraEnvFrom: []
 
+  # -- syslog-ng sidecar for receiving syslog messages from network devices on port 514.
+  # Requires $config['enable_syslog'] = true; in librenms.configuration to store messages.
+  # See: https://docs.librenms.org/Extensions/Syslog/
+  syslogng:
+    # -- Enable syslog-ng
+    enabled: false
+    # -- syslogng replicas
+    replicas: 1
+    # -- resources defines the computing resources (CPU and memory)
+    # that are allocated to the syslog-ng container.
+    resources: {}
+      # requests:
+      #   cpu: 100m
+      #   memory: 128M
+
+    # -- nodeSelector for syslogng pods
+    nodeSelector: {}
+
+    # -- Extra environment variables for syslogng containers
+    extraEnvs: []
+
+    # -- Extra envFrom sources for syslogng containers
+    extraEnvFrom: []
+
   # -- RRD cached is the tool that allows for distributed polling and is mandatory
   # in this LibreNMS helm chart. See the rrdcached documentation for more
   # information: https://oss.oetiker.ch/rrdtool/doc/rrdcached.en.html
