@@ -1,0 +1,96 @@
+{{- if .Values.librenms.syslogng.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-syslogng
+spec:
+  replicas: {{ .Values.librenms.syslogng.replicas }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Release.Name }}
+      app.kubernetes.io/instance: syslogng
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include "librenms.configChecksum" . }}
+      labels:
+        app.kubernetes.io/name: {{ .Release.Name }}
+        app.kubernetes.io/instance: syslogng
+    spec:
+      {{- with .Values.librenms.syslogng.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+      - name: env-volume
+        emptyDir: {}
+      - name: key
+        secret:
+          secretName: {{ include "librenms.secretName" . }}
+      - name: files
+        configMap:
+          name: {{ .Release.Name }}-files
+      initContainers:
+        - name: init
+          image: '{{ .Values.librenms.initContainer.image.repository }}:{{ .Values.librenms.initContainer.image.tag }}'
+          imagePullPolicy: {{ .Values.librenms.initContainer.image.pullPolicy }}
+          command: ["/bin/sh","/data/files/init.sh"]
+          {{- with .Values.librenms.initContainer.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.librenms.initContainer.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+          - name: env-volume
+            mountPath: /data/env-volume
+          - name: key
+            mountPath: /data/key
+          - name: files
+            mountPath: /data/files
+      containers:
+      - name: syslogng
+        image: '{{ .Values.librenms.image.repository }}:{{ .Values.librenms.image.tag }}'
+        imagePullPolicy: {{ .Values.librenms.image.pullPolicy }}
+        env:
+        - name: SIDECAR_SYSLOGNG
+          value: "1"
+        - name: DB_PASSWORD
+          {{- include "librenms.dbPasswordEnv" . | nindent 10 }}
+        {{- with .Values.librenms.extraEnvs }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with .Values.librenms.syslogng.extraEnvs }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        envFrom:
+        - configMapRef:
+            name: {{ .Release.Name }}
+        {{- with .Values.librenms.extraEnvFrom }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with .Values.librenms.syslogng.extraEnvFrom }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        volumeMounts:
+        - name: files
+          mountPath: /data/config/custom.php
+          subPath: custom.php
+          readOnly: true
+        - name: env-volume
+          mountPath: /data/.env
+          subPath: env
+        ports:
+        - name: syslog-udp
+          containerPort: 514
+          protocol: UDP
+        - name: syslog-tcp
+          containerPort: 514
+          protocol: TCP
+        {{- with .Values.librenms.syslogng.resources }}
+        resources:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+{{- end }}
