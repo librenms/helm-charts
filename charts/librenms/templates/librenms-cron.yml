@@ -11,6 +11,9 @@ spec:
         metadata:
           annotations:
             checksum/config: {{ include "librenms.configChecksum" . }}
+            {{- with .Values.librenms.snmp_scanner.podAnnotations }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
         spec:
           {{- with .Values.librenms.snmp_scanner.nodeSelector }}
           nodeSelector:

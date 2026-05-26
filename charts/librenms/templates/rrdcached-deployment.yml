@@ -12,6 +12,10 @@ spec:
       app.kubernetes.io/instance: rrdcached
   template:
     metadata:
+      {{- with .Values.librenms.rrdcached.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       labels:
         app.kubernetes.io/name: {{ .Release.Name }}
         app.kubernetes.io/instance: rrdcached

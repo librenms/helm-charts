@@ -331,6 +331,14 @@
                                 }
                             ]
                         },
+                        "podAnnotations": {
+                            "type": "object",
+                            "description": "Pod annotations for frontend pods ",
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "default": {}
+                        },
                         "privileged": {
                             "type": "boolean",
                             "description": "Run frontend pods as privileged",
@@ -398,6 +406,14 @@
                                 }
                             ]
                         },
+                        "podAnnotations": {
+                            "type": "object",
+                            "description": "Pod annotations for poller pods ",
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "default": {}
+                        },
                         "privileged": {
                             "type": "boolean",
                             "description": "Run poller pods as privileged",
@@ -459,6 +475,14 @@
                             "description": "SNMP scanner cron schedule",
                             "default": "15 * * * *"
                         },
+                        "podAnnotations": {
+                            "type": "object",
+                            "description": "Pod annotations for SNMP scanner pods ",
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "default": {}
+                        },
                         "securityContext": {
                             "type": "object",
                             "description": "Security context for SNMP scanner pod",
@@ -516,6 +540,14 @@
                                 "repository",
                                 "tag"
                             ]
+                        },
+                        "podAnnotations": {
+                            "type": "object",
+                            "description": "Pod annotations for rrdcached pods ",
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "default": {}
                         },
                         "persistence": {
                             "type": "object",
@@ -669,6 +701,14 @@
                             "type": "boolean",
                             "description": "Enable syslog-ng",
                             "default": false
+                        },
+                        "podAnnotations": {
+                            "type": "object",
+                            "description": "Pod annotations for syslogng pods ",
+                            "additionalProperties": {
+                                "type": "string"
+                            },
+                            "default": {}
                         },
                         "replicas": {
                             "type": "integer",
