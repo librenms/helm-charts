@@ -97,6 +97,9 @@ librenms:
     # The default is false.
     privileged: false
 
+    # -- podAnnotations for frontend pods
+    podAnnotations: {}
+
     # -- nodeSelector for frontend pods
     nodeSelector: {}
 
@@ -126,6 +129,9 @@ librenms:
     # Bool to control running the poller pods as privileged
     # The default is false
     privileged: false
+
+    # -- podAnnotations for poller pods
+    podAnnotations: {}
 
     # -- nodeSelector for poller pods
     nodeSelector: {}
@@ -167,6 +173,9 @@ librenms:
       #   cpu: 500m
       #   memory: 200M
 
+    # -- podAnnotations for SNMP scanner pods
+    podAnnotations: {}
+
     # -- nodeSelector for SNMP scanner pods
     nodeSelector: {}
 
@@ -190,6 +199,9 @@ librenms:
       # requests:
       #   cpu: 100m
       #   memory: 128M
+
+    # -- podAnnotations for syslogng pods
+    podAnnotations: {}
 
     # -- nodeSelector for syslogng pods
     nodeSelector: {}
@@ -254,6 +266,9 @@ librenms:
 
     # -- Extra envFrom sources for RRDCached containers
     extraEnvFrom: []
+
+    # -- podAnnotations for rrdcached pods
+    podAnnotations: {}
 
     # -- nodeSelector for rrdcached pods
     nodeSelector: {}
