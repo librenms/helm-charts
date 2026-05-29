@@ -1,0 +1,3 @@
+{
+  "ignoreList": ["github-actions[bot]"]
+}
