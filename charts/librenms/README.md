@@ -1,6 +1,6 @@
 # librenms
 
-![Version: 8.0.0](https://img.shields.io/badge/Version-8.0.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 26.4.1](https://img.shields.io/badge/AppVersion-26.4.1-informational?style=flat-square)
+![Version: 8.1.0](https://img.shields.io/badge/Version-8.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 26.5.1](https://img.shields.io/badge/AppVersion-26.5.1-informational?style=flat-square)
 
 LibreNMS is an autodiscovering PHP/MySQL-based network monitoring system.
 
@@ -215,7 +215,7 @@ librenms:
 
 ### Available values
 
-The following table lists the main configurable parameters of the librenms chart v8.0.0 and their default values. Please, refer to [values.yaml](./values.yaml) for the full list of configurable parameters.
+The following table lists the main configurable parameters of the librenms chart v8.1.0 and their default values. Please, refer to [values.yaml](./values.yaml) for the full list of configurable parameters.
 
 ## Values
 
@@ -247,6 +247,7 @@ The following table lists the main configurable parameters of the librenms chart
 | librenms.frontend.extraVolumeMounts | list | `[]` | Extra volume mounts for frontend containers |
 | librenms.frontend.extraVolumes | list | `[]` | Extra volumes for frontend pods |
 | librenms.frontend.nodeSelector | object | `{}` | nodeSelector for frontend pods |
+| librenms.frontend.podAnnotations | object | `{}` | podAnnotations for frontend pods |
 | librenms.frontend.privileged | bool | `false` |  |
 | librenms.frontend.readinessProbe.httpGet.path | string | `"/login"` | Check endpoint path |
 | librenms.frontend.readinessProbe.httpGet.port | int | `8000` | Check endpoint port |
@@ -257,11 +258,11 @@ The following table lists the main configurable parameters of the librenms chart
 | librenms.frontend.resources | object | `{}` | resources defines the computing resources (CPU and memory) that are allocated to the containers running within the Pod. |
 | librenms.image.pullPolicy | string | `"Always"` | pullPolicy is the Kubernetes image pull policy for the main LibreNMS image. |
 | librenms.image.repository | string | `"librenms/librenms"` | repository is the image repository to pull from. |
-| librenms.image.tag | string | `"26.4.1"` | tag is image tag to pull. |
-| librenms.initContainer | object | `{"image":{"pullPolicy":"Always","repository":"busybox","tag":"1.37"},"resources":{},"securityContext":{}}` | initContainer configuration options |
+| librenms.image.tag | string | `"26.5.1"` | tag is image tag to pull. |
+| librenms.initContainer | object | `{"image":{"pullPolicy":"Always","repository":"busybox","tag":"1.38"},"resources":{},"securityContext":{}}` | initContainer configuration options |
 | librenms.initContainer.image.pullPolicy | string | `"Always"` | pullPolicy is the Kubernetes image pull policy for the init container image. |
 | librenms.initContainer.image.repository | string | `"busybox"` | repository is the init container image repository to pull from. |
-| librenms.initContainer.image.tag | string | `"1.37"` | tag is the init container image tag to pull. |
+| librenms.initContainer.image.tag | string | `"1.38"` | tag is the init container image tag to pull. |
 | librenms.initContainer.resources | object | `{}` | resources defines the computing resources (CPU and memory) that are allocated to the init container. |
 | librenms.initContainer.securityContext | object | `{}` | securityContext defines the security settings for the init container. |
 | librenms.poller.extraEnvFrom | list | `[]` | Extra envFrom sources for poller containers |
@@ -269,11 +270,12 @@ The following table lists the main configurable parameters of the librenms chart
 | librenms.poller.extraVolumeMounts | list | `[]` | Extra volume mounts for poller containers |
 | librenms.poller.extraVolumes | list | `[]` | Extra volumes for poller pods |
 | librenms.poller.nodeSelector | object | `{}` | nodeSelector for poller pods |
+| librenms.poller.podAnnotations | object | `{}` | podAnnotations for poller pods |
 | librenms.poller.privileged | bool | `false` |  |
 | librenms.poller.replicas | int | `2` | Poller replicas |
 | librenms.poller.resources | object | `{}` | resources defines the computing resources (CPU and memory) that are allocated to the containers running within the Pod. |
 | librenms.privileged | bool | `false` |  |
-| librenms.rrdcached | object | `{"envs":[{"name":"WRITE_JITTER","value":"1800"},{"name":"WRITE_TIMEOUT","value":"1800"}],"extraEnvFrom":[],"extraEnvs":[],"extraVolumeMounts":[],"extraVolumes":[],"image":{"pullPolicy":"Always","repository":"crazymax/rrdcached","tag":"1.8.0"},"livenessProbe":{"initialDelaySeconds":15,"periodSeconds":20,"tcpSocket":{"port":42217}},"nodeSelector":{},"persistence":{"enabled":true,"journal":{"size":"1Gi","storageClassName":""},"rrdcached":{"size":"10Gi","storageClassName":""}},"readinessProbe":{"initialDelaySeconds":5,"periodSeconds":10,"tcpSocket":{"port":42217}},"resources":{}}` | RRD cached is the tool that allows for distributed polling and is mandatory in this LibreNMS helm chart. See the rrdcached documentation for more information: https://oss.oetiker.ch/rrdtool/doc/rrdcached.en.html |
+| librenms.rrdcached | object | `{"envs":[{"name":"WRITE_JITTER","value":"1800"},{"name":"WRITE_TIMEOUT","value":"1800"}],"extraEnvFrom":[],"extraEnvs":[],"extraVolumeMounts":[],"extraVolumes":[],"image":{"pullPolicy":"Always","repository":"crazymax/rrdcached","tag":"1.8.0"},"livenessProbe":{"initialDelaySeconds":15,"periodSeconds":20,"tcpSocket":{"port":42217}},"nodeSelector":{},"persistence":{"enabled":true,"journal":{"size":"1Gi","storageClassName":""},"rrdcached":{"size":"10Gi","storageClassName":""}},"podAnnotations":{},"readinessProbe":{"initialDelaySeconds":5,"periodSeconds":10,"tcpSocket":{"port":42217}},"resources":{}}` | RRD cached is the tool that allows for distributed polling and is mandatory in this LibreNMS helm chart. See the rrdcached documentation for more information: https://oss.oetiker.ch/rrdtool/doc/rrdcached.en.html |
 | librenms.rrdcached.envs[0] | object | `{"name":"WRITE_JITTER","value":"1800"}` | env variables RRD Cached |
 | librenms.rrdcached.extraEnvFrom | list | `[]` | Extra envFrom sources for RRDCached containers |
 | librenms.rrdcached.extraEnvs | list | `[]` | Extra environment variables for RRDCached containers |
@@ -289,21 +291,24 @@ The following table lists the main configurable parameters of the librenms chart
 | librenms.rrdcached.persistence.journal.storageClassName | string | `""` | RRDCached journal storage class name |
 | librenms.rrdcached.persistence.rrdcached.size | string | `"10Gi"` | RRDCached RRD storage PV size |
 | librenms.rrdcached.persistence.rrdcached.storageClassName | string | `""` | RRDCached RRD storage class name |
+| librenms.rrdcached.podAnnotations | object | `{}` | podAnnotations for rrdcached pods |
 | librenms.rrdcached.readinessProbe.tcpSocket | object | `{"port":42217}` | RRD cached readiness probe |
 | librenms.rrdcached.resources | object | `{}` | resources defines the computing resources (CPU and memory) that are allocated to the containers running within the Pod. |
-| librenms.snmp_scanner | object | `{"cron":"15 * * * *","enabled":false,"extraEnvFrom":[],"extraEnvs":[],"nodeSelector":{},"resources":{},"securityContext":{"fsGroup":1000,"runAsGroup":1000,"runAsNonRoot":true,"runAsUser":1000}}` | SNMP network discovery scanner cron job. This job is optional and only use when having snmp network discovery enabled. For this to work either set the 'nets' configuration in the custom config on in the admin interface See the following link for more information: https://docs.librenms.org/Extensions/Auto-Discovery/ |
+| librenms.snmp_scanner | object | `{"cron":"15 * * * *","enabled":false,"extraEnvFrom":[],"extraEnvs":[],"nodeSelector":{},"podAnnotations":{},"resources":{},"securityContext":{"fsGroup":1000,"runAsGroup":1000,"runAsNonRoot":true,"runAsUser":1000}}` | SNMP network discovery scanner cron job. This job is optional and only use when having snmp network discovery enabled. For this to work either set the 'nets' configuration in the custom config on in the admin interface See the following link for more information: https://docs.librenms.org/Extensions/Auto-Discovery/ |
 | librenms.snmp_scanner.cron | string | `"15 * * * *"` | SNMP scanner cronjob syntax interval |
 | librenms.snmp_scanner.enabled | bool | `false` | SNMP scanner enabled |
 | librenms.snmp_scanner.extraEnvFrom | list | `[]` | Extra envFrom sources for SNMP scanner containers |
 | librenms.snmp_scanner.extraEnvs | list | `[]` | Extra environment variables for SNMP scanner containers |
 | librenms.snmp_scanner.nodeSelector | object | `{}` | nodeSelector for SNMP scanner pods |
+| librenms.snmp_scanner.podAnnotations | object | `{}` | podAnnotations for SNMP scanner pods |
 | librenms.snmp_scanner.resources | object | `{}` | resources defines the computing resources (CPU and memory) that are allocated to the containers running within the Pod. |
 | librenms.snmp_scanner.securityContext | object | `{"fsGroup":1000,"runAsGroup":1000,"runAsNonRoot":true,"runAsUser":1000}` | securityContext defines the security settings for the SNMP scanner pod. These settings are required for the SNMP scanner to run properly. See: https://github.com/librenms/docker/pull/530 |
-| librenms.syslogng | object | `{"enabled":false,"extraEnvFrom":[],"extraEnvs":[],"nodeSelector":{},"replicas":1,"resources":{}}` | syslog-ng sidecar for receiving syslog messages from network devices on port 514. Requires $config['enable_syslog'] = true; in librenms.configuration to store messages. See: https://docs.librenms.org/Extensions/Syslog/ |
+| librenms.syslogng | object | `{"enabled":false,"extraEnvFrom":[],"extraEnvs":[],"nodeSelector":{},"podAnnotations":{},"replicas":1,"resources":{}}` | syslog-ng sidecar for receiving syslog messages from network devices on port 514. Requires $config['enable_syslog'] = true; in librenms.configuration to store messages. See: https://docs.librenms.org/Extensions/Syslog/ |
 | librenms.syslogng.enabled | bool | `false` | Enable syslog-ng |
 | librenms.syslogng.extraEnvFrom | list | `[]` | Extra envFrom sources for syslogng containers |
 | librenms.syslogng.extraEnvs | list | `[]` | Extra environment variables for syslogng containers |
 | librenms.syslogng.nodeSelector | object | `{}` | nodeSelector for syslogng pods |
+| librenms.syslogng.podAnnotations | object | `{}` | podAnnotations for syslogng pods |
 | librenms.syslogng.replicas | int | `1` | syslogng replicas |
 | librenms.syslogng.resources | object | `{}` | resources defines the computing resources (CPU and memory) that are allocated to the syslog-ng container. |
 | librenms.timezone | string | `"UTC"` | Timezone used by librenms for communication with RRD cached |
