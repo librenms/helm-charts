@@ -1,6 +1,6 @@
 # librenms
 
-![Version: 8.1.0](https://img.shields.io/badge/Version-8.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 26.5.1](https://img.shields.io/badge/AppVersion-26.5.1-informational?style=flat-square)
+![Version: 8.2.0](https://img.shields.io/badge/Version-8.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 26.6.0](https://img.shields.io/badge/AppVersion-26.6.0-informational?style=flat-square)
 
 LibreNMS is an autodiscovering PHP/MySQL-based network monitoring system.
 
@@ -215,7 +215,7 @@ librenms:
 
 ### Available values
 
-The following table lists the main configurable parameters of the librenms chart v8.1.0 and their default values. Please, refer to [values.yaml](./values.yaml) for the full list of configurable parameters.
+The following table lists the main configurable parameters of the librenms chart v8.2.0 and their default values. Please, refer to [values.yaml](./values.yaml) for the full list of configurable parameters.
 
 ## Values
 
@@ -258,7 +258,7 @@ The following table lists the main configurable parameters of the librenms chart
 | librenms.frontend.resources | object | `{}` | resources defines the computing resources (CPU and memory) that are allocated to the containers running within the Pod. |
 | librenms.image.pullPolicy | string | `"Always"` | pullPolicy is the Kubernetes image pull policy for the main LibreNMS image. |
 | librenms.image.repository | string | `"librenms/librenms"` | repository is the image repository to pull from. |
-| librenms.image.tag | string | `"26.5.1"` | tag is image tag to pull. |
+| librenms.image.tag | string | `"26.6.0"` | tag is image tag to pull. |
 | librenms.initContainer | object | `{"image":{"pullPolicy":"Always","repository":"busybox","tag":"1.38"},"resources":{},"securityContext":{}}` | initContainer configuration options |
 | librenms.initContainer.image.pullPolicy | string | `"Always"` | pullPolicy is the Kubernetes image pull policy for the init container image. |
 | librenms.initContainer.image.repository | string | `"busybox"` | repository is the init container image repository to pull from. |
