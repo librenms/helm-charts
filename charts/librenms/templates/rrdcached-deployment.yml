@@ -1,3 +1,4 @@
+{{- if .Values.librenms.rrdcached.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -96,3 +97,4 @@ spec:
         resources:
           {{- toYaml . | nindent 10 }}
         {{- end }}
+{{- end }}

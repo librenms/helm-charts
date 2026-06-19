@@ -218,6 +218,8 @@ librenms:
   # in this LibreNMS helm chart. See the rrdcached documentation for more
   # information: https://oss.oetiker.ch/rrdtool/doc/rrdcached.en.html
   rrdcached:
+    # -- RRDCached enabled
+    enabled: true
     image:
       # -- repository is the image repository to pull from.
       repository: crazymax/rrdcached

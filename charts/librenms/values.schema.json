@@ -528,6 +528,11 @@
                     "type": "object",
                     "additionalProperties": false,
                     "properties": {
+                        "enabled": {
+                            "type": "boolean",
+                            "description": "RRDCached enabled",
+                            "default": true
+                        },
                         "image": {
                             "type": "object",
                             "additionalProperties": true,
