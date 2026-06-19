@@ -71,6 +71,8 @@ librenms:
 
   # Frontend container configurations options
   frontend:
+    # -- Frontend enabled
+    enabled: true
     # -- Frontend replicas
     replicas: 1
     readinessProbe:

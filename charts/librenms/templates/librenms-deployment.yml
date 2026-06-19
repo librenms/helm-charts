@@ -1,3 +1,4 @@
+{{- if .Values.librenms.frontend.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -109,3 +110,4 @@ spec:
         ports:
         - name: http
           containerPort: 8000
+{{- end }}

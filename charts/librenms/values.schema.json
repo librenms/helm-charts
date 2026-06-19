@@ -285,6 +285,11 @@
                     "type": "object",
                     "additionalProperties": false,
                     "properties": {
+                        "enabled": {
+                            "type": "boolean",
+                            "description": "Frontend enabled",
+                            "default": true
+                        },
                         "replicas": {
                             "type": "integer",
                             "description": "Frontend replicas",
