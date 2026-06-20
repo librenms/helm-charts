@@ -119,6 +119,8 @@ librenms:
 
   # Distributed poller container configurations options
   poller:
+    # -- Poller name
+    name: ""
     # -- Poller replicas
     replicas: 2
     # -- resources defines the computing resources (CPU and memory)

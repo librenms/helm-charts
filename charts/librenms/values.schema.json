@@ -395,6 +395,11 @@
                     "type": "object",
                     "additionalProperties": false,
                     "properties": {
+                        "name": {
+                            "type": "string",
+                            "description": "Poller name",
+                            "default": ""
+                        },
                         "replicas": {
                             "type": "integer",
                             "description": "Poller replicas",
