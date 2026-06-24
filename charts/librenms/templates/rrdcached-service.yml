@@ -1,3 +1,4 @@
+{{- if .Values.librenms.rrdcached.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -26,3 +27,4 @@ spec:
       port: 42217
       targetPort: 42217
   clusterIP: None
+{{- end }}
