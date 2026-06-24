@@ -147,24 +147,6 @@
         }
     },
     "properties": {
-        "global": {
-            "type": "object",
-            "description": "Global Helm chart values",
-            "properties": {
-                "security": {
-                    "type": "object",
-                    "properties": {
-                        "allowInsecureImages": {
-                            "type": "boolean",
-                            "description": "Allow use of images from bitnamilegacy repository (required for Redis subchart)",
-                            "default": true
-                        }
-                    },
-                    "additionalProperties": false
-                }
-            },
-            "additionalProperties": true
-        },
         "librenms": {
             "type": "object",
             "required": [

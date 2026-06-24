@@ -6,7 +6,7 @@ metadata:
 data:
   TZ: {{ .Values.librenms.timezone}}
   DB_TIMEOUT: {{ include "librenms.dbTimeout" . | quote }}
-  REDIS_HOST: {{ .Release.Name }}-redis-master
+  REDIS_HOST: {{ .Release.Name }}-redis-client
   REDIS_PORT: "6379"
   REDIS_DB: "0"
   RRDCACHED_SERVER: "{{ .Release.Name }}-rrdcached:42217"
