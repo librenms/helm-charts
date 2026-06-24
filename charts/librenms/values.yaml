@@ -2,11 +2,6 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-# Allow use of images from bitnamilegacy repository (required for Redis subchart)
-global:
-  security:
-    allowInsecureImages: true
-
 librenms:
   image:
     # -- repository is the image repository to pull from.
@@ -364,20 +359,13 @@ externalDatabase:
   # -- Optional: DB connection timeout in seconds
   timeout: 60
 
-# -- Configuration for redis dependency chart by Bitnami. See their chart for
-# more information: https://github.com/bitnami/charts/tree/master/bitnami/redis
+# -- Configuration for redis dependency chart by HelmForge. See their chart for
+# more information: https://github.com/helmforgedev/charts/tree/main/charts/redis
 redis:
   enabled: true
-  # Work around for Bitnami dropping support
-  # https://github.com/bitnami/charts/issues/35164
-  # https://github.com/bitnami/charts/issues/35256
-  image:
-    repository: bitnamilegacy/redis
   auth:
     enabled: false
-    sentinel: false
-  sentinel:
-    enabled: false
-  master:
-    disableCommands: []
+  standalone:
+    persistence:
+      enabled: false
   architecture: standalone
