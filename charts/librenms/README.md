@@ -1,6 +1,6 @@
 # librenms
 
-![Version: 8.2.1](https://img.shields.io/badge/Version-8.2.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 26.6.1](https://img.shields.io/badge/AppVersion-26.6.1-informational?style=flat-square)
+![Version: 8.2.2](https://img.shields.io/badge/Version-8.2.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 26.6.1](https://img.shields.io/badge/AppVersion-26.6.1-informational?style=flat-square)
 
 LibreNMS is an autodiscovering PHP/MySQL-based network monitoring system.
 
@@ -215,7 +215,7 @@ librenms:
 
 ### Available values
 
-The following table lists the main configurable parameters of the librenms chart v8.2.1 and their default values. Please, refer to [values.yaml](./values.yaml) for the full list of configurable parameters.
+The following table lists the main configurable parameters of the librenms chart v8.2.2 and their default values. Please, refer to [values.yaml](./values.yaml) for the full list of configurable parameters.
 
 ## Values
 
@@ -242,6 +242,7 @@ The following table lists the main configurable parameters of the librenms chart
 | librenms.existingSecret | bool | `false` | Existing secret name to use for appkey Must have the key 'appkey' as above |
 | librenms.extraEnvFrom | list | `[]` | Extra envFrom sources applied to all LibreNMS components |
 | librenms.extraEnvs | list | `[]` | Extra environment variables applied to all LibreNMS components |
+| librenms.frontend.enabled | bool | `true` | Frontend enabled |
 | librenms.frontend.extraEnvFrom | list | `[]` | Extra envFrom sources for frontend containers |
 | librenms.frontend.extraEnvs | list | `[]` | Extra environment variables for frontend containers |
 | librenms.frontend.extraVolumeMounts | list | `[]` | Extra volume mounts for frontend containers |
@@ -269,13 +270,15 @@ The following table lists the main configurable parameters of the librenms chart
 | librenms.poller.extraEnvs | list | `[]` | Extra environment variables for poller containers |
 | librenms.poller.extraVolumeMounts | list | `[]` | Extra volume mounts for poller containers |
 | librenms.poller.extraVolumes | list | `[]` | Extra volumes for poller pods |
+| librenms.poller.name | string | `""` | Poller name |
 | librenms.poller.nodeSelector | object | `{}` | nodeSelector for poller pods |
 | librenms.poller.podAnnotations | object | `{}` | podAnnotations for poller pods |
 | librenms.poller.privileged | bool | `false` |  |
 | librenms.poller.replicas | int | `2` | Poller replicas |
 | librenms.poller.resources | object | `{}` | resources defines the computing resources (CPU and memory) that are allocated to the containers running within the Pod. |
 | librenms.privileged | bool | `false` |  |
-| librenms.rrdcached | object | `{"envs":[{"name":"WRITE_JITTER","value":"1800"},{"name":"WRITE_TIMEOUT","value":"1800"}],"extraEnvFrom":[],"extraEnvs":[],"extraVolumeMounts":[],"extraVolumes":[],"image":{"pullPolicy":"Always","repository":"crazymax/rrdcached","tag":"1.8.0"},"livenessProbe":{"initialDelaySeconds":15,"periodSeconds":20,"tcpSocket":{"port":42217}},"nodeSelector":{},"persistence":{"enabled":true,"journal":{"size":"1Gi","storageClassName":""},"rrdcached":{"size":"10Gi","storageClassName":""}},"podAnnotations":{},"readinessProbe":{"initialDelaySeconds":5,"periodSeconds":10,"tcpSocket":{"port":42217}},"resources":{}}` | RRD cached is the tool that allows for distributed polling and is mandatory in this LibreNMS helm chart. See the rrdcached documentation for more information: https://oss.oetiker.ch/rrdtool/doc/rrdcached.en.html |
+| librenms.rrdcached | object | `{"enabled":true,"envs":[{"name":"WRITE_JITTER","value":"1800"},{"name":"WRITE_TIMEOUT","value":"1800"}],"extraEnvFrom":[],"extraEnvs":[],"extraVolumeMounts":[],"extraVolumes":[],"image":{"pullPolicy":"Always","repository":"crazymax/rrdcached","tag":"1.8.0"},"livenessProbe":{"initialDelaySeconds":15,"periodSeconds":20,"tcpSocket":{"port":42217}},"nodeSelector":{},"persistence":{"enabled":true,"journal":{"size":"1Gi","storageClassName":""},"rrdcached":{"size":"10Gi","storageClassName":""}},"podAnnotations":{},"readinessProbe":{"initialDelaySeconds":5,"periodSeconds":10,"tcpSocket":{"port":42217}},"resources":{}}` | RRD cached is the tool that allows for distributed polling and is mandatory in this LibreNMS helm chart. See the rrdcached documentation for more information: https://oss.oetiker.ch/rrdtool/doc/rrdcached.en.html |
+| librenms.rrdcached.enabled | bool | `true` | RRDCached enabled |
 | librenms.rrdcached.envs[0] | object | `{"name":"WRITE_JITTER","value":"1800"}` | env variables RRD Cached |
 | librenms.rrdcached.extraEnvFrom | list | `[]` | Extra envFrom sources for RRDCached containers |
 | librenms.rrdcached.extraEnvs | list | `[]` | Extra environment variables for RRDCached containers |
