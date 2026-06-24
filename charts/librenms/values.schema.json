@@ -285,6 +285,11 @@
                     "type": "object",
                     "additionalProperties": false,
                     "properties": {
+                        "enabled": {
+                            "type": "boolean",
+                            "description": "Frontend enabled",
+                            "default": true
+                        },
                         "replicas": {
                             "type": "integer",
                             "description": "Frontend replicas",
@@ -390,6 +395,11 @@
                     "type": "object",
                     "additionalProperties": false,
                     "properties": {
+                        "name": {
+                            "type": "string",
+                            "description": "Poller name",
+                            "default": ""
+                        },
                         "replicas": {
                             "type": "integer",
                             "description": "Poller replicas",
@@ -523,6 +533,11 @@
                     "type": "object",
                     "additionalProperties": false,
                     "properties": {
+                        "enabled": {
+                            "type": "boolean",
+                            "description": "RRDCached enabled",
+                            "default": true
+                        },
                         "image": {
                             "type": "object",
                             "additionalProperties": true,

@@ -71,6 +71,8 @@ librenms:
 
   # Frontend container configurations options
   frontend:
+    # -- Frontend enabled
+    enabled: true
     # -- Frontend replicas
     replicas: 1
     readinessProbe:
@@ -117,6 +119,8 @@ librenms:
 
   # Distributed poller container configurations options
   poller:
+    # -- Poller name
+    name: ""
     # -- Poller replicas
     replicas: 2
     # -- resources defines the computing resources (CPU and memory)
@@ -216,6 +220,8 @@ librenms:
   # in this LibreNMS helm chart. See the rrdcached documentation for more
   # information: https://oss.oetiker.ch/rrdtool/doc/rrdcached.en.html
   rrdcached:
+    # -- RRDCached enabled
+    enabled: true
     image:
       # -- repository is the image repository to pull from.
       repository: crazymax/rrdcached

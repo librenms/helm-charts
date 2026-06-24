@@ -55,6 +55,17 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
+Create the name of the pollers
+*/}}
+{{- define "librenms.poller.name" -}}
+{{- if .Values.librenms.poller.name -}}
+{{- .Values.librenms.poller.name | trunc 63 | trimSuffix "-" }}
+{{- else -}}
+{{ .Release.Name }}-poller
+{{- end -}}
+{{- end -}}
+
+{{/*
 Create the name of the service account to use
 */}}
 {{- define "librenms.serviceAccountName" -}}
