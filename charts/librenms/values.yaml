@@ -365,7 +365,4 @@ redis:
   enabled: true
   auth:
     enabled: false
-  standalone:
-    persistence:
-      enabled: false
   architecture: standalone
