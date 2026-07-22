@@ -1,9 +1,9 @@
 dependencies:
 - name: redis
-  repository: https://charts.bitnami.com/bitnami
-  version: 24.0.0
+  repository: https://repo.helmforge.dev
+  version: 1.6.19
 - name: mysql
   repository: https://repo.helmforge.dev
-  version: 1.8.5
-digest: sha256:c47a0c664923f007ad9737ced46648a9b5c842166f83a9c0ce2c5e6b0a6e170a
-generated: "2026-04-21T13:55:08.727613995-05:00"
+  version: 1.8.7
+digest: sha256:4b1f46ab1d99103ec87f0dda0640c18d3c5e93374c57f50a16df838116b4cd91
+generated: "2026-06-24T21:16:32.857158837+02:00"
