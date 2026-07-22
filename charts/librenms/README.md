@@ -1,6 +1,6 @@
 # librenms
 
-![Version: 8.2.2](https://img.shields.io/badge/Version-8.2.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 26.6.1](https://img.shields.io/badge/AppVersion-26.6.1-informational?style=flat-square)
+![Version: 9.0.0](https://img.shields.io/badge/Version-9.0.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 26.6.1](https://img.shields.io/badge/AppVersion-26.6.1-informational?style=flat-square)
 
 LibreNMS is an autodiscovering PHP/MySQL-based network monitoring system.
 
@@ -215,7 +215,7 @@ librenms:
 
 ### Available values
 
-The following table lists the main configurable parameters of the librenms chart v8.2.2 and their default values. Please, refer to [values.yaml](./values.yaml) for the full list of configurable parameters.
+The following table lists the main configurable parameters of the librenms chart v9.0.0 and their default values. Please, refer to [values.yaml](./values.yaml) for the full list of configurable parameters.
 
 ## Values
 
@@ -231,7 +231,6 @@ The following table lists the main configurable parameters of the librenms chart
 | externalDatabase.port | int | `3306` | DB port (MySQL default 3306). Optional if port is included in the host field. |
 | externalDatabase.timeout | int | `60` | Optional: DB connection timeout in seconds |
 | externalDatabase.user | string | `"librenms"` | Database username |
-| global.security.allowInsecureImages | bool | `true` |  |
 | ingress | object | `{"annotations":{},"className":"","enabled":false,"hosts":[{"host":"chart-example.local","paths":[{"path":"/","pathType":"ImplementationSpecific"}]}],"tls":[]}` | LibreNMS ingress configuration |
 | ingress.annotations | object | `{}` | Ingress annotations |
 | ingress.className | string | `""` | Ingress class name |
@@ -318,7 +317,7 @@ The following table lists the main configurable parameters of the librenms chart
 | mysql | object | `{"architecture":"standalone","auth":{"database":"librenms","username":"librenms"},"config":{"myCnf":"[mysqld]\ncharacter-set-server=utf8mb4\ncollation-server=utf8mb4_unicode_ci\n"},"enabled":true,"existingAuthSecret":{},"standalone":{"persistence":{"enabled":true,"size":"8Gi"}}}` | Configuration for MySQL dependency chart by HelmForge. See their chart for more information: https://github.com/helmforgedev/charts/tree/main/charts/mysql |
 | mysql.config | object | `{"myCnf":"[mysqld]\ncharacter-set-server=utf8mb4\ncollation-server=utf8mb4_unicode_ci\n"}` | Set the default collation to utf8mb4_unicode_ci, which is required by LibreNMS. MySQL 8.4 defaults to utf8mb4_0900_ai_ci, which causes validation warnings. See: https://community.librenms.org/t/new-default-database-charset-collation/14956 |
 | mysql.existingAuthSecret | object | `{}` | Use an existing secret for MySQL authentication instead of the auto-generated one. This is useful when migrating from the Bitnami MySQL subchart, which created a secret named "RELEASE-mysql" with key "mysql-password". Example for Bitnami migration:   existingAuthSecret:     name: my-release-mysql     key: mysql-password |
-| redis | object | `{"architecture":"standalone","auth":{"enabled":false,"sentinel":false},"enabled":true,"image":{"repository":"bitnamilegacy/redis"},"master":{"disableCommands":[]},"sentinel":{"enabled":false}}` | Configuration for redis dependency chart by Bitnami. See their chart for more information: https://github.com/bitnami/charts/tree/master/bitnami/redis |
+| redis | object | `{"architecture":"standalone","auth":{"enabled":false},"enabled":true}` | Configuration for redis dependency chart by HelmForge. See their chart for more information: https://github.com/helmforgedev/charts/tree/main/charts/redis |
 
 ## Uninstalling the Chart
 
@@ -332,8 +331,8 @@ $ helm delete my-release
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://charts.bitnami.com/bitnami | redis | 24.0.0 |
 | https://repo.helmforge.dev | mysql | ~1.8.0 |
+| https://repo.helmforge.dev | redis | 1.6.19 |
 
 ## Maintainers
 
