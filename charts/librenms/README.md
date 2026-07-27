@@ -188,6 +188,23 @@ librenms:
 ```
 If both are left blank, the chart will generate and persist a random key automatically.
 
+### APP_URL and APP_TRUSTED_PROXIES
+
+When TLS is terminated at an ingress or load balancer in front of LibreNMS (the normal Kubernetes pattern), the pod itself only sees plain HTTP traffic. Without telling Laravel about the real external URL and which proxies to trust, LibreNMS
+generates all links using the HTTP schema instead of HTTPS. This results in mixed security browser content and redirects, which are generally rejected by browsers.
+
+Both values are optional and blank by default. If left unset, the corresponding `APP_URL`/`APP_TRUSTED_PROXIES` environment variables are omitted.
+
+Set `librenms.frontend.appUrl` to the externally visible URL of your instance, and `librenms.frontend.appTrustedProxies` to the proxy IPs/CIDRs in front of it (or `"*"` to trust all):
+
+```yaml
+librenms:
+  frontend:
+    appUrl: "https://librenms.example.com"
+    appTrustedProxies:
+      - "10.0.0.0/8"
+```
+
 ### Recommendations
 
 * `librenms.poller.replicas`: Depending on the scale of your installation, the amount of poller pods needs to be scaled up. Use the poller page in the LibreNMS interface to check for scaling issues.
@@ -241,6 +258,8 @@ The following table lists the main configurable parameters of the librenms chart
 | librenms.existingSecret | bool | `false` | Existing secret name to use for appkey Must have the key 'appkey' as above |
 | librenms.extraEnvFrom | list | `[]` | Extra envFrom sources applied to all LibreNMS components |
 | librenms.extraEnvs | list | `[]` | Extra environment variables applied to all LibreNMS components |
+| librenms.frontend.appTrustedProxies | list | `[]` | List of proxy IPs/CIDRs (or "*" to trust all) that terminate TLS in front of LibreNMS, so Laravel trusts their X-Forwarded-* headers and generates https:// URLs correctly. Typically your ingress controller's pod/service CIDR, or "*" if that's not known/stable. |
+| librenms.frontend.appUrl | string | `""` | The externally visible base URL of this LibreNMS instance, including scheme (e.g. "https://librenms.example.com"). Required for correct URL generation when TLS is terminated at an ingress/load balancer. |
 | librenms.frontend.enabled | bool | `true` | Frontend enabled |
 | librenms.frontend.extraEnvFrom | list | `[]` | Extra envFrom sources for frontend containers |
 | librenms.frontend.extraEnvs | list | `[]` | Extra environment variables for frontend containers |
