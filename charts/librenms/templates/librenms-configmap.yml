@@ -16,7 +16,13 @@ data:
   DB_PORT: {{ include "librenms.dbPort" . | quote }}
   DB_USERNAME: {{ include "librenms.dbUser" . }}
   DB_DATABASE: {{ include "librenms.dbName" . }}
---- 
+  {{- if .Values.librenms.frontend.appUrl }}
+  APP_URL: {{ .Values.librenms.frontend.appUrl | quote }}
+  {{- end }}
+  {{- if .Values.librenms.frontend.appTrustedProxies }}
+  APP_TRUSTED_PROXIES: {{ .Values.librenms.frontend.appTrustedProxies | join "," | quote }}
+  {{- end }}
+---
 kind: ConfigMap
 apiVersion: v1
 metadata:

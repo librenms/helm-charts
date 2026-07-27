@@ -341,6 +341,19 @@
                                 }
                             ]
                         },
+                        "appUrl": {
+                            "type": "string",
+                            "description": "The externally visible base URL of this LibreNMS instance, including scheme",
+                            "default": ""
+                        },
+                        "appTrustedProxies": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                            "description": "List of proxy IPs/CIDRs (or \"*\" to trust all) that terminate TLS in front of LibreNMS",
+                            "default": []
+                        },
                         "extraVolumes": {
                             "type": "array",
                             "items": {
