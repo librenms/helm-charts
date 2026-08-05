@@ -9,7 +9,7 @@ maintainers:
     url: https://github.com/jacobw
 dependencies:
   - name: redis
-    version: "1.6.20"
+    version: "1.6.21"
     repository: "https://repo.helmforge.dev"
     condition: redis.enabled
   - name: mysql
