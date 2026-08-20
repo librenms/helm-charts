@@ -46,6 +46,9 @@ spec:
           image: '{{ .Values.librenms.initContainer.image.repository }}:{{ .Values.librenms.initContainer.image.tag }}'
           imagePullPolicy: {{ .Values.librenms.initContainer.image.pullPolicy }}
           command: ["/bin/sh","/data/files/init.sh"]
+          envFrom:
+          - configMapRef:
+              name: {{ .Release.Name }}
           {{- with .Values.librenms.initContainer.resources }}
           resources:
             {{- toYaml . | nindent 12 }}

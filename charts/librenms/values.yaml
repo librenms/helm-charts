@@ -7,7 +7,7 @@ librenms:
     # -- repository is the image repository to pull from.
     repository: librenms/librenms
     # -- tag is image tag to pull.
-    tag: 26.7.0
+    tag: 26.8.1
     # -- pullPolicy is the Kubernetes image pull policy for the main LibreNMS image.
     pullPolicy: Always
 
@@ -99,6 +99,15 @@ librenms:
 
     # -- nodeSelector for frontend pods
     nodeSelector: {}
+
+    # -- Externally visible base URL of this instance, including scheme (e.g.
+    # "https://librenms.example.com"). Written to Laravel's .env as APP_URL so
+    # URLs are generated correctly when TLS is terminated at an ingress.
+    appUrl: ""
+
+    # -- Proxy IPs/CIDRs (or "*") whose X-Forwarded-* headers Laravel should
+    # trust. Written to Laravel's .env as APP_TRUSTED_PROXIES.
+    appTrustedProxies: []
 
     # -- Extra volumes for frontend pods
     extraVolumes: []
@@ -317,14 +326,20 @@ mysql:
   #     name: my-release-mysql
   #     key: mysql-password
   existingAuthSecret: {}
-  # -- Set the default collation to utf8mb4_unicode_ci, which is required by LibreNMS.
-  # MySQL 8.4 defaults to utf8mb4_0900_ai_ci, which causes validation warnings.
+  # -- Server configuration appended to the subchart's my.cnf.
+  # `character-set-server`/`collation-server` set the utf8mb4_unicode_ci collation required by
+  # LibreNMS. MySQL 8.4 defaults to utf8mb4_0900_ai_ci, which causes validation warnings.
   # See: https://community.librenms.org/t/new-default-database-charset-collation/14956
+  # `skip-log-bin` disables the binary log. MySQL 8+ enables it by default with 30 days of
+  # retention, and LibreNMS writes to the database on every poll, so the binlog can grow by
+  # tens of GB and fill the data PVC. It is only needed for replication or point-in-time
+  # recovery; the subchart re-enables it on the source pod when `architecture: replication`.
   config:
     myCnf: |
       [mysqld]
       character-set-server=utf8mb4
       collation-server=utf8mb4_unicode_ci
+      skip-log-bin
   standalone:
     persistence:
       enabled: true

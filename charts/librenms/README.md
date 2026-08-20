@@ -1,6 +1,6 @@
 # librenms
 
-![Version: 9.1.0](https://img.shields.io/badge/Version-9.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 26.7.0](https://img.shields.io/badge/AppVersion-26.7.0-informational?style=flat-square)
+![Version: 9.1.0](https://img.shields.io/badge/Version-9.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 26.8.1](https://img.shields.io/badge/AppVersion-26.8.1-informational?style=flat-square)
 
 LibreNMS is an autodiscovering PHP/MySQL-based network monitoring system.
 
@@ -35,6 +35,35 @@ No additional database configuration is needed.
 The chart sets `collation-server=utf8mb4_unicode_ci` by default, which satisfies the
 [LibreNMS database collation requirement](https://community.librenms.org/t/new-default-database-charset-collation/14956)
 automatically on fresh installs.
+
+#### Binary logging
+
+The chart also sets `skip-log-bin`, disabling the MySQL binary log. MySQL 8+ enables it by
+default and keeps 30 days of it, and because LibreNMS writes to the database on every poll the
+binlog can grow by tens of GB and fill the data PVC. The binary log is only needed for
+replication or point-in-time recovery, so it is off for the standalone default; the subchart
+still enables it on the source pod when `mysql.architecture` is set to `replication`.
+
+To keep it, override the setting in your values:
+
+```yaml
+mysql:
+  config:
+    myCnf: |
+      [mysqld]
+      character-set-server=utf8mb4
+      collation-server=utf8mb4_unicode_ci
+      binlog_expire_logs_seconds=86400
+```
+
+Existing binary logs are not deleted when logging is turned off. To reclaim that space on an
+existing install, purge them **before** upgrading:
+
+```bash
+kubectl exec -n NAMESPACE RELEASE-mysql-0 -- mysql -uroot \
+  -p"$(kubectl get secret RELEASE-mysql-auth -n NAMESPACE -o jsonpath='{.data.mysql-root-password}' | base64 -d)" \
+  -e "PURGE BINARY LOGS BEFORE NOW();"
+```
 
 ### Migrating from Bitnami MySQL (chart versions < 8.0.0)
 
@@ -188,6 +217,22 @@ librenms:
 ```
 If both are left blank, the chart will generate and persist a random key automatically.
 
+### TLS termination at an ingress (APP_URL / APP_TRUSTED_PROXIES)
+
+When TLS is terminated at an ingress or load balancer, the pod only ever sees plain HTTP, so Laravel generates `http://` links and the UI ends up serving mixed content that browsers block.
+
+Setting these through `extraEnvs` is not reliable: the LibreNMS image runs PHP-FPM with `clear_env = yes`, so container environment variables are invisible to the workers serving web requests. It appears to work only until something runs `config:clear` (for example from the admin UI), after which Laravel falls back to reading `.env` directly. These two values are written into `.env` by the init container instead, so they survive a config cache clear.
+
+Both are empty by default and omitted entirely when unset:
+
+```yaml
+librenms:
+  frontend:
+    appUrl: "https://librenms.example.com"
+    appTrustedProxies:
+      - "10.0.0.0/8"   # or "*" to trust all
+```
+
 ### Recommendations
 
 * `librenms.poller.replicas`: Depending on the scale of your installation, the amount of poller pods needs to be scaled up. Use the poller page in the LibreNMS interface to check for scaling issues.
@@ -241,6 +286,8 @@ The following table lists the main configurable parameters of the librenms chart
 | librenms.existingSecret | bool | `false` | Existing secret name to use for appkey Must have the key 'appkey' as above |
 | librenms.extraEnvFrom | list | `[]` | Extra envFrom sources applied to all LibreNMS components |
 | librenms.extraEnvs | list | `[]` | Extra environment variables applied to all LibreNMS components |
+| librenms.frontend.appTrustedProxies | list | `[]` | Proxy IPs/CIDRs (or "*") whose X-Forwarded-* headers Laravel should trust. Written to Laravel's .env as APP_TRUSTED_PROXIES. |
+| librenms.frontend.appUrl | string | `""` | Externally visible base URL of this instance, including scheme (e.g. "https://librenms.example.com"). Written to Laravel's .env as APP_URL so URLs are generated correctly when TLS is terminated at an ingress. |
 | librenms.frontend.enabled | bool | `true` | Frontend enabled |
 | librenms.frontend.extraEnvFrom | list | `[]` | Extra envFrom sources for frontend containers |
 | librenms.frontend.extraEnvs | list | `[]` | Extra environment variables for frontend containers |
@@ -258,7 +305,7 @@ The following table lists the main configurable parameters of the librenms chart
 | librenms.frontend.resources | object | `{}` | resources defines the computing resources (CPU and memory) that are allocated to the containers running within the Pod. |
 | librenms.image.pullPolicy | string | `"Always"` | pullPolicy is the Kubernetes image pull policy for the main LibreNMS image. |
 | librenms.image.repository | string | `"librenms/librenms"` | repository is the image repository to pull from. |
-| librenms.image.tag | string | `"26.7.0"` | tag is image tag to pull. |
+| librenms.image.tag | string | `"26.8.1"` | tag is image tag to pull. |
 | librenms.initContainer | object | `{"image":{"pullPolicy":"Always","repository":"busybox","tag":"1.38"},"resources":{},"securityContext":{}}` | initContainer configuration options |
 | librenms.initContainer.image.pullPolicy | string | `"Always"` | pullPolicy is the Kubernetes image pull policy for the init container image. |
 | librenms.initContainer.image.repository | string | `"busybox"` | repository is the init container image repository to pull from. |
@@ -314,8 +361,8 @@ The following table lists the main configurable parameters of the librenms chart
 | librenms.syslogng.replicas | int | `1` | syslogng replicas |
 | librenms.syslogng.resources | object | `{}` | resources defines the computing resources (CPU and memory) that are allocated to the syslog-ng container. |
 | librenms.timezone | string | `"UTC"` | Timezone used by librenms for communication with RRD cached |
-| mysql | object | `{"architecture":"standalone","auth":{"database":"librenms","username":"librenms"},"config":{"myCnf":"[mysqld]\ncharacter-set-server=utf8mb4\ncollation-server=utf8mb4_unicode_ci\n"},"enabled":true,"existingAuthSecret":{},"standalone":{"persistence":{"enabled":true,"size":"8Gi"}}}` | Configuration for MySQL dependency chart by HelmForge. See their chart for more information: https://github.com/helmforgedev/charts/tree/main/charts/mysql |
-| mysql.config | object | `{"myCnf":"[mysqld]\ncharacter-set-server=utf8mb4\ncollation-server=utf8mb4_unicode_ci\n"}` | Set the default collation to utf8mb4_unicode_ci, which is required by LibreNMS. MySQL 8.4 defaults to utf8mb4_0900_ai_ci, which causes validation warnings. See: https://community.librenms.org/t/new-default-database-charset-collation/14956 |
+| mysql | object | `{"architecture":"standalone","auth":{"database":"librenms","username":"librenms"},"config":{"myCnf":"[mysqld]\ncharacter-set-server=utf8mb4\ncollation-server=utf8mb4_unicode_ci\nskip-log-bin\n"},"enabled":true,"existingAuthSecret":{},"standalone":{"persistence":{"enabled":true,"size":"8Gi"}}}` | Configuration for MySQL dependency chart by HelmForge. See their chart for more information: https://github.com/helmforgedev/charts/tree/main/charts/mysql |
+| mysql.config | object | `{"myCnf":"[mysqld]\ncharacter-set-server=utf8mb4\ncollation-server=utf8mb4_unicode_ci\nskip-log-bin\n"}` | Server configuration appended to the subchart's my.cnf. `character-set-server`/`collation-server` set the utf8mb4_unicode_ci collation required by LibreNMS. MySQL 8.4 defaults to utf8mb4_0900_ai_ci, which causes validation warnings. See: https://community.librenms.org/t/new-default-database-charset-collation/14956 `skip-log-bin` disables the binary log. MySQL 8+ enables it by default with 30 days of retention, and LibreNMS writes to the database on every poll, so the binlog can grow by tens of GB and fill the data PVC. It is only needed for replication or point-in-time recovery; the subchart re-enables it on the source pod when `architecture: replication`. |
 | mysql.existingAuthSecret | object | `{}` | Use an existing secret for MySQL authentication instead of the auto-generated one. This is useful when migrating from the Bitnami MySQL subchart, which created a secret named "RELEASE-mysql" with key "mysql-password". Example for Bitnami migration:   existingAuthSecret:     name: my-release-mysql     key: mysql-password |
 | redis | object | `{"architecture":"standalone","auth":{"enabled":false},"enabled":true}` | Configuration for redis dependency chart by HelmForge. See their chart for more information: https://github.com/helmforgedev/charts/tree/main/charts/redis |
 
@@ -332,7 +379,7 @@ $ helm delete my-release
 | Repository | Name | Version |
 |------------|------|---------|
 | https://repo.helmforge.dev | mysql | ~2.0.0 |
-| https://repo.helmforge.dev | redis | 1.6.20 |
+| https://repo.helmforge.dev | redis | 2.0.0 |
 
 ## Maintainers
 
