@@ -35,6 +35,35 @@ The chart sets `collation-server=utf8mb4_unicode_ci` by default, which satisfies
 [LibreNMS database collation requirement](https://community.librenms.org/t/new-default-database-charset-collation/14956)
 automatically on fresh installs.
 
+#### Binary logging
+
+The chart also sets `skip-log-bin`, disabling the MySQL binary log. MySQL 8+ enables it by
+default and keeps 30 days of it, and because LibreNMS writes to the database on every poll the
+binlog can grow by tens of GB and fill the data PVC. The binary log is only needed for
+replication or point-in-time recovery, so it is off for the standalone default; the subchart
+still enables it on the source pod when `mysql.architecture` is set to `replication`.
+
+To keep it, override the setting in your values:
+
+```yaml
+mysql:
+  config:
+    myCnf: |
+      [mysqld]
+      character-set-server=utf8mb4
+      collation-server=utf8mb4_unicode_ci
+      binlog_expire_logs_seconds=86400
+```
+
+Existing binary logs are not deleted when logging is turned off. To reclaim that space on an
+existing install, purge them **before** upgrading:
+
+```bash
+kubectl exec -n NAMESPACE RELEASE-mysql-0 -- mysql -uroot \
+  -p"$(kubectl get secret RELEASE-mysql-auth -n NAMESPACE -o jsonpath='{.data.mysql-root-password}' | base64 -d)" \
+  -e "PURGE BINARY LOGS BEFORE NOW();"
+```
+
 ### Migrating from Bitnami MySQL (chart versions < 8.0.0)
 
 Chart v8.0.0 replaced the Bitnami MySQL subchart with [HelmForge MySQL](https://github.com/helmforgedev/charts/tree/main/charts/mysql). The two charts use **different data-directory layouts** on disk (Bitnami: `/bitnami/mysql`, HelmForge: `/var/lib/mysql`), so a **backup and restore is required** even though the PVC name (`data-RELEASE-mysql-0`) is unchanged.
