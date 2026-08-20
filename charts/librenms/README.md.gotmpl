@@ -188,6 +188,22 @@ librenms:
 ```
 If both are left blank, the chart will generate and persist a random key automatically.
 
+### TLS termination at an ingress (APP_URL / APP_TRUSTED_PROXIES)
+
+When TLS is terminated at an ingress or load balancer, the pod only ever sees plain HTTP, so Laravel generates `http://` links and the UI ends up serving mixed content that browsers block.
+
+Setting these through `extraEnvs` is not reliable: the LibreNMS image runs PHP-FPM with `clear_env = yes`, so container environment variables are invisible to the workers serving web requests. It appears to work only until something runs `config:clear` (for example from the admin UI), after which Laravel falls back to reading `.env` directly. These two values are written into `.env` by the init container instead, so they survive a config cache clear.
+
+Both are empty by default and omitted entirely when unset:
+
+```yaml
+librenms:
+  frontend:
+    appUrl: "https://librenms.example.com"
+    appTrustedProxies:
+      - "10.0.0.0/8"   # or "*" to trust all
+```
+
 ### Recommendations
 
 * `librenms.poller.replicas`: Depending on the scale of your installation, the amount of poller pods needs to be scaled up. Use the poller page in the LibreNMS interface to check for scaling issues.
