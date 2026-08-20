@@ -341,6 +341,19 @@
                                 }
                             ]
                         },
+                        "appUrl": {
+                            "type": "string",
+                            "description": "Externally visible base URL of this instance, including scheme",
+                            "default": ""
+                        },
+                        "appTrustedProxies": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                            "description": "Proxy IPs/CIDRs (or \"*\") whose X-Forwarded-* headers Laravel should trust",
+                            "default": []
+                        },
                         "extraVolumes": {
                             "type": "array",
                             "items": {

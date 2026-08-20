@@ -29,6 +29,9 @@ librenms:
         memory: 128Mi
         ephemeral-storage: 100Mi
   frontend:
+    appUrl: "https://librenms.example.com"
+    appTrustedProxies:
+      - "10.0.0.0/8"
     extraEnvs:
       - name: FRONTEND_DEBUG
         value: "true"
