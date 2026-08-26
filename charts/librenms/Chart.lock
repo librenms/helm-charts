@@ -1,9 +1,9 @@
 dependencies:
 - name: redis
   repository: https://repo.helmforge.dev
-  version: 2.0.0
+  version: 2.0.1
 - name: mysql
   repository: https://repo.helmforge.dev
   version: 2.0.3
-digest: sha256:cf26d00e4264a8ac6020bdad660618a7114d6906f898a42228e2969a0250a716
-generated: "2026-08-14T08:33:16.091781494Z"
+digest: sha256:f033a328c10172d2c2fd5da34f561bee60b2e2b0984791afd82b145261b9a1dd
+generated: "2026-08-25T20:05:47.780013916Z"
