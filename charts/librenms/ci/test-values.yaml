@@ -67,6 +67,9 @@ librenms:
         ephemeral-storage: 250Mi
   syslogng:
     enabled: true
+    service:
+      annotations:
+        librenms.org/component: syslogng
     extraEnvs:
       - name: SYSLOG_DEBUG
         value: "true"
