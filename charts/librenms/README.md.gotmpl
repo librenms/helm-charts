@@ -191,6 +191,55 @@ librenms:
         storageClassName: "fast-ssd"
 ```
 
+## Gateway API
+
+As an alternative to `ingress`, the chart can expose the frontend with a Gateway API
+[`HTTPRoute`](https://gateway-api.sigs.k8s.io/api-types/httproute/). The Gateway itself is **not**
+created by this chart — it is normally shared across namespaces and managed separately — so this
+attaches a route to a Gateway you already run.
+
+```yaml
+gateway:
+  enabled: true
+  parentRefs:
+    - name: shared-gateway
+      namespace: gateway-system
+      sectionName: https
+  hostnames:
+    - librenms.example.com
+  paths:
+    - path: /
+      pathType: PathPrefix
+
+ingress:
+  enabled: false
+```
+
+Each entry in `paths` becomes one HTTPRoute rule backed by the frontend service on port 8000.
+`ingress` and `gateway` are independent; leave `ingress.enabled: false` if you only want the route.
+
+Requires the Gateway API CRDs to be installed in the cluster and a controller implementing them.
+`HTTPRoute` has been stable at `gateway.networking.k8s.io/v1` since Gateway API v1.0.
+
+When the Gateway terminates TLS, set `librenms.frontend.appUrl` and
+`librenms.frontend.appTrustedProxies` as described under
+[TLS termination at an ingress](#tls-termination-at-an-ingress-app_url--app_trusted_proxies) —
+a Gateway is just another proxy in front of LibreNMS, and the same Laravel settings apply.
+
+### Why only the frontend
+
+The syslog-ng and snmptrapd sidecars are deliberately left on plain Services and have no route
+equivalent here. `UDPRoute` and `TCPRoute` are stable in the Gateway API standard channel, but a
+Gateway is an in-cluster proxy: the sidecar would see the **Gateway's** address rather than the
+sending device's, and LibreNMS resolves both syslog messages and traps to a device by that
+address. HTTP solves this with `X-Forwarded-For`; raw syslog and SNMP traps have no equivalent,
+and neither `snmptrapd` nor `syslog.php` speaks PROXY protocol — which is TCP-only in any case,
+while both protocols are predominantly UDP.
+
+For those two, expose the Service directly and preserve the source address with
+`externalTrafficPolicy: Local`, as described under
+[Receiving syslog from outside the cluster](#receiving-syslog-from-outside-the-cluster).
+
 ## Syslog
 
 The chart can run the LibreNMS image as a `syslog-ng` sidecar, which receives syslog on port 514

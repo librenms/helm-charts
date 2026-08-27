@@ -406,6 +406,37 @@ ingress:
   #    hosts:
   #      - chart-example.local
 
+# -- LibreNMS Gateway API configuration. Renders an HTTPRoute for the frontend as
+# an alternative to `ingress`, for clusters running a Gateway API implementation.
+# The Gateway itself is not created by this chart -- it is usually shared across
+# namespaces and managed separately. Requires the Gateway API CRDs (HTTPRoute is
+# stable at gateway.networking.k8s.io/v1 as of Gateway API v1.0).
+#
+# Only the frontend is exposed this way. The syslog-ng and snmptrapd sidecars are
+# deliberately left on plain Services: routing them through a Gateway replaces the
+# sender's address with the Gateway's, and LibreNMS resolves a message or trap to a
+# device by that address. See the Syslog section of the README.
+gateway:
+  # -- Enable or disable the HTTPRoute
+  enabled: false
+  # -- Annotations for the HTTPRoute
+  annotations: {}
+  # -- Gateways this route attaches to. Required when enabled. Each entry accepts
+  # the usual parentRef fields (name, namespace, sectionName, port).
+  parentRefs: []
+    # - name: my-gateway
+    #   namespace: gateway-system
+    #   sectionName: https
+  # -- Hostnames this route matches. Leave empty to match every hostname the
+  # parent Gateway listener accepts.
+  hostnames: []
+    # - librenms.example.com
+  # -- Path matches. Each entry becomes an HTTPRoute rule backed by the frontend
+  # service on port 8000.
+  paths:
+    - path: /
+      pathType: PathPrefix
+
 # -- Configuration for MySQL dependency chart by HelmForge. See their chart for
 # more information: https://github.com/helmforgedev/charts/tree/main/charts/mysql
 mysql:

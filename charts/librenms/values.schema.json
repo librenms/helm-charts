@@ -992,7 +992,100 @@
             }
             }
         },
-        "ingress": {
+        "gateway": {
+        "type": "object",
+        "description": "Gateway API HTTPRoute configuration for the frontend",
+        "additionalProperties": false,
+        "properties": {
+            "enabled": {
+                "type": "boolean",
+                "description": "Enable or disable the HTTPRoute",
+                "default": false
+            },
+            "annotations": {
+                "type": "object",
+                "description": "Annotations for the HTTPRoute",
+                "additionalProperties": {
+                    "type": "string"
+                },
+                "default": {}
+            },
+            "parentRefs": {
+                "type": "array",
+                "description": "Gateways this route attaches to, required when enabled",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "group": {
+                            "type": "string",
+                            "description": "API group of the parent, defaults to gateway.networking.k8s.io"
+                        },
+                        "kind": {
+                            "type": "string",
+                            "description": "Kind of the parent, defaults to Gateway"
+                        },
+                        "name": {
+                            "type": "string",
+                            "description": "Name of the Gateway"
+                        },
+                        "namespace": {
+                            "type": "string",
+                            "description": "Namespace of the Gateway, defaults to the release namespace"
+                        },
+                        "sectionName": {
+                            "type": "string",
+                            "description": "Name of the Gateway listener to attach to"
+                        },
+                        "port": {
+                            "type": "integer",
+                            "description": "Port of the Gateway listener to attach to"
+                        }
+                    },
+                    "required": [
+                        "name"
+                    ],
+                    "additionalProperties": false
+                },
+                "default": []
+            },
+            "hostnames": {
+                "type": "array",
+                "description": "Hostnames this route matches",
+                "items": {
+                    "type": "string"
+                },
+                "default": []
+            },
+            "paths": {
+                "type": "array",
+                "description": "Path matches, each becoming an HTTPRoute rule backed by the frontend service",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "path": {
+                            "type": "string",
+                            "description": "Path value to match"
+                        },
+                        "pathType": {
+                            "type": "string",
+                            "enum": [
+                                "Exact",
+                                "PathPrefix",
+                                "RegularExpression"
+                            ],
+                            "description": "Path match type",
+                            "default": "PathPrefix"
+                        }
+                    },
+                    "required": [
+                        "path"
+                    ],
+                    "additionalProperties": false
+                }
+            }
+        }
+    },
+    "ingress": {
             "type": "object",
             "description": "LibreNMS ingress configuration",
             "additionalProperties": true
