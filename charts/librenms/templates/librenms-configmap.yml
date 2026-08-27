@@ -6,12 +6,22 @@ metadata:
 data:
   TZ: {{ .Values.librenms.timezone}}
   DB_TIMEOUT: {{ include "librenms.dbTimeout" . | quote }}
-  REDIS_HOST: {{ .Release.Name }}-redis-client
-  REDIS_PORT: "6379"
-  REDIS_DB: "0"
+  {{- $redis := include "librenms.redisEnabled" . }}
+  {{- if $redis }}
+  REDIS_HOST: {{ include "librenms.redisHost" . }}
+  REDIS_PORT: {{ include "librenms.redisPort" . | quote }}
+  REDIS_DB: {{ include "librenms.redisDb" . | quote }}
+  {{- end }}
+  {{- if .Values.librenms.rrdcached.enabled }}
   RRDCACHED_SERVER: "{{ .Release.Name }}-rrdcached:42217"
+  {{- end }}
+  {{- if $redis }}
   CACHE_DRIVER: redis
   SESSION_DRIVER: redis
+  {{- else }}
+  CACHE_DRIVER: file
+  SESSION_DRIVER: file
+  {{- end }}
   DB_HOST: {{ include "librenms.dbHost" . }}
   DB_PORT: {{ include "librenms.dbPort" . | quote }}
   DB_USERNAME: {{ include "librenms.dbUser" . }}

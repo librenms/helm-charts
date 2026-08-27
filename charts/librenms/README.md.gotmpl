@@ -170,6 +170,27 @@ externalDatabase:
 - MySQL server configured with `character-set-server=utf8mb4` and `collation-server=utf8mb4_unicode_ci`
   (see [LibreNMS collation docs](https://community.librenms.org/t/new-default-database-charset-collation/14956))
 
+## Redis
+
+Redis backs the Laravel cache and session stores. The chart deploys a bundled Redis by
+default (`redis.enabled: true`).
+
+To use a Redis you manage yourself, disable the bundled one and point `externalRedis` at it:
+
+```yaml
+redis:
+  enabled: false
+externalRedis:
+  host: redis.example.internal
+  port: 6379
+  db: 0
+```
+
+With `redis.enabled: false` and no `externalRedis.host`, the chart sets the cache and
+session drivers to `file`. Pods then keep cache and session state on their own
+filesystems, so this is only safe for a single frontend replica and is not suitable for
+distributed polling.
+
 ## Persistence
 
 RRDCached uses persistent storage for time-series database files. Two separate PersistentVolumeClaims are configured:

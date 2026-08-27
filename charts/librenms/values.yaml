@@ -385,6 +385,18 @@ librenms:
     # -- Extra volume mounts for rrdcached containers
     extraVolumeMounts: []
 
+# -- External Redis configuration. Used when `redis.enabled` is false. Leave
+# `host` blank to run without Redis at all, in which case LibreNMS falls back to
+# the file cache and session drivers -- only safe for a single frontend replica,
+# since pollers and frontends no longer share cache or session state.
+externalRedis:
+  # -- Redis host (DNS name or IP address)
+  host: ""
+  # -- Redis port
+  port: 6379
+  # -- Redis database number
+  db: 0
+
 # -- LibreNMS ingress configuration
 ingress:
   # -- Enable or disable ingress
