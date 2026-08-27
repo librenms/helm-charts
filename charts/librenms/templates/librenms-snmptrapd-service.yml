@@ -1,9 +1,9 @@
-{{- if .Values.librenms.syslogng.enabled }}
-{{- $svc := .Values.librenms.syslogng.service }}
+{{- if .Values.librenms.snmptrapd.enabled }}
+{{- $svc := .Values.librenms.snmptrapd.service }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Release.Name }}-syslogng
+  name: {{ .Release.Name }}-snmptrapd
   {{- with $svc.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
@@ -18,14 +18,14 @@ spec:
   {{- end }}
   selector:
     app.kubernetes.io/name: {{ .Release.Name }}
-    app.kubernetes.io/instance: syslogng
+    app.kubernetes.io/instance: snmptrapd
   ports:
-    - name: syslog-udp
+    - name: snmptrap-udp
       protocol: UDP
-      port: 514
-      targetPort: 514
-    - name: syslog-tcp
+      port: 162
+      targetPort: 162
+    - name: snmptrap-tcp
       protocol: TCP
-      port: 514
-      targetPort: 514
+      port: 162
+      targetPort: 162
 {{- end }}

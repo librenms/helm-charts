@@ -214,10 +214,106 @@ librenms:
     # -- nodeSelector for syslogng pods
     nodeSelector: {}
 
+    service:
+      # -- Service type for the syslog receiver. Devices outside the cluster need
+      # LoadBalancer or NodePort to reach it.
+      type: ClusterIP
+      # -- Annotations for the syslogng service
+      annotations: {}
+      # -- Static IP to request when type is LoadBalancer
+      loadBalancerIP: ""
+      # -- externalTrafficPolicy for the service. Set to "Local" to preserve the
+      # source IP of incoming messages, which LibreNMS needs to match a message
+      # to a device. Only applies to LoadBalancer and NodePort services.
+      externalTrafficPolicy: ""
+
     # -- Extra environment variables for syslogng containers
     extraEnvs: []
 
     # -- Extra envFrom sources for syslogng containers
+    extraEnvFrom: []
+
+  # -- snmptrapd sidecar for receiving SNMP traps from network devices on port 162.
+  # Traps are passed to LibreNMS' snmptrap.php handler, which matches them to a
+  # device by the source IP of the trap, so the sending device must already be
+  # monitored. See: https://docs.librenms.org/Extensions/SNMP-Trap-Handler/
+  snmptrapd:
+    # -- Enable snmptrapd
+    enabled: false
+    # -- snmptrapd replicas
+    replicas: 1
+    # -- SNMP v1/v2c community string devices must send their traps with.
+    # Change this from the image default before exposing the receiver.
+    community: librenmsdocker
+    # -- Which snmptrapd processing types (log, execute and/or net) to apply to
+    # accepted traps. LibreNMS needs 'execute' for its trap handler to run.
+    processingType: log,execute,net
+    # -- Accept traps without checking them against the community string or the
+    # SNMPv3 user below. Set to "no" to enforce authorization.
+    disableAuthorization: "yes"
+    # -- Additional colon-separated MIB directories to load
+    # (e.g. "/opt/librenms/mibs/veeam"). The standard and Cisco MIB directories
+    # are always loaded.
+    extraMibDirs: ""
+
+    # SNMPv3 credentials used to authenticate traps
+    snmpv3:
+      # -- SNMPv3 username
+      user: librenms_user
+      # -- SNMPv3 authentication protocol (MD5 or SHA)
+      authProtocol: SHA
+      # -- SNMPv3 privacy protocol (DES or AES)
+      privProtocol: AES
+      # -- SNMPv3 security level (noauth, auth or priv)
+      securityLevel: priv
+      # -- SNMPv3 engine ID
+      engineId: "1234567890"
+      # -- SNMPv3 authentication password. Left blank the image default
+      # ('auth_pass') applies, which should not be used in production.
+      authPassword: ""
+      # -- SNMPv3 privacy password. Left blank the image default ('priv_pass')
+      # applies, which should not be used in production.
+      privPassword: ""
+      # -- Read the SNMPv3 passwords from an existing secret instead of the two
+      # values above. Takes precedence over authPassword and privPassword.
+      existingSecret:
+        # -- Name of the secret holding the SNMPv3 passwords
+        name: ""
+        # -- Key in the secret containing the authentication password
+        authKey: "snmp-auth-password"
+        # -- Key in the secret containing the privacy password
+        privKey: "snmp-priv-password"
+
+    service:
+      # -- Service type for the trap receiver. Devices outside the cluster need
+      # LoadBalancer or NodePort to reach it.
+      type: ClusterIP
+      # -- Annotations for the snmptrapd service
+      annotations: {}
+      # -- Static IP to request when type is LoadBalancer
+      loadBalancerIP: ""
+      # -- externalTrafficPolicy for the service. Set to "Local" to preserve the
+      # source IP of incoming traps, which LibreNMS needs to match a trap to a
+      # device. Only applies to LoadBalancer and NodePort services.
+      externalTrafficPolicy: ""
+
+    # -- resources defines the computing resources (CPU and memory)
+    # that are allocated to the snmptrapd container.
+    resources: {}
+      # requests:
+      #   cpu: 100m
+      #   memory: 128M
+
+    # -- podAnnotations for snmptrapd pods
+    podAnnotations: {}
+
+    # -- nodeSelector for snmptrapd pods
+    nodeSelector: {}
+
+    # -- Extra environment variables for snmptrapd containers
+    extraEnvs: []
+
+    # -- Extra envFrom sources for snmptrapd containers
     extraEnvFrom: []
 
   # -- RRD cached is the tool that allows for distributed polling and is mandatory
@@ -309,6 +405,37 @@ ingress:
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
+
+# -- LibreNMS Gateway API configuration. Renders an HTTPRoute for the frontend as
+# an alternative to `ingress`, for clusters running a Gateway API implementation.
+# The Gateway itself is not created by this chart -- it is usually shared across
+# namespaces and managed separately. Requires the Gateway API CRDs (HTTPRoute is
+# stable at gateway.networking.k8s.io/v1 as of Gateway API v1.0).
+#
+# Only the frontend is exposed this way. The syslog-ng and snmptrapd sidecars are
+# deliberately left on plain Services: routing them through a Gateway replaces the
+# sender's address with the Gateway's, and LibreNMS resolves a message or trap to a
+# device by that address. See the Syslog section of the README.
+gateway:
+  # -- Enable or disable the HTTPRoute
+  enabled: false
+  # -- Annotations for the HTTPRoute
+  annotations: {}
+  # -- Gateways this route attaches to. Required when enabled. Each entry accepts
+  # the usual parentRef fields (name, namespace, sectionName, port).
+  parentRefs: []
+    # - name: my-gateway
+    #   namespace: gateway-system
+    #   sectionName: https
+  # -- Hostnames this route matches. Leave empty to match every hostname the
+  # parent Gateway listener accepts.
+  hostnames: []
+    # - librenms.example.com
+  # -- Path matches. Each entry becomes an HTTPRoute rule backed by the frontend
+  # service on port 8000.
+  paths:
+    - path: /
+      pathType: PathPrefix
 
 # -- Configuration for MySQL dependency chart by HelmForge. See their chart for
 # more information: https://github.com/helmforgedev/charts/tree/main/charts/mysql

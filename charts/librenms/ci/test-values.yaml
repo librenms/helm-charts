@@ -67,8 +67,29 @@ librenms:
         ephemeral-storage: 250Mi
   syslogng:
     enabled: true
+    service:
+      annotations:
+        librenms.org/component: syslogng
     extraEnvs:
       - name: SYSLOG_DEBUG
+        value: "true"
+    resources:
+      limits:
+        cpu: 200m
+        memory: 256Mi
+        ephemeral-storage: 200Mi
+      requests:
+        cpu: 50m
+        memory: 128Mi
+        ephemeral-storage: 100Mi
+  snmptrapd:
+    enabled: true
+    extraMibDirs: /opt/librenms/mibs
+    service:
+      annotations:
+        librenms.org/component: snmptrapd
+    extraEnvs:
+      - name: TRAP_DEBUG
         value: "true"
     resources:
       limits:
@@ -101,3 +122,15 @@ librenms:
         ephemeral-storage: 500Mi
 ingress:
   enabled: true
+gateway:
+  enabled: true
+  annotations:
+    librenms.org/component: frontend
+  parentRefs:
+    - name: ci-gateway
+      sectionName: http
+  hostnames:
+    - librenms.ci.example.com
+  paths:
+    - path: /
+      pathType: PathPrefix

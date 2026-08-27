@@ -738,7 +738,47 @@
                         "nodeSelector": {
                             "$ref": "#/definitions/nodeSelector"
                         },
-                        "extraEnvs": {
+                        "service": {
+                "type": "object",
+                "description": "Service exposing the syslog receiver",
+                "additionalProperties": false,
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "ClusterIP",
+                            "NodePort",
+                            "LoadBalancer"
+                        ],
+                        "description": "Service type for the syslog receiver",
+                        "default": "ClusterIP"
+                    },
+                    "annotations": {
+                        "type": "object",
+                        "description": "Annotations for the syslogng service",
+                        "additionalProperties": {
+                            "type": "string"
+                        },
+                        "default": {}
+                    },
+                    "loadBalancerIP": {
+                        "type": "string",
+                        "description": "Static IP to request when type is LoadBalancer",
+                        "default": ""
+                    },
+                    "externalTrafficPolicy": {
+                        "type": "string",
+                        "enum": [
+                            "",
+                            "Cluster",
+                            "Local"
+                        ],
+                        "description": "externalTrafficPolicy for the service, set to Local to preserve the source IP of incoming messages",
+                        "default": ""
+                    }
+                }
+            },
+            "extraEnvs": {
                             "type": "array",
                             "items": {
                                 "$ref": "#/definitions/envVar"
@@ -755,10 +795,297 @@
                             "default": []
                         }
                     }
+                },
+            "snmptrapd": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "enabled": {
+                        "type": "boolean",
+                        "description": "Enable snmptrapd",
+                        "default": false
+                    },
+                    "replicas": {
+                        "type": "integer",
+                        "description": "snmptrapd replicas",
+                        "default": 1
+                    },
+                    "community": {
+                        "type": "string",
+                        "description": "SNMP v1/v2c community string devices must send their traps with",
+                        "default": "librenmsdocker"
+                    },
+                    "processingType": {
+                        "type": "string",
+                        "description": "snmptrapd processing types (log, execute and/or net) applied to accepted traps",
+                        "default": "log,execute,net"
+                    },
+                    "disableAuthorization": {
+                        "type": "string",
+                        "enum": [
+                            "yes",
+                            "no"
+                        ],
+                        "description": "Accept traps without checking the community string or SNMPv3 user",
+                        "default": "yes"
+                    },
+                    "extraMibDirs": {
+                        "type": "string",
+                        "description": "Additional colon-separated MIB directories to load",
+                        "default": ""
+                    },
+                    "snmpv3": {
+                        "type": "object",
+                        "description": "SNMPv3 credentials used to authenticate traps",
+                        "additionalProperties": false,
+                        "properties": {
+                            "user": {
+                                "type": "string",
+                                "description": "SNMPv3 username",
+                                "default": "librenms_user"
+                            },
+                            "authProtocol": {
+                                "type": "string",
+                                "enum": [
+                                    "MD5",
+                                    "SHA"
+                                ],
+                                "description": "SNMPv3 authentication protocol",
+                                "default": "SHA"
+                            },
+                            "privProtocol": {
+                                "type": "string",
+                                "enum": [
+                                    "DES",
+                                    "AES"
+                                ],
+                                "description": "SNMPv3 privacy protocol",
+                                "default": "AES"
+                            },
+                            "securityLevel": {
+                                "type": "string",
+                                "enum": [
+                                    "noauth",
+                                    "auth",
+                                    "priv"
+                                ],
+                                "description": "SNMPv3 security level",
+                                "default": "priv"
+                            },
+                            "engineId": {
+                                "type": "string",
+                                "description": "SNMPv3 engine ID",
+                                "default": "1234567890"
+                            },
+                            "authPassword": {
+                                "type": "string",
+                                "description": "SNMPv3 authentication password",
+                                "default": ""
+                            },
+                            "privPassword": {
+                                "type": "string",
+                                "description": "SNMPv3 privacy password",
+                                "default": ""
+                            },
+                            "existingSecret": {
+                                "type": "object",
+                                "description": "Existing secret holding the SNMPv3 passwords",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "description": "Name of the secret holding the SNMPv3 passwords",
+                                        "default": ""
+                                    },
+                                    "authKey": {
+                                        "type": "string",
+                                        "description": "Key in the secret containing the authentication password",
+                                        "default": "snmp-auth-password"
+                                    },
+                                    "privKey": {
+                                        "type": "string",
+                                        "description": "Key in the secret containing the privacy password",
+                                        "default": "snmp-priv-password"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "service": {
+                        "type": "object",
+                        "description": "Service exposing the snmptrapd receiver",
+                        "additionalProperties": false,
+                        "properties": {
+                            "type": {
+                                "type": "string",
+                                "enum": [
+                                    "ClusterIP",
+                                    "NodePort",
+                                    "LoadBalancer"
+                                ],
+                                "description": "Service type for the trap receiver",
+                                "default": "ClusterIP"
+                            },
+                            "annotations": {
+                                "type": "object",
+                                "description": "Annotations for the snmptrapd service",
+                                "additionalProperties": {
+                                    "type": "string"
+                                },
+                                "default": {}
+                            },
+                            "loadBalancerIP": {
+                                "type": "string",
+                                "description": "Static IP to request when type is LoadBalancer",
+                                "default": ""
+                            },
+                            "externalTrafficPolicy": {
+                                "type": "string",
+                                "enum": [
+                                    "",
+                                    "Cluster",
+                                    "Local"
+                                ],
+                                "description": "externalTrafficPolicy for the service, set to Local to preserve the trap source IP",
+                                "default": ""
+                            }
+                        }
+                    },
+                    "resources": {
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/resources"
+                            },
+                            {
+                                "description": "Computing resources for the snmptrapd container"
+                            }
+                        ]
+                    },
+                    "podAnnotations": {
+                        "type": "object",
+                        "description": "Pod annotations for snmptrapd pods",
+                        "additionalProperties": {
+                            "type": "string"
+                        },
+                        "default": {}
+                    },
+                    "nodeSelector": {
+                        "$ref": "#/definitions/nodeSelector"
+                    },
+                    "extraEnvs": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/envVar"
+                        },
+                        "description": "Extra environment variables for snmptrapd containers",
+                        "default": []
+                    },
+                    "extraEnvFrom": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/envFromSource"
+                        },
+                        "description": "Extra envFrom sources for snmptrapd containers",
+                        "default": []
+                    }
                 }
             }
+            }
         },
-        "ingress": {
+        "gateway": {
+        "type": "object",
+        "description": "Gateway API HTTPRoute configuration for the frontend",
+        "additionalProperties": false,
+        "properties": {
+            "enabled": {
+                "type": "boolean",
+                "description": "Enable or disable the HTTPRoute",
+                "default": false
+            },
+            "annotations": {
+                "type": "object",
+                "description": "Annotations for the HTTPRoute",
+                "additionalProperties": {
+                    "type": "string"
+                },
+                "default": {}
+            },
+            "parentRefs": {
+                "type": "array",
+                "description": "Gateways this route attaches to, required when enabled",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "group": {
+                            "type": "string",
+                            "description": "API group of the parent, defaults to gateway.networking.k8s.io"
+                        },
+                        "kind": {
+                            "type": "string",
+                            "description": "Kind of the parent, defaults to Gateway"
+                        },
+                        "name": {
+                            "type": "string",
+                            "description": "Name of the Gateway"
+                        },
+                        "namespace": {
+                            "type": "string",
+                            "description": "Namespace of the Gateway, defaults to the release namespace"
+                        },
+                        "sectionName": {
+                            "type": "string",
+                            "description": "Name of the Gateway listener to attach to"
+                        },
+                        "port": {
+                            "type": "integer",
+                            "description": "Port of the Gateway listener to attach to"
+                        }
+                    },
+                    "required": [
+                        "name"
+                    ],
+                    "additionalProperties": false
+                },
+                "default": []
+            },
+            "hostnames": {
+                "type": "array",
+                "description": "Hostnames this route matches",
+                "items": {
+                    "type": "string"
+                },
+                "default": []
+            },
+            "paths": {
+                "type": "array",
+                "description": "Path matches, each becoming an HTTPRoute rule backed by the frontend service",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "path": {
+                            "type": "string",
+                            "description": "Path value to match"
+                        },
+                        "pathType": {
+                            "type": "string",
+                            "enum": [
+                                "Exact",
+                                "PathPrefix",
+                                "RegularExpression"
+                            ],
+                            "description": "Path match type",
+                            "default": "PathPrefix"
+                        }
+                    },
+                    "required": [
+                        "path"
+                    ],
+                    "additionalProperties": false
+                }
+            }
+        }
+    },
+    "ingress": {
             "type": "object",
             "description": "LibreNMS ingress configuration",
             "additionalProperties": true
