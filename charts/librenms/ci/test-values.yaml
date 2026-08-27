@@ -29,6 +29,8 @@ librenms:
         memory: 128Mi
         ephemeral-storage: 100Mi
   frontend:
+    # the namespace default SA always exists, so ct install can schedule the pods
+    serviceAccountName: default
     appUrl: "https://librenms.example.com"
     appTrustedProxies:
       - "10.0.0.0/8"
@@ -49,6 +51,8 @@ librenms:
         memory: 256Mi
         ephemeral-storage: 250Mi
   poller:
+    # the namespace default SA always exists, so ct install can schedule the pods
+    serviceAccountName: default
     extraEnvs:
       - name: POLLER_DEBUG
         value: "true"
@@ -101,6 +105,8 @@ librenms:
         memory: 128Mi
         ephemeral-storage: 100Mi
   rrdcached:
+    # the namespace default SA always exists, so ct install can schedule the pods
+    serviceAccountName: default
     extraEnvs:
       - name: RRD_DEBUG
         value: "true"

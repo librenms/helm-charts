@@ -22,8 +22,8 @@ spec:
         app.kubernetes.io/name: {{ .Release.Name }}
         app.kubernetes.io/instance: frontend
     spec:
-      {{- with .Values.librenms.frontend }}
-      serviceAccountName: {{ .serviceAccountName }}
+      {{- with .Values.librenms.frontend.serviceAccountName }}
+      serviceAccountName: {{ . }}
       {{- end }}
       {{- with .Values.librenms.frontend.nodeSelector }}
       nodeSelector:

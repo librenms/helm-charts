@@ -66,6 +66,9 @@ librenms:
 
   # Frontend container configurations options
   frontend:
+    # -- Name of an existing ServiceAccount to run the pods under. The chart does
+    # not create ServiceAccounts; leave blank to use the namespace default.
+    serviceAccountName: ""
     # -- Frontend enabled
     enabled: true
     # -- Frontend replicas
@@ -123,6 +126,9 @@ librenms:
 
   # Distributed poller container configurations options
   poller:
+    # -- Name of an existing ServiceAccount to run the pods under. The chart does
+    # not create ServiceAccounts; leave blank to use the namespace default.
+    serviceAccountName: ""
     # -- Poller name
     name: ""
     # -- Poller replicas
@@ -320,6 +326,9 @@ librenms:
   # in this LibreNMS helm chart. See the rrdcached documentation for more
   # information: https://oss.oetiker.ch/rrdtool/doc/rrdcached.en.html
   rrdcached:
+    # -- Name of an existing ServiceAccount to run the pods under. The chart does
+    # not create ServiceAccounts; leave blank to use the namespace default.
+    serviceAccountName: ""
     # -- RRDCached enabled
     enabled: true
     image:

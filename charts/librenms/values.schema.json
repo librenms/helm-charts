@@ -267,6 +267,10 @@
                     "type": "object",
                     "additionalProperties": false,
                     "properties": {
+                        "serviceAccountName": {
+                            "type": "string",
+                            "description": "Name of an existing ServiceAccount to run the pods under. The chart does not create ServiceAccounts."
+                        },
                         "enabled": {
                             "type": "boolean",
                             "description": "Frontend enabled",
@@ -390,6 +394,10 @@
                     "type": "object",
                     "additionalProperties": false,
                     "properties": {
+                        "serviceAccountName": {
+                            "type": "string",
+                            "description": "Name of an existing ServiceAccount to run the pods under. The chart does not create ServiceAccounts."
+                        },
                         "name": {
                             "type": "string",
                             "description": "Poller name",
@@ -528,6 +536,10 @@
                     "type": "object",
                     "additionalProperties": false,
                     "properties": {
+                        "serviceAccountName": {
+                            "type": "string",
+                            "description": "Name of an existing ServiceAccount to run the pods under. The chart does not create ServiceAccounts."
+                        },
                         "enabled": {
                             "type": "boolean",
                             "description": "RRDCached enabled",
