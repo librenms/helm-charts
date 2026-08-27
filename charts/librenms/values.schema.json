@@ -1090,6 +1090,27 @@
             "description": "LibreNMS ingress configuration",
             "additionalProperties": true
         },
+        "externalRedis": {
+            "type": "object",
+            "description": "External Redis configuration. Used when redis.enabled is false.",
+            "additionalProperties": false,
+            "properties": {
+                "host": {
+                    "type": "string",
+                    "description": "Redis host (DNS name or IP address). Blank disables Redis and falls back to the file cache and session drivers."
+                },
+                "port": {
+                    "type": "integer",
+                    "description": "Redis port",
+                    "default": 6379
+                },
+                "db": {
+                    "type": "integer",
+                    "description": "Redis database number",
+                    "default": 0
+                }
+            }
+        },
         "externalDatabase": {
             "type": "object",
             "description": "External database configuration. Used when mysql.enabled is false.",

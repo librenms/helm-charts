@@ -184,6 +184,49 @@ valueFrom:
 {{- end -}}
 
 {{/*
+Redis is in use when either the bundled subchart is enabled or an external host
+is configured. Without one, LibreNMS falls back to the file cache/session driver.
+*/}}
+{{- define "librenms.redisEnabled" -}}
+{{- if or .Values.redis.enabled .Values.externalRedis.host -}}
+true
+{{- end -}}
+{{- end -}}
+
+{{/*
+Redis host - bundled subchart service or the configured external host
+*/}}
+{{- define "librenms.redisHost" -}}
+{{- if .Values.redis.enabled -}}
+{{- printf "%s-redis-client" .Release.Name -}}
+{{- else -}}
+{{- .Values.externalRedis.host -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Redis port
+*/}}
+{{- define "librenms.redisPort" -}}
+{{- if .Values.redis.enabled -}}
+{{- print "6379" -}}
+{{- else -}}
+{{- .Values.externalRedis.port | default 6379 -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Redis database number
+*/}}
+{{- define "librenms.redisDb" -}}
+{{- if .Values.redis.enabled -}}
+{{- print "0" -}}
+{{- else -}}
+{{- .Values.externalRedis.db | default 0 -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Validate external database configuration
 */}}
 {{- define "librenms.validateExternalDB" -}}
