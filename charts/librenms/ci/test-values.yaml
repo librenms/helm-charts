@@ -79,6 +79,24 @@ librenms:
         cpu: 50m
         memory: 128Mi
         ephemeral-storage: 100Mi
+  snmptrapd:
+    enabled: true
+    extraMibDirs: /opt/librenms/mibs
+    service:
+      annotations:
+        librenms.org/component: snmptrapd
+    extraEnvs:
+      - name: TRAP_DEBUG
+        value: "true"
+    resources:
+      limits:
+        cpu: 200m
+        memory: 256Mi
+        ephemeral-storage: 200Mi
+      requests:
+        cpu: 50m
+        memory: 128Mi
+        ephemeral-storage: 100Mi
   rrdcached:
     extraEnvs:
       - name: RRD_DEBUG

@@ -220,6 +220,89 @@ librenms:
     # -- Extra envFrom sources for syslogng containers
     extraEnvFrom: []
 
+  # -- snmptrapd sidecar for receiving SNMP traps from network devices on port 162.
+  # Traps are passed to LibreNMS' snmptrap.php handler, which matches them to a
+  # device by the source IP of the trap, so the sending device must already be
+  # monitored. See: https://docs.librenms.org/Extensions/SNMP-Trap-Handler/
+  snmptrapd:
+    # -- Enable snmptrapd
+    enabled: false
+    # -- snmptrapd replicas
+    replicas: 1
+    # -- SNMP v1/v2c community string devices must send their traps with.
+    # Change this from the image default before exposing the receiver.
+    community: librenmsdocker
+    # -- Which snmptrapd processing types (log, execute and/or net) to apply to
+    # accepted traps. LibreNMS needs 'execute' for its trap handler to run.
+    processingType: log,execute,net
+    # -- Accept traps without checking them against the community string or the
+    # SNMPv3 user below. Set to "no" to enforce authorization.
+    disableAuthorization: "yes"
+    # -- Additional colon-separated MIB directories to load
+    # (e.g. "/opt/librenms/mibs/veeam"). The standard and Cisco MIB directories
+    # are always loaded.
+    extraMibDirs: ""
+
+    # SNMPv3 credentials used to authenticate traps
+    snmpv3:
+      # -- SNMPv3 username
+      user: librenms_user
+      # -- SNMPv3 authentication protocol (MD5 or SHA)
+      authProtocol: SHA
+      # -- SNMPv3 privacy protocol (DES or AES)
+      privProtocol: AES
+      # -- SNMPv3 security level (noauth, auth or priv)
+      securityLevel: priv
+      # -- SNMPv3 engine ID
+      engineId: "1234567890"
+      # -- SNMPv3 authentication password. Left blank the image default
+      # ('auth_pass') applies, which should not be used in production.
+      authPassword: ""
+      # -- SNMPv3 privacy password. Left blank the image default ('priv_pass')
+      # applies, which should not be used in production.
+      privPassword: ""
+      # -- Read the SNMPv3 passwords from an existing secret instead of the two
+      # values above. Takes precedence over authPassword and privPassword.
+      existingSecret:
+        # -- Name of the secret holding the SNMPv3 passwords
+        name: ""
+        # -- Key in the secret containing the authentication password
+        authKey: "snmp-auth-password"
+        # -- Key in the secret containing the privacy password
+        privKey: "snmp-priv-password"
+
+    service:
+      # -- Service type for the trap receiver. Devices outside the cluster need
+      # LoadBalancer or NodePort to reach it.
+      type: ClusterIP
+      # -- Annotations for the snmptrapd service
+      annotations: {}
+      # -- Static IP to request when type is LoadBalancer
+      loadBalancerIP: ""
+      # -- externalTrafficPolicy for the service. Set to "Local" to preserve the
+      # source IP of incoming traps, which LibreNMS needs to match a trap to a
+      # device. Only applies to LoadBalancer and NodePort services.
+      externalTrafficPolicy: ""
+
+    # -- resources defines the computing resources (CPU and memory)
+    # that are allocated to the snmptrapd container.
+    resources: {}
+      # requests:
+      #   cpu: 100m
+      #   memory: 128M
+
+    # -- podAnnotations for snmptrapd pods
+    podAnnotations: {}
+
+    # -- nodeSelector for snmptrapd pods
+    nodeSelector: {}
+
+    # -- Extra environment variables for snmptrapd containers
+    extraEnvs: []
+
+    # -- Extra envFrom sources for snmptrapd containers
+    extraEnvFrom: []
+
   # -- RRD cached is the tool that allows for distributed polling and is mandatory
   # in this LibreNMS helm chart. See the rrdcached documentation for more
   # information: https://oss.oetiker.ch/rrdtool/doc/rrdcached.en.html

@@ -1,0 +1,158 @@
+{{- if .Values.librenms.snmptrapd.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-snmptrapd
+spec:
+  replicas: {{ .Values.librenms.snmptrapd.replicas }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Release.Name }}
+      app.kubernetes.io/instance: snmptrapd
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include "librenms.configChecksum" . }}
+        {{- with .Values.librenms.snmptrapd.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        app.kubernetes.io/name: {{ .Release.Name }}
+        app.kubernetes.io/instance: snmptrapd
+    spec:
+      {{- with .Values.librenms.snmptrapd.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+      - name: env-volume
+        emptyDir: {}
+      - name: key
+        secret:
+          secretName: {{ include "librenms.secretName" . }}
+      - name: files
+        configMap:
+          name: {{ .Release.Name }}-files
+      initContainers:
+        - name: init
+          image: '{{ .Values.librenms.initContainer.image.repository }}:{{ .Values.librenms.initContainer.image.tag }}'
+          imagePullPolicy: {{ .Values.librenms.initContainer.image.pullPolicy }}
+          command: ["/bin/sh","/data/files/init.sh"]
+          {{- with .Values.librenms.initContainer.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.librenms.initContainer.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+          - name: env-volume
+            mountPath: /data/env-volume
+          - name: key
+            mountPath: /data/key
+          - name: files
+            mountPath: /data/files
+      containers:
+      - name: snmptrapd
+        image: '{{ .Values.librenms.image.repository }}:{{ .Values.librenms.image.tag }}'
+        imagePullPolicy: {{ .Values.librenms.image.pullPolicy }}
+        env:
+        - name: SIDECAR_SNMPTRAPD
+          value: "1"
+        - name: DB_PASSWORD
+          {{- include "librenms.dbPasswordEnv" . | nindent 10 }}
+        {{- with .Values.librenms.snmptrapd.community }}
+        - name: LIBRENMS_SNMP_COMMUNITY
+          value: {{ . | quote }}
+        {{- end }}
+        {{- with .Values.librenms.snmptrapd.processingType }}
+        - name: SNMP_PROCESSING_TYPE
+          value: {{ . | quote }}
+        {{- end }}
+        {{- with .Values.librenms.snmptrapd.disableAuthorization }}
+        - name: SNMP_DISABLE_AUTHORIZATION
+          value: {{ . | quote }}
+        {{- end }}
+        {{- with .Values.librenms.snmptrapd.extraMibDirs }}
+        - name: SNMP_EXTRA_MIB_DIRS
+          value: {{ . | quote }}
+        {{- end }}
+        {{- with .Values.librenms.snmptrapd.snmpv3 }}
+        {{- with .user }}
+        - name: SNMP_USER
+          value: {{ . | quote }}
+        {{- end }}
+        {{- with .authProtocol }}
+        - name: SNMP_AUTH_PROTO
+          value: {{ . | quote }}
+        {{- end }}
+        {{- with .privProtocol }}
+        - name: SNMP_PRIV_PROTO
+          value: {{ . | quote }}
+        {{- end }}
+        {{- with .securityLevel }}
+        - name: SNMP_SECURITY_LEVEL
+          value: {{ . | quote }}
+        {{- end }}
+        {{- with .engineId }}
+        - name: SNMP_ENGINEID
+          value: {{ . | quote }}
+        {{- end }}
+        {{- if .existingSecret.name }}
+        - name: SNMP_AUTH
+          valueFrom:
+            secretKeyRef:
+              name: {{ .existingSecret.name }}
+              key: {{ .existingSecret.authKey | default "snmp-auth-password" }}
+        - name: SNMP_PRIV
+          valueFrom:
+            secretKeyRef:
+              name: {{ .existingSecret.name }}
+              key: {{ .existingSecret.privKey | default "snmp-priv-password" }}
+        {{- else }}
+        {{- with .authPassword }}
+        - name: SNMP_AUTH
+          value: {{ . | quote }}
+        {{- end }}
+        {{- with .privPassword }}
+        - name: SNMP_PRIV
+          value: {{ . | quote }}
+        {{- end }}
+        {{- end }}
+        {{- end }}
+        {{- with .Values.librenms.extraEnvs }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with .Values.librenms.snmptrapd.extraEnvs }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        envFrom:
+        - configMapRef:
+            name: {{ .Release.Name }}
+        {{- with .Values.librenms.extraEnvFrom }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- with .Values.librenms.snmptrapd.extraEnvFrom }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        volumeMounts:
+        - name: files
+          mountPath: /data/config/custom.php
+          subPath: custom.php
+          readOnly: true
+        - name: env-volume
+          mountPath: /data/.env
+          subPath: env
+        ports:
+        - name: snmptrap-udp
+          containerPort: 162
+          protocol: UDP
+        - name: snmptrap-tcp
+          containerPort: 162
+          protocol: TCP
+        {{- with .Values.librenms.snmptrapd.resources }}
+        resources:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+{{- end }}
