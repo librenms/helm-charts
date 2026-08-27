@@ -1,9 +1,14 @@
 {{- if .Values.ingress.enabled -}}
 {{- $fullName := .Release.Name  -}}
 {{- $svcPort := 8000 -}}
+{{- /*
+Work on a copy: `set` on .Values.ingress.annotations mutates the global values
+for the rest of the render, not just this template.
+*/ -}}
+{{- $annotations := deepCopy (.Values.ingress.annotations | default dict) -}}
 {{- if and .Values.ingress.className (not (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion)) }}
-  {{- if not (hasKey .Values.ingress.annotations "kubernetes.io/ingress.class") }}
-  {{- $_ := set .Values.ingress.annotations "kubernetes.io/ingress.class" .Values.ingress.className}}
+  {{- if not (hasKey $annotations "kubernetes.io/ingress.class") }}
+  {{- $_ := set $annotations "kubernetes.io/ingress.class" .Values.ingress.className }}
   {{- end }}
 {{- end }}
 {{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion -}}
@@ -19,7 +24,7 @@ metadata:
   labels:
     app.kubernetes.io/name: {{ .Release.Name }}
     app.kubernetes.io/instance: frontend
-  {{- with .Values.ingress.annotations }}
+  {{- with $annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}

@@ -412,10 +412,11 @@ ingress:
   enabled: false
   # -- Ingress class name
   className: ""
-  # -- Ingress annotations
+  # -- Ingress annotations. Use `className` above to select the controller;
+  # the `kubernetes.io/ingress.class` annotation it replaced is retired.
   annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
+    # cert-manager.io/cluster-issuer: letsencrypt-prod
+    # nginx.ingress.kubernetes.io/proxy-body-size: "0"
   # -- Ingress rules
   hosts:
     - host: chart-example.local
