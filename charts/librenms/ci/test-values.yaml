@@ -122,3 +122,15 @@ librenms:
         ephemeral-storage: 500Mi
 ingress:
   enabled: true
+gateway:
+  enabled: true
+  annotations:
+    librenms.org/component: frontend
+  parentRefs:
+    - name: ci-gateway
+      sectionName: http
+  hostnames:
+    - librenms.ci.example.com
+  paths:
+    - path: /
+      pathType: PathPrefix
