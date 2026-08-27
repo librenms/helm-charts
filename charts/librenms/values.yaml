@@ -214,6 +214,19 @@ librenms:
     # -- nodeSelector for syslogng pods
     nodeSelector: {}
 
+    service:
+      # -- Service type for the syslog receiver. Devices outside the cluster need
+      # LoadBalancer or NodePort to reach it.
+      type: ClusterIP
+      # -- Annotations for the syslogng service
+      annotations: {}
+      # -- Static IP to request when type is LoadBalancer
+      loadBalancerIP: ""
+      # -- externalTrafficPolicy for the service. Set to "Local" to preserve the
+      # source IP of incoming messages, which LibreNMS needs to match a message
+      # to a device. Only applies to LoadBalancer and NodePort services.
+      externalTrafficPolicy: ""
+
     # -- Extra environment variables for syslogng containers
     extraEnvs: []
 

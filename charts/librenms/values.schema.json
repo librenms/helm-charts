@@ -738,7 +738,47 @@
                         "nodeSelector": {
                             "$ref": "#/definitions/nodeSelector"
                         },
-                        "extraEnvs": {
+                        "service": {
+                "type": "object",
+                "description": "Service exposing the syslog receiver",
+                "additionalProperties": false,
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "ClusterIP",
+                            "NodePort",
+                            "LoadBalancer"
+                        ],
+                        "description": "Service type for the syslog receiver",
+                        "default": "ClusterIP"
+                    },
+                    "annotations": {
+                        "type": "object",
+                        "description": "Annotations for the syslogng service",
+                        "additionalProperties": {
+                            "type": "string"
+                        },
+                        "default": {}
+                    },
+                    "loadBalancerIP": {
+                        "type": "string",
+                        "description": "Static IP to request when type is LoadBalancer",
+                        "default": ""
+                    },
+                    "externalTrafficPolicy": {
+                        "type": "string",
+                        "enum": [
+                            "",
+                            "Cluster",
+                            "Local"
+                        ],
+                        "description": "externalTrafficPolicy for the service, set to Local to preserve the source IP of incoming messages",
+                        "default": ""
+                    }
+                }
+            },
+            "extraEnvs": {
                             "type": "array",
                             "items": {
                                 "$ref": "#/definitions/envVar"

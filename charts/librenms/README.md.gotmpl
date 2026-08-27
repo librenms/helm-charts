@@ -191,6 +191,73 @@ librenms:
         storageClassName: "fast-ssd"
 ```
 
+## Syslog
+
+The chart can run the LibreNMS image as a `syslog-ng` sidecar, which receives syslog on port 514
+(UDP and TCP) and pipes each message to LibreNMS' `syslog.php`. See the
+[Syslog docs](https://docs.librenms.org/Extensions/Syslog/).
+
+```yaml
+librenms:
+  syslogng:
+    enabled: true
+  configuration: |
+    $config['distributed_poller_group'] = '0';
+    $config['distributed_poller']       = true;
+    $config['enable_syslog']            = true;
+```
+
+`$config['enable_syslog']` is required — without it the sidecar receives messages but LibreNMS
+does not store them.
+
+### Receiving syslog from outside the cluster
+
+LibreNMS resolves each message to a device by matching syslog-ng's `$HOST` against the device's
+hostname, sysName or IP, and **discards any message it cannot match**. The image's
+`syslog-ng.conf` sets `use_dns(no)` and leaves `keep-hostname()` at its default of `no`, which
+means syslog-ng overwrites the message's HOSTNAME field with the **address the packet came
+from**. Device attribution therefore depends on the source address surviving the trip to the pod.
+
+A `ClusterIP` service is enough for senders inside the cluster. For devices outside it, a
+`LoadBalancer` or `NodePort` service under the default `externalTrafficPolicy: Cluster` lets
+kube-proxy SNAT the source to a node address — which drops every external message, or, if your
+nodes are themselves monitored, files all of them against the node that received them. Set
+`externalTrafficPolicy: Local` to avoid the SNAT:
+
+```yaml
+librenms:
+  syslogng:
+    enabled: true
+    replicas: 1
+    service:
+      type: LoadBalancer
+      externalTrafficPolicy: Local
+      annotations:
+        metallb.io/loadBalancerIPs: 192.168.1.50
+```
+
+The same applies to the [snmptrapd sidecar](#snmp-traps), which has an identical `service` block.
+
+#### Notes for MetalLB
+
+MetalLB [respects `externalTrafficPolicy`](https://metallb.io/usage/#traffic-policies) in both L2
+and BGP mode, and documents that under `Local` "your pods can see the real source IP address of
+incoming connections". A few things worth knowing:
+
+- Prefer the `metallb.io/loadBalancerIPs` annotation over the chart's `loadBalancerIP` value.
+  MetalLB honours both, but `spec.loadBalancerIP` is deprecated in the Kubernetes API. Use
+  `metallb.io/address-pool` instead if you only care which pool the address comes from.
+- Under `Local`, only nodes running a pod attract traffic. With `replicas: 1` the announcement
+  follows the pod, so a reschedule causes a brief gap — unavoidable for UDP, which has no
+  retransmit.
+- **Syslog and traps cannot share one address** while either uses `Local`. MetalLB's
+  `metallb.io/allow-shared-ip` requires both services to use `Cluster`, or to select the *exact*
+  same pods; the syslog-ng and snmptrapd services select different pods. Give them separate
+  addresses.
+- A single service carrying both TCP and UDP needs MetalLB 0.13.6+ (which
+  [validated mixed-protocol services](https://github.com/metallb/metallb/issues/1050)) and
+  Kubernetes 1.26+, where `MixedProtocolLBService` reached GA.
+
 ## SNMP Traps
 
 The chart can run the LibreNMS image a second time as an `snmptrapd` sidecar, which receives
@@ -218,9 +285,13 @@ librenms:
     enabled: true
     service:
       type: LoadBalancer
-      loadBalancerIP: "10.0.0.50"
       externalTrafficPolicy: Local
+      annotations:
+        metallb.io/loadBalancerIPs: 192.168.1.51
 ```
+
+If you run MetalLB, see [Notes for MetalLB](#notes-for-metallb) above — in particular, traps and
+syslog need separate addresses when either uses `Local`.
 
 ### Authorization
 

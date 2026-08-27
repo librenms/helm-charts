@@ -1,9 +1,21 @@
 {{- if .Values.librenms.syslogng.enabled }}
+{{- $svc := .Values.librenms.syslogng.service }}
 apiVersion: v1
 kind: Service
 metadata:
   name: {{ .Release.Name }}-syslogng
+  {{- with $svc.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
+  type: {{ $svc.type }}
+  {{- with $svc.loadBalancerIP }}
+  loadBalancerIP: {{ . }}
+  {{- end }}
+  {{- with $svc.externalTrafficPolicy }}
+  externalTrafficPolicy: {{ . }}
+  {{- end }}
   selector:
     app.kubernetes.io/name: {{ .Release.Name }}
     app.kubernetes.io/instance: syslogng
