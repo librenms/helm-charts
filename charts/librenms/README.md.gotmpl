@@ -191,6 +191,96 @@ librenms:
         storageClassName: "fast-ssd"
 ```
 
+## SNMP Traps
+
+The chart can run the LibreNMS image a second time as an `snmptrapd` sidecar, which receives
+SNMP traps on port 162 (UDP and TCP) and hands them to LibreNMS' `snmptrap.php` handler.
+See the [SNMP Trap Handler docs](https://docs.librenms.org/Extensions/SNMP-Trap-Handler/).
+
+```yaml
+librenms:
+  snmptrapd:
+    enabled: true
+    community: my-trap-community
+```
+
+LibreNMS attributes an incoming trap to a device by the **source address of the trap** and
+discards any trap it cannot match, so the sending device must already be monitored and its
+address must survive the trip to the pod. A `ClusterIP` service is enough for senders inside the
+cluster. Devices outside it need a `LoadBalancer` or `NodePort` service, and
+`externalTrafficPolicy: Local` so that kube-proxy does not SNAT the trap to a node address --
+which drops every external trap, or, if your nodes are themselves monitored, silently attributes
+all of them to the node that received them:
+
+```yaml
+librenms:
+  snmptrapd:
+    enabled: true
+    service:
+      type: LoadBalancer
+      loadBalancerIP: "10.0.0.50"
+      externalTrafficPolicy: Local
+```
+
+### Authorization
+
+By default the sidecar inherits the image's `disableAuthorization: yes`, which accepts every
+trap that arrives regardless of community string or SNMPv3 user. To enforce the configured
+credentials instead:
+
+```yaml
+librenms:
+  snmptrapd:
+    enabled: true
+    disableAuthorization: "no"
+    community: my-trap-community
+```
+
+> **Note:** `disableAuthorization` is a string. Write `"no"` in quotes — bare `no` is parsed as a
+> boolean by YAML and rejected by the values schema.
+
+### SNMPv3
+
+SNMPv3 trap authentication is configured under `librenms.snmptrapd.snmpv3`. The image ships
+placeholder passwords (`auth_pass` / `priv_pass`) that apply when none are set, so set your own.
+Rather than putting them in your values, point the chart at an existing secret:
+
+```bash
+kubectl create secret generic snmpv3-credentials \
+  --from-literal=snmp-auth-password=YOUR_AUTH_PASSWORD \
+  --from-literal=snmp-priv-password=YOUR_PRIV_PASSWORD \
+  -n default
+```
+
+```yaml
+librenms:
+  snmptrapd:
+    enabled: true
+    snmpv3:
+      user: librenms_user
+      authProtocol: SHA
+      privProtocol: AES
+      securityLevel: priv
+      engineId: "1234567890"
+      existingSecret:
+        name: snmpv3-credentials
+        authKey: snmp-auth-password
+        privKey: snmp-priv-password
+```
+
+`existingSecret.name` takes precedence over `snmpv3.authPassword` and `snmpv3.privPassword`.
+
+### MIBs
+
+The standard and Cisco MIB directories are always loaded. Add vendor directories with
+`librenms.snmptrapd.extraMibDirs` (colon separated):
+
+```yaml
+librenms:
+  snmptrapd:
+    extraMibDirs: "/opt/librenms/mibs/veeam:/opt/librenms/mibs/dell"
+```
+
 ## Values
 Check the [values.yaml](./values.yaml) file for the available settings for this chart and its dependencies.
 
