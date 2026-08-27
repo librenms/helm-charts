@@ -66,17 +66,6 @@ Create the name of the pollers
 {{- end -}}
 
 {{/*
-Create the name of the service account to use
-*/}}
-{{- define "librenms.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create }}
-{{- default (include "librenms.fullname" .) .Values.serviceAccount.name }}
-{{- else }}
-{{- default "default" .Values.serviceAccount.name }}
-{{- end }}
-{{- end }}
-
-{{/*
 Create the name of the secret to use
 */}}
 {{- define "librenms.secretName" -}}
@@ -223,25 +212,5 @@ Redis database number
 {{- print "0" -}}
 {{- else -}}
 {{- .Values.externalRedis.db | default 0 -}}
-{{- end -}}
-{{- end -}}
-
-{{/*
-Validate external database configuration
-*/}}
-{{- define "librenms.validateExternalDB" -}}
-{{- if not .Values.mysql.enabled -}}
-{{- if not .Values.externalDatabase.host -}}
-{{- fail "externalDatabase.host is required when mysql.enabled is false" -}}
-{{- end -}}
-{{- if not .Values.externalDatabase.name -}}
-{{- fail "externalDatabase.name is required when mysql.enabled is false" -}}
-{{- end -}}
-{{- if not .Values.externalDatabase.user -}}
-{{- fail "externalDatabase.user is required when mysql.enabled is false" -}}
-{{- end -}}
-{{- if and (not .Values.externalDatabase.existingSecret.name) (not .Values.externalDatabase.password) -}}
-{{- fail "Either externalDatabase.existingSecret.name or externalDatabase.password must be set when mysql.enabled is false" -}}
-{{- end -}}
 {{- end -}}
 {{- end -}}
