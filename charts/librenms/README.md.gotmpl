@@ -429,6 +429,11 @@ librenms:
 ```
 If both are left blank, the chart will generate and persist a random key automatically.
 
+The generated key is read back from the release Secret on each `helm upgrade`, so it stays
+stable for the life of the release. Rotating APP_KEY logs out every session and makes
+existing Laravel-encrypted values undecryptable, so it only changes if you set
+`librenms.appkey` explicitly.
+
 ### TLS termination at an ingress (APP_URL / APP_TRUSTED_PROXIES)
 
 When TLS is terminated at an ingress or load balancer, the pod only ever sees plain HTTP, so Laravel generates `http://` links and the UI ends up serving mixed content that browsers block.
