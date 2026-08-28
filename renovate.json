@@ -1,6 +1,18 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended"
+    "config:recommended",
+    ":semanticCommitScopeDisabled"
+  ],
+  "semanticCommits": "enabled",
+  "semanticCommitType": "chore",
+  "packageRules": [
+    {
+      "description": "Updates under charts/ change what the chart deploys and are user-facing. CI actions and tooling stay chore.",
+      "matchFileNames": [
+        "charts/**"
+      ],
+      "semanticCommitType": "deps"
+    }
   ]
 }
