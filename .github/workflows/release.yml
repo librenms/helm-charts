@@ -9,6 +9,8 @@ jobs:
       contents: write
       packages: write
       pull-requests: write
+      # creating and updating labels is an issues-scoped operation
+      issues: write
 
     runs-on: ubuntu-latest
     steps:
@@ -107,6 +109,24 @@ jobs:
           gh release edit "librenms-${VERSION}" \
             --repo "$GITHUB_REPOSITORY" \
             --notes-file "${RUNNER_TEMP}/release-notes.md"
+
+      # release-please marks a release finished by moving its release pull request
+      # from `autorelease: pending` to `autorelease: tagged`. skip-github-release
+      # hands tagging to chart-releaser, so release-please never relabels, and every
+      # later run aborts with "untagged, merged release PRs outstanding".
+      - name: Mark the release pull request as tagged
+        if: steps.release-check.outputs.new == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh label create "autorelease: tagged" --repo "$GITHUB_REPOSITORY" \
+            --color ededed --description "release-please: release has been tagged" --force
+          gh pr list --repo "$GITHUB_REPOSITORY" --state merged \
+            --label "autorelease: pending" --json number --jq '.[].number' \
+          | while read -r pr; do
+              gh pr edit "$pr" --repo "$GITHUB_REPOSITORY" \
+                --add-label "autorelease: tagged" --remove-label "autorelease: pending"
+            done
 
       # Runs after chart-releaser so the release it just published is visible as
       # the starting point for the next changelog. release-please owns the chart
