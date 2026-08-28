@@ -1,5 +1,13 @@
 # Changelog
 
+## [10.1.0](https://github.com/librenms/helm-charts/compare/librenms-10.0.0...librenms-10.1.0) (2026-08-28)
+
+
+### Features
+
+* add liveness probes and SNMP scanner job policy ([#271](https://github.com/librenms/helm-charts/issues/271)) ([eb0a35e](https://github.com/librenms/helm-charts/commit/eb0a35e168077d254743efcdfc13335b0f24c803))
+* **frontend:** gate readiness on the LibreNMS health endpoint ([#272](https://github.com/librenms/helm-charts/issues/272)) ([2cd87d5](https://github.com/librenms/helm-charts/commit/2cd87d556db57294d339763a7e6f12a0010523aa))
+
 ## [10.0.0](https://github.com/librenms/helm-charts/compare/librenms-9.2.1...librenms-10.0.0) (2026-08-28)
 
 
