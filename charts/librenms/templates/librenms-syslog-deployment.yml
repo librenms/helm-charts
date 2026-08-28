@@ -92,6 +92,10 @@ spec:
         - name: syslog-tcp
           containerPort: 514
           protocol: TCP
+        {{- with .Values.librenms.syslogng.livenessProbe }}
+        livenessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
         {{- with .Values.librenms.syslogng.resources }}
         resources:
           {{- toYaml . | nindent 10 }}

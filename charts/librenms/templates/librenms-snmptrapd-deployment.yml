@@ -151,6 +151,10 @@ spec:
         - name: snmptrap-tcp
           containerPort: 162
           protocol: TCP
+        {{- with .Values.librenms.snmptrapd.livenessProbe }}
+        livenessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
         {{- with .Values.librenms.snmptrapd.resources }}
         resources:
           {{- toYaml . | nindent 10 }}

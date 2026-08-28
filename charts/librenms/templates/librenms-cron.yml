@@ -7,6 +7,9 @@ metadata:
     {{- include "librenms.labels" (dict "root" . "component" "snmp-scanner") | nindent 4 }}
 spec:
   schedule: "{{.Values.librenms.snmp_scanner.cron }}"
+  concurrencyPolicy: {{ .Values.librenms.snmp_scanner.concurrencyPolicy }}
+  successfulJobsHistoryLimit: {{ .Values.librenms.snmp_scanner.successfulJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ .Values.librenms.snmp_scanner.failedJobsHistoryLimit }}
   jobTemplate:
     spec:
       template:
