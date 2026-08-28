@@ -40,13 +40,35 @@ jobs:
           git-push: true
           git-commit-message: "docs: auto-update helm docs"
 
+      # release-please owns the chart version, so an ordinary merge to main
+      # changes chart files without changing the version. chart-releaser
+      # discovers changed charts by file diff rather than by version, so
+      # publishing has to be gated on the version itself: without this it
+      # repackages the released version and fails on the existing tag.
+      - name: Check whether the chart version is already released
+        id: release-check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          version=$(grep -m1 '^version:' charts/librenms/Chart.yaml | awk '{print $2}')
+          if gh release view "librenms-${version}" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "librenms-${version} is already released; skipping publication."
+            echo "new=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "new=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Run chart-releaser
+        if: steps.release-check.outputs.new == 'true'
         uses: helm/chart-releaser-action@v1.7.0
+        with:
+          skip_existing: true
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
 
       # see https://github.com/helm/chart-releaser/issues/183
       - name: Login to GitHub Container Registry
+        if: steps.release-check.outputs.new == 'true'
         uses: docker/login-action@v4
         with:
           registry: ghcr.io
@@ -54,6 +76,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push charts to GHCR
+        if: steps.release-check.outputs.new == 'true'
         run: |
           shopt -s nullglob
           for pkg in .cr-release-packages/*; do
@@ -72,3 +95,6 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+          # release-please otherwise targets the repository default branch,
+          # which is not necessarily the branch this job is gated to.
+          target-branch: main
