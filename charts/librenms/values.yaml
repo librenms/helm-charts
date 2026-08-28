@@ -82,6 +82,24 @@ librenms:
       initialDelaySeconds: 30
       periodSeconds: 60
       timeoutSeconds: 10
+    # -- Frontend liveness probe. Restarts the container when PHP-FPM stops
+    # answering, which a TCP check on port 8000 cannot detect because nginx and
+    # PHP-FPM are separate processes. Deliberately not Laravel's /up endpoint:
+    # LibreNMS registers a DiagnosingHealth listener that opens a database
+    # connection, so /up returns 500 whenever MySQL is down and would restart
+    # every frontend pod for the duration of a database outage. /login is
+    # rendered by PHP-FPM but does not query the database, so it fails only when
+    # PHP-FPM itself is unresponsive. Set to null to disable.
+    livenessProbe:
+      httpGet:
+        # -- Check endpoint path
+        path: /login
+        # -- Check endpoint port
+        port: 8000
+      initialDelaySeconds: 60
+      periodSeconds: 30
+      timeoutSeconds: 10
+      failureThreshold: 6
     # -- resources defines the computing resources (CPU and memory)
     # that are allocated to the containers running within the Pod.
     resources: {}
@@ -172,6 +190,15 @@ librenms:
     enabled: false
     # -- SNMP scanner cronjob syntax interval
     cron: 15 * * * *
+    # -- What to do when a scan is still running as the next one falls due.
+    # Forbid skips the new run, Allow lets the two overlap, Replace terminates
+    # the running scan. Overlapping scans duplicate discovery work and contend
+    # on the database.
+    concurrencyPolicy: Forbid
+    # -- Number of completed scan jobs to retain
+    successfulJobsHistoryLimit: 3
+    # -- Number of failed scan jobs to retain
+    failedJobsHistoryLimit: 1
     # -- securityContext defines the security settings for the SNMP scanner pod.
     # These settings are required for the SNMP scanner to run properly.
     # See: https://github.com/librenms/docker/pull/530
@@ -232,6 +259,16 @@ librenms:
       # source IP of incoming messages, which LibreNMS needs to match a message
       # to a device. Only applies to LoadBalancer and NodePort services.
       externalTrafficPolicy: ""
+
+    # -- syslog-ng liveness probe. TCP 514 is a real listener in the image, and
+    # accepting a connection on it does not involve the database, so a failure
+    # means the receiver itself is gone. Set to null to disable.
+    livenessProbe:
+      tcpSocket:
+        port: 514
+      initialDelaySeconds: 30
+      periodSeconds: 20
+      failureThreshold: 3
 
     # -- Extra environment variables for syslogng containers
     extraEnvs: []
@@ -315,6 +352,16 @@ librenms:
 
     # -- nodeSelector for snmptrapd pods
     nodeSelector: {}
+
+    # -- snmptrapd liveness probe. TCP 162 is a real listener in the image, and
+    # accepting a connection on it does not involve the database, so a failure
+    # means the receiver itself is gone. Set to null to disable.
+    livenessProbe:
+      tcpSocket:
+        port: 162
+      initialDelaySeconds: 30
+      periodSeconds: 20
+      failureThreshold: 3
 
     # -- Extra environment variables for snmptrapd containers
     extraEnvs: []

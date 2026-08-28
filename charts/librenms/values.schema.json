@@ -130,6 +130,83 @@
             },
             "additionalProperties": false
         },
+        "probe": {
+            "type": "object",
+            "description": "Kubernetes probe. Set to null to disable it; an empty map is merged with the default and has no effect.",
+            "additionalProperties": true,
+            "properties": {
+                "httpGet": {
+                    "type": "object",
+                    "properties": {
+                        "path": {
+                            "type": "string",
+                            "description": "Check endpoint path"
+                        },
+                        "port": {
+                            "type": [
+                                "integer",
+                                "string"
+                            ],
+                            "description": "Check endpoint port"
+                        },
+                        "scheme": {
+                            "type": "string",
+                            "enum": [
+                                "HTTP",
+                                "HTTPS"
+                            ]
+                        }
+                    }
+                },
+                "tcpSocket": {
+                    "type": "object",
+                    "properties": {
+                        "port": {
+                            "type": [
+                                "integer",
+                                "string"
+                            ],
+                            "description": "Check endpoint port"
+                        }
+                    }
+                },
+                "exec": {
+                    "type": "object",
+                    "properties": {
+                        "command": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "initialDelaySeconds": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "periodSeconds": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "timeoutSeconds": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "successThreshold": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "failureThreshold": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "terminationGracePeriodSeconds": {
+                    "type": "integer",
+                    "minimum": 0
+                }
+            }
+        },
         "nodeSelector": {
             "type": "object",
             "description": "Node selector for pod assignment",
@@ -283,34 +360,24 @@
                             "minimum": 1
                         },
                         "readinessProbe": {
-                            "type": "object",
-                            "properties": {
-                                "httpGet": {
-                                    "type": "object",
-                                    "properties": {
-                                        "path": {
-                                            "type": "string",
-                                            "description": "Check endpoint path"
-                                        },
-                                        "port": {
-                                            "type": [
-                                                "integer",
-                                                "string"
-                                            ],
-                                            "description": "Check endpoint port"
-                                        }
-                                    }
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/probe"
                                 },
-                                "initialDelaySeconds": {
-                                    "type": "integer"
-                                },
-                                "periodSeconds": {
-                                    "type": "integer"
-                                },
-                                "timeoutSeconds": {
-                                    "type": "integer"
+                                {
+                                    "description": "Frontend readiness probe"
                                 }
-                            }
+                            ]
+                        },
+                        "livenessProbe": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/probe"
+                                },
+                                {
+                                    "description": "Frontend liveness probe. Uses /login, which is rendered by PHP-FPM without querying the database."
+                                }
+                            ]
                         },
                         "resources": {
                             "allOf": [
@@ -488,6 +555,28 @@
                             "description": "SNMP scanner cron schedule",
                             "default": "15 * * * *"
                         },
+                        "concurrencyPolicy": {
+                            "type": "string",
+                            "enum": [
+                                "Allow",
+                                "Forbid",
+                                "Replace"
+                            ],
+                            "description": "How to handle a scan still running when the next one falls due",
+                            "default": "Forbid"
+                        },
+                        "successfulJobsHistoryLimit": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "description": "Number of completed scan jobs to retain",
+                            "default": 3
+                        },
+                        "failedJobsHistoryLimit": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "description": "Number of failed scan jobs to retain",
+                            "default": 1
+                        },
                         "podAnnotations": {
                             "type": "object",
                             "description": "Pod annotations for SNMP scanner pods ",
@@ -621,50 +710,24 @@
                             ]
                         },
                         "readinessProbe": {
-                            "type": "object",
-                            "additionalProperties": true,
-                            "properties": {
-                                "tcpSocket": {
-                                    "type": "object",
-                                    "properties": {
-                                        "port": {
-                                            "type": [
-                                                "integer",
-                                                "string"
-                                            ]
-                                        }
-                                    }
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/probe"
                                 },
-                                "initialDelaySeconds": {
-                                    "type": "integer"
-                                },
-                                "periodSeconds": {
-                                    "type": "integer"
+                                {
+                                    "description": "RRDCached readiness probe"
                                 }
-                            }
+                            ]
                         },
                         "livenessProbe": {
-                            "type": "object",
-                            "additionalProperties": true,
-                            "properties": {
-                                "tcpSocket": {
-                                    "type": "object",
-                                    "properties": {
-                                        "port": {
-                                            "type": [
-                                                "integer",
-                                                "string"
-                                            ]
-                                        }
-                                    }
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/probe"
                                 },
-                                "initialDelaySeconds": {
-                                    "type": "integer"
-                                },
-                                "periodSeconds": {
-                                    "type": "integer"
+                                {
+                                    "description": "RRDCached liveness probe"
                                 }
-                            }
+                            ]
                         },
                         "envs": {
                             "type": "array",
@@ -736,6 +799,16 @@
                             "type": "integer",
                             "description": "syslogng replicas",
                             "default": 1
+                        },
+                        "livenessProbe": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/probe"
+                                },
+                                {
+                                    "description": "syslog-ng liveness probe"
+                                }
+                            ]
                         },
                         "resources": {
                             "allOf": [
@@ -821,6 +894,16 @@
                         "type": "integer",
                         "description": "snmptrapd replicas",
                         "default": 1
+                    },
+                    "livenessProbe": {
+                        "allOf": [
+                            {
+                                "$ref": "#/definitions/probe"
+                            },
+                            {
+                                "description": "snmptrapd liveness probe"
+                            }
+                        ]
                     },
                     "community": {
                         "type": "string",

@@ -110,6 +110,10 @@ spec:
         {{- if .Values.librenms.frontend.readinessProbe }}
         readinessProbe: {{ toYaml .Values.librenms.frontend.readinessProbe | nindent 10 }}
         {{- end }}
+        {{- with .Values.librenms.frontend.livenessProbe }}
+        livenessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
         ports:
         - name: http
           containerPort: 8000
