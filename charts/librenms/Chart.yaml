@@ -4,6 +4,7 @@ description: LibreNMS is an autodiscovering PHP/MySQL-based network monitoring s
 type: application
 version: 9.2.1
 appVersion: "26.8.1"
+kubeVersion: ">=1.26.0-0"
 maintainers:
   - name: jacobw
     url: https://github.com/jacobw
