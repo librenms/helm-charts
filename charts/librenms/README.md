@@ -171,6 +171,27 @@ externalDatabase:
 - MySQL server configured with `character-set-server=utf8mb4` and `collation-server=utf8mb4_unicode_ci`
   (see [LibreNMS collation docs](https://community.librenms.org/t/new-default-database-charset-collation/14956))
 
+## Redis
+
+Redis backs the Laravel cache and session stores. The chart deploys a bundled Redis by
+default (`redis.enabled: true`).
+
+To use a Redis you manage yourself, disable the bundled one and point `externalRedis` at it:
+
+```yaml
+redis:
+  enabled: false
+externalRedis:
+  host: redis.example.internal
+  port: 6379
+  db: 0
+```
+
+With `redis.enabled: false` and no `externalRedis.host`, the chart sets the cache and
+session drivers to `file`. Pods then keep cache and session state on their own
+filesystems, so this is only safe for a single frontend replica and is not suitable for
+distributed polling.
+
 ## Persistence
 
 RRDCached uses persistent storage for time-series database files. Two separate PersistentVolumeClaims are configured:
@@ -429,6 +450,11 @@ librenms:
 ```
 If both are left blank, the chart will generate and persist a random key automatically.
 
+The generated key is read back from the release Secret on each `helm upgrade`, so it stays
+stable for the life of the release. Rotating APP_KEY logs out every session and makes
+existing Laravel-encrypted values undecryptable, so it only changes if you set
+`librenms.appkey` explicitly.
+
 ### TLS termination at an ingress (APP_URL / APP_TRUSTED_PROXIES)
 
 When TLS is terminated at an ingress or load balancer, the pod only ever sees plain HTTP, so Laravel generates `http://` links and the UI ends up serving mixed content that browsers block.
@@ -488,6 +514,10 @@ The following table lists the main configurable parameters of the librenms chart
 | externalDatabase.port | int | `3306` | DB port (MySQL default 3306). Optional if port is included in the host field. |
 | externalDatabase.timeout | int | `60` | Optional: DB connection timeout in seconds |
 | externalDatabase.user | string | `"librenms"` | Database username |
+| externalRedis | object | `{"db":0,"host":"","port":6379}` | External Redis configuration. Used when `redis.enabled` is false. Leave `host` blank to run without Redis at all, in which case LibreNMS falls back to the file cache and session drivers -- only safe for a single frontend replica, since pollers and frontends no longer share cache or session state. |
+| externalRedis.db | int | `0` | Redis database number |
+| externalRedis.host | string | `""` | Redis host (DNS name or IP address) |
+| externalRedis.port | int | `6379` | Redis port |
 | gateway | object | `{"annotations":{},"enabled":false,"hostnames":[],"parentRefs":[],"paths":[{"path":"/","pathType":"PathPrefix"}]}` | LibreNMS Gateway API configuration. Renders an HTTPRoute for the frontend as an alternative to `ingress`, for clusters running a Gateway API implementation. The Gateway itself is not created by this chart -- it is usually shared across namespaces and managed separately. Requires the Gateway API CRDs (HTTPRoute is stable at gateway.networking.k8s.io/v1 as of Gateway API v1.0).  Only the frontend is exposed this way. The syslog-ng and snmptrapd sidecars are deliberately left on plain Services: routing them through a Gateway replaces the sender's address with the Gateway's, and LibreNMS resolves a message or trap to a device by that address. See the Syslog section of the README. |
 | gateway.annotations | object | `{}` | Annotations for the HTTPRoute |
 | gateway.enabled | bool | `false` | Enable or disable the HTTPRoute |
@@ -495,7 +525,7 @@ The following table lists the main configurable parameters of the librenms chart
 | gateway.parentRefs | list | `[]` | Gateways this route attaches to. Required when enabled. Each entry accepts the usual parentRef fields (name, namespace, sectionName, port). |
 | gateway.paths | list | `[{"path":"/","pathType":"PathPrefix"}]` | Path matches. Each entry becomes an HTTPRoute rule backed by the frontend service on port 8000. |
 | ingress | object | `{"annotations":{},"className":"","enabled":false,"hosts":[{"host":"chart-example.local","paths":[{"path":"/","pathType":"ImplementationSpecific"}]}],"tls":[]}` | LibreNMS ingress configuration |
-| ingress.annotations | object | `{}` | Ingress annotations |
+| ingress.annotations | object | `{}` | Ingress annotations. Use `className` above to select the controller; the `kubernetes.io/ingress.class` annotation it replaced is retired. |
 | ingress.className | string | `""` | Ingress class name |
 | ingress.enabled | bool | `false` | Enable or disable ingress |
 | ingress.hosts | list | `[{"host":"chart-example.local","paths":[{"path":"/","pathType":"ImplementationSpecific"}]}]` | Ingress rules |
@@ -521,6 +551,7 @@ The following table lists the main configurable parameters of the librenms chart
 | librenms.frontend.readinessProbe.timeoutSeconds | int | `10` |  |
 | librenms.frontend.replicas | int | `1` | Frontend replicas |
 | librenms.frontend.resources | object | `{}` | resources defines the computing resources (CPU and memory) that are allocated to the containers running within the Pod. |
+| librenms.frontend.serviceAccountName | string | `""` | Name of an existing ServiceAccount to run the pods under. The chart does not create ServiceAccounts; leave blank to use the namespace default. |
 | librenms.image.pullPolicy | string | `"Always"` | pullPolicy is the Kubernetes image pull policy for the main LibreNMS image. |
 | librenms.image.repository | string | `"librenms/librenms"` | repository is the image repository to pull from. |
 | librenms.image.tag | string | `"26.8.1"` | tag is image tag to pull. |
@@ -540,8 +571,9 @@ The following table lists the main configurable parameters of the librenms chart
 | librenms.poller.privileged | bool | `false` |  |
 | librenms.poller.replicas | int | `2` | Poller replicas |
 | librenms.poller.resources | object | `{}` | resources defines the computing resources (CPU and memory) that are allocated to the containers running within the Pod. |
+| librenms.poller.serviceAccountName | string | `""` | Name of an existing ServiceAccount to run the pods under. The chart does not create ServiceAccounts; leave blank to use the namespace default. |
 | librenms.privileged | bool | `false` |  |
-| librenms.rrdcached | object | `{"enabled":true,"envs":[{"name":"WRITE_JITTER","value":"1800"},{"name":"WRITE_TIMEOUT","value":"1800"}],"extraEnvFrom":[],"extraEnvs":[],"extraVolumeMounts":[],"extraVolumes":[],"image":{"pullPolicy":"Always","repository":"crazymax/rrdcached","tag":"1.8.0"},"livenessProbe":{"initialDelaySeconds":15,"periodSeconds":20,"tcpSocket":{"port":42217}},"nodeSelector":{},"persistence":{"enabled":true,"journal":{"size":"1Gi","storageClassName":""},"rrdcached":{"size":"10Gi","storageClassName":""}},"podAnnotations":{},"readinessProbe":{"initialDelaySeconds":5,"periodSeconds":10,"tcpSocket":{"port":42217}},"resources":{}}` | RRD cached is the tool that allows for distributed polling and is mandatory in this LibreNMS helm chart. See the rrdcached documentation for more information: https://oss.oetiker.ch/rrdtool/doc/rrdcached.en.html |
+| librenms.rrdcached | object | `{"enabled":true,"envs":[{"name":"WRITE_JITTER","value":"1800"},{"name":"WRITE_TIMEOUT","value":"1800"}],"extraEnvFrom":[],"extraEnvs":[],"extraVolumeMounts":[],"extraVolumes":[],"image":{"pullPolicy":"Always","repository":"crazymax/rrdcached","tag":"1.8.0"},"livenessProbe":{"initialDelaySeconds":15,"periodSeconds":20,"tcpSocket":{"port":42217}},"nodeSelector":{},"persistence":{"enabled":true,"journal":{"size":"1Gi","storageClassName":""},"rrdcached":{"size":"10Gi","storageClassName":""}},"podAnnotations":{},"readinessProbe":{"initialDelaySeconds":5,"periodSeconds":10,"tcpSocket":{"port":42217}},"resources":{},"serviceAccountName":""}` | RRD cached is the tool that allows for distributed polling and is mandatory in this LibreNMS helm chart. See the rrdcached documentation for more information: https://oss.oetiker.ch/rrdtool/doc/rrdcached.en.html |
 | librenms.rrdcached.enabled | bool | `true` | RRDCached enabled |
 | librenms.rrdcached.envs[0] | object | `{"name":"WRITE_JITTER","value":"1800"}` | env variables RRD Cached |
 | librenms.rrdcached.extraEnvFrom | list | `[]` | Extra envFrom sources for RRDCached containers |
@@ -561,6 +593,7 @@ The following table lists the main configurable parameters of the librenms chart
 | librenms.rrdcached.podAnnotations | object | `{}` | podAnnotations for rrdcached pods |
 | librenms.rrdcached.readinessProbe.tcpSocket | object | `{"port":42217}` | RRD cached readiness probe |
 | librenms.rrdcached.resources | object | `{}` | resources defines the computing resources (CPU and memory) that are allocated to the containers running within the Pod. |
+| librenms.rrdcached.serviceAccountName | string | `""` | Name of an existing ServiceAccount to run the pods under. The chart does not create ServiceAccounts; leave blank to use the namespace default. |
 | librenms.snmp_scanner | object | `{"cron":"15 * * * *","enabled":false,"extraEnvFrom":[],"extraEnvs":[],"nodeSelector":{},"podAnnotations":{},"resources":{},"securityContext":{"fsGroup":1000,"runAsGroup":1000,"runAsNonRoot":true,"runAsUser":1000}}` | SNMP network discovery scanner cron job. This job is optional and only use when having snmp network discovery enabled. For this to work either set the 'nets' configuration in the custom config on in the admin interface See the following link for more information: https://docs.librenms.org/Extensions/Auto-Discovery/ |
 | librenms.snmp_scanner.cron | string | `"15 * * * *"` | SNMP scanner cronjob syntax interval |
 | librenms.snmp_scanner.enabled | bool | `false` | SNMP scanner enabled |
