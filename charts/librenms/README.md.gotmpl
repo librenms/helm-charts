@@ -25,6 +25,29 @@ $ helm repo add librenms https://www.librenms.org/helm-charts
 $ helm install my-release librenms/librenms
 ```
 
+## Upgrading to 10.0.0
+
+10.0.0 corrects the chart's labels. `app.kubernetes.io/name` now holds the chart name and
+`app.kubernetes.io/instance` the release name, and the component moves to
+`app.kubernetes.io/component`.
+
+`spec.selector` is immutable on Deployments and StatefulSets, so `helm upgrade` fails with
+`field is immutable`. Delete the workloads first, then upgrade. Releases before 10.0.0 put
+no labels on the workload objects themselves, so they have to be named:
+
+```shell
+$ kubectl delete deployment -n NAMESPACE --ignore-not-found \
+    RELEASE-frontend RELEASE-rrdcached RELEASE-syslogng RELEASE-snmptrapd
+$ kubectl delete statefulset -n NAMESPACE --ignore-not-found RELEASE-poller
+$ helm upgrade RELEASE librenms/librenms -n NAMESPACE
+```
+
+Set the StatefulSet name to `librenms.poller.name` instead if that value is overridden.
+
+The PersistentVolumeClaims are separate objects and are not deleted, so RRD data and the
+database survive. The frontend and pollers are unavailable between the delete and the
+upgrade.
+
 ## Database Configuration
 
 ### Internal Database (Default)

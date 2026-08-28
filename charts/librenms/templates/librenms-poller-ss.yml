@@ -2,14 +2,15 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: {{ include "librenms.poller.name" . }}
+  labels:
+    {{- include "librenms.labels" (dict "root" . "component" "poller") | nindent 4 }}
 spec:
   {{- with .Values.librenms.poller }}
   replicas: {{ .replicas  | default "2" }}
   {{- end }}
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ .Release.Name }}
-      app.kubernetes.io/instance: {{ .Release.Name }}
+      {{- include "librenms.selectorLabels" (dict "root" . "component" "poller") | nindent 6 }}
   serviceName: "poller"
   template:
     metadata:
@@ -19,8 +20,7 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
       labels:
-        app.kubernetes.io/name: {{ .Release.Name }}
-        app.kubernetes.io/instance: {{ .Release.Name }}
+        {{- include "librenms.labels" (dict "root" . "component" "poller") | nindent 8 }}
     spec:
       {{- with .Values.librenms.poller.serviceAccountName }}
       serviceAccountName: {{ . }}

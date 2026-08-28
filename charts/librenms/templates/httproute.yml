@@ -10,8 +10,7 @@ kind: HTTPRoute
 metadata:
   name: {{ .Release.Name }}
   labels:
-    app.kubernetes.io/name: {{ .Release.Name }}
-    app.kubernetes.io/instance: frontend
+    {{- include "librenms.labels" (dict "root" . "component" "frontend") | nindent 4 }}
   {{- with .Values.gateway.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}

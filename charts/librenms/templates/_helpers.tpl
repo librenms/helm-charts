@@ -35,23 +35,29 @@ Create chart name and version as used by the chart label.
 {{- end }}
 
 {{/*
-Common labels
+Common labels. Call with a dict:
+{{- include "librenms.labels" (dict "root" . "component" "frontend") | nindent 4 }}
 */}}
 {{- define "librenms.labels" -}}
-helm.sh/chart: {{ include "librenms.chart" . }}
+helm.sh/chart: {{ include "librenms.chart" .root }}
 {{ include "librenms.selectorLabels" . }}
-{{- if .Chart.AppVersion }}
-app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- if .root.Chart.AppVersion }}
+app.kubernetes.io/version: {{ .root.Chart.AppVersion | quote }}
 {{- end }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/managed-by: {{ .root.Release.Service }}
 {{- end }}
 
 {{/*
-Selector labels
+Selector labels. These land in spec.selector.matchLabels, which is immutable on
+Deployments and StatefulSets, so nothing that changes between releases belongs
+here: no chart version, no app version.
 */}}
 {{- define "librenms.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "librenms.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/name: {{ include "librenms.name" .root }}
+app.kubernetes.io/instance: {{ .root.Release.Name }}
+{{- with .component }}
+app.kubernetes.io/component: {{ . }}
+{{- end }}
 {{- end }}
 
 {{/*

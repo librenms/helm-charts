@@ -4,6 +4,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ .Release.Name }}-snmptrapd
+  labels:
+    {{- include "librenms.labels" (dict "root" . "component" "snmptrapd") | nindent 4 }}
   {{- with $svc.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
@@ -17,8 +19,7 @@ spec:
   externalTrafficPolicy: {{ . }}
   {{- end }}
   selector:
-    app.kubernetes.io/name: {{ .Release.Name }}
-    app.kubernetes.io/instance: snmptrapd
+    {{- include "librenms.selectorLabels" (dict "root" . "component" "snmptrapd") | nindent 4 }}
   ports:
     - name: snmptrap-udp
       protocol: UDP
