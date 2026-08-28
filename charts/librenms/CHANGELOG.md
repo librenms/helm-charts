@@ -1,5 +1,18 @@
 # Changelog
 
+## [10.0.0](https://github.com/librenms/helm-charts/compare/librenms-9.2.1...librenms-10.0.0) (2026-08-28)
+
+
+### ⚠ BREAKING CHANGES
+
+* `spec.selector` is immutable on Deployments and StatefulSets, so upgrading an existing release fails with `field is immutable`. Delete the librenms Deployments and the poller StatefulSet before upgrading. The PersistentVolumeClaims are separate objects and are not affected.
+* Helm refuses to install or upgrade the chart on Kubernetes older than 1.26.
+
+### Features
+
+* follow the standard Kubernetes label conventions ([#269](https://github.com/librenms/helm-charts/issues/269)) ([dc852b1](https://github.com/librenms/helm-charts/commit/dc852b1943f5fdc424faf186e0b5439fa6257a04))
+* require Kubernetes 1.26 or newer ([#265](https://github.com/librenms/helm-charts/issues/265)) ([d82004d](https://github.com/librenms/helm-charts/commit/d82004d7981c156c16186a0d174b85c3dcde0d08))
+
 ## [9.2.1](https://github.com/librenms/helm-charts/compare/librenms-9.2.0...librenms-9.2.1) (2026-08-28)
 
 
