@@ -1,6 +1,6 @@
 # librenms
 
-![Version: 9.2.1](https://img.shields.io/badge/Version-9.2.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 26.8.1](https://img.shields.io/badge/AppVersion-26.8.1-informational?style=flat-square)
+![Version: 10.0.0](https://img.shields.io/badge/Version-10.0.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 26.8.1](https://img.shields.io/badge/AppVersion-26.8.1-informational?style=flat-square)
 
 LibreNMS is an autodiscovering PHP/MySQL-based network monitoring system.
 
@@ -526,7 +526,7 @@ librenms:
 
 ### Available values
 
-The following table lists the main configurable parameters of the librenms chart v9.2.1 and their default values. Please, refer to [values.yaml](./values.yaml) for the full list of configurable parameters.
+The following table lists the main configurable parameters of the librenms chart v10.0.0 and their default values. Please, refer to [values.yaml](./values.yaml) for the full list of configurable parameters.
 
 ## Values
 
