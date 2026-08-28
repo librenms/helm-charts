@@ -57,6 +57,7 @@ jobs:
           else
             echo "new=true" >> "$GITHUB_OUTPUT"
           fi
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
 
       - name: Run chart-releaser
         if: steps.release-check.outputs.new == 'true'
@@ -85,6 +86,27 @@ jobs:
             fi
             helm push "${pkg}" "oci://ghcr.io/${GITHUB_REPOSITORY_OWNER}/charts"
           done
+
+      # chart-releaser sets the release body to the chart description. Replace it
+      # with the changelog section for this version, which release-please commits
+      # alongside the version bump and so is present in this checkout.
+      - name: Set release notes from the changelog
+        if: steps.release-check.outputs.new == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.release-check.outputs.version }}
+        run: |
+          awk -v v="$VERSION" '
+            $0 ~ "^## \\[" v "\\]" { flag = 1; next }
+            /^## \[/ { flag = 0 }
+            flag' charts/librenms/CHANGELOG.md | sed '/./,$!d' > "${RUNNER_TEMP}/release-notes.md"
+          if [ ! -s "${RUNNER_TEMP}/release-notes.md" ]; then
+            echo "No changelog section for ${VERSION}; leaving the generated release body in place."
+            exit 0
+          fi
+          gh release edit "librenms-${VERSION}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --notes-file "${RUNNER_TEMP}/release-notes.md"
 
       # Runs after chart-releaser so the release it just published is visible as
       # the starting point for the next changelog. release-please owns the chart
