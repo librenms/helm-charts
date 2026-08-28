@@ -569,17 +569,15 @@ The following table lists the main configurable parameters of the librenms chart
 | librenms.frontend.extraEnvs | list | `[]` | Extra environment variables for frontend containers |
 | librenms.frontend.extraVolumeMounts | list | `[]` | Extra volume mounts for frontend containers |
 | librenms.frontend.extraVolumes | list | `[]` | Extra volumes for frontend pods |
-| librenms.frontend.livenessProbe | object | `{"failureThreshold":6,"httpGet":{"path":"/login","port":8000},"initialDelaySeconds":60,"periodSeconds":30,"timeoutSeconds":10}` | Frontend liveness probe. Restarts the container when PHP-FPM stops answering, which a TCP check on port 8000 cannot detect because nginx and PHP-FPM are separate processes. Deliberately not Laravel's /up endpoint: LibreNMS registers a DiagnosingHealth listener that opens a database connection, so /up returns 500 whenever MySQL is down and would restart every frontend pod for the duration of a database outage. /login is rendered by PHP-FPM but does not query the database, so it fails only when PHP-FPM itself is unresponsive. Set to null to disable. |
+| librenms.frontend.livenessProbe | object | `{"failureThreshold":6,"httpGet":{"path":"/login","port":8000},"initialDelaySeconds":60,"periodSeconds":30,"timeoutSeconds":10}` | Frontend liveness probe. Restarts the container when PHP-FPM stops answering, which a TCP check on port 8000 cannot detect because nginx and PHP-FPM are separate processes. Uses /login rather than the /up endpoint the readiness probe targets: /login is rendered by PHP-FPM without touching MySQL or Redis, so it fails only when PHP-FPM itself is unresponsive, whereas /up fails on any dependency outage and would restart every frontend pod for its duration. Set to null to disable. |
 | librenms.frontend.livenessProbe.httpGet.path | string | `"/login"` | Check endpoint path |
 | librenms.frontend.livenessProbe.httpGet.port | int | `8000` | Check endpoint port |
 | librenms.frontend.nodeSelector | object | `{}` | nodeSelector for frontend pods |
 | librenms.frontend.podAnnotations | object | `{}` | podAnnotations for frontend pods |
 | librenms.frontend.privileged | bool | `false` |  |
-| librenms.frontend.readinessProbe.httpGet.path | string | `"/login"` | Check endpoint path |
+| librenms.frontend.readinessProbe | object | `{"failureThreshold":3,"httpGet":{"path":"/up","port":8000},"initialDelaySeconds":30,"periodSeconds":10,"timeoutSeconds":5}` | Frontend readiness probe. Targets Laravel's /up health endpoint, which LibreNMS extends with a DiagnosingHealth listener that opens a database connection and performs a cache round trip. The probe therefore fails whenever MySQL or Redis is unreachable, and the pod leaves the Service instead of serving a UI that cannot load any data. Traffic is restored automatically once the dependency returns. Set to null to disable. |
+| librenms.frontend.readinessProbe.httpGet.path | string | `"/up"` | Check endpoint path |
 | librenms.frontend.readinessProbe.httpGet.port | int | `8000` | Check endpoint port |
-| librenms.frontend.readinessProbe.initialDelaySeconds | int | `30` |  |
-| librenms.frontend.readinessProbe.periodSeconds | int | `60` |  |
-| librenms.frontend.readinessProbe.timeoutSeconds | int | `10` |  |
 | librenms.frontend.replicas | int | `1` | Frontend replicas |
 | librenms.frontend.resources | object | `{}` | resources defines the computing resources (CPU and memory) that are allocated to the containers running within the Pod. |
 | librenms.frontend.serviceAccountName | string | `""` | Name of an existing ServiceAccount to run the pods under. The chart does not create ServiceAccounts; leave blank to use the namespace default. |
