@@ -3,6 +3,8 @@ kind: ConfigMap
 apiVersion: v1
 metadata:
   name: {{ .Release.Name }}
+  labels:
+    {{- include "librenms.labels" (dict "root" . "component" "") | nindent 4 }}
 data:
   TZ: {{ .Values.librenms.timezone}}
   DB_TIMEOUT: {{ include "librenms.dbTimeout" . | quote }}
@@ -37,6 +39,8 @@ kind: ConfigMap
 apiVersion: v1
 metadata:
   name: {{ .Release.Name }}-files
+  labels:
+    {{- include "librenms.labels" (dict "root" . "component" "") | nindent 4 }}
 data:
   custom.php: |-
 {{ tpl (.Files.Get "files/custom.php") . | indent 4 }}

@@ -53,6 +53,24 @@ Do not repeat values that already have non-empty defaults.
 reads but the schema omits cannot be set, and fails silently. Add new values to both
 files.
 
+## Labels
+
+Every resource carries the standard `app.kubernetes.io` labels. The helpers take a dict,
+not the surrounding context:
+
+```yaml
+metadata:
+  labels:
+    {{- include "librenms.labels" (dict "root" . "component" "poller") | nindent 4 }}
+```
+
+Use `librenms.selectorLabels` for `spec.selector`, never `librenms.labels`. Selector labels
+are immutable on Deployments and StatefulSets, and the chart and version labels change on
+every release.
+
+Omit `component` for resources that are not part of one, such as the ConfigMaps and the
+Secret.
+
 ## Commit messages and pull requests
 
 Pull requests are squash-merged. The PR title becomes the commit subject and must be a

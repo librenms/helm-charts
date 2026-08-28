@@ -4,6 +4,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ .Release.Name }}-syslogng
+  labels:
+    {{- include "librenms.labels" (dict "root" . "component" "syslogng") | nindent 4 }}
   {{- with $svc.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
@@ -17,8 +19,7 @@ spec:
   externalTrafficPolicy: {{ . }}
   {{- end }}
   selector:
-    app.kubernetes.io/name: {{ .Release.Name }}
-    app.kubernetes.io/instance: syslogng
+    {{- include "librenms.selectorLabels" (dict "root" . "component" "syslogng") | nindent 4 }}
   ports:
     - name: syslog-udp
       protocol: UDP

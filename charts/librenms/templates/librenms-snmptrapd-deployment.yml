@@ -3,12 +3,13 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Release.Name }}-snmptrapd
+  labels:
+    {{- include "librenms.labels" (dict "root" . "component" "snmptrapd") | nindent 4 }}
 spec:
   replicas: {{ .Values.librenms.snmptrapd.replicas }}
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ .Release.Name }}
-      app.kubernetes.io/instance: snmptrapd
+      {{- include "librenms.selectorLabels" (dict "root" . "component" "snmptrapd") | nindent 6 }}
   template:
     metadata:
       annotations:
@@ -17,8 +18,7 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
       labels:
-        app.kubernetes.io/name: {{ .Release.Name }}
-        app.kubernetes.io/instance: snmptrapd
+        {{- include "librenms.labels" (dict "root" . "component" "snmptrapd") | nindent 8 }}
     spec:
       {{- with .Values.librenms.snmptrapd.nodeSelector }}
       nodeSelector:

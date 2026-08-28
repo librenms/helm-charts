@@ -3,10 +3,11 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ .Release.Name }}-rrdcached
+  labels:
+    {{- include "librenms.labels" (dict "root" . "component" "rrdcached") | nindent 4 }}
 spec:
   selector:
-      app.kubernetes.io/name: {{ .Release.Name }}
-      app.kubernetes.io/instance: rrdcached
+    {{- include "librenms.selectorLabels" (dict "root" . "component" "rrdcached") | nindent 4 }}
   ports:
     - name: rrdcached
       protocol: TCP
@@ -17,10 +18,11 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ .Release.Name }}-rrdcached-headless
+  labels:
+    {{- include "librenms.labels" (dict "root" . "component" "rrdcached") | nindent 4 }}
 spec:
   selector:
-      app.kubernetes.io/name: {{ .Release.Name }}
-      app.kubernetes.io/instance: rrdcached
+    {{- include "librenms.selectorLabels" (dict "root" . "component" "rrdcached") | nindent 4 }}
   ports:
     - name: rrdcached
       protocol: TCP

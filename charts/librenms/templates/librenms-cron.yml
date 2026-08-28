@@ -3,12 +3,16 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: {{ .Release.Name }}-snmp-scanner
+  labels:
+    {{- include "librenms.labels" (dict "root" . "component" "snmp-scanner") | nindent 4 }}
 spec:
   schedule: "{{.Values.librenms.snmp_scanner.cron }}"
   jobTemplate:
     spec:
       template:
         metadata:
+          labels:
+            {{- include "librenms.labels" (dict "root" . "component" "snmp-scanner") | nindent 12 }}
           annotations:
             checksum/config: {{ include "librenms.configChecksum" . }}
             {{- with .Values.librenms.snmp_scanner.podAnnotations }}

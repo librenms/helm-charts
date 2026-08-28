@@ -3,14 +3,15 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Release.Name }}-frontend
+  labels:
+    {{- include "librenms.labels" (dict "root" . "component" "frontend") | nindent 4 }}
 spec:
   {{- with .Values.librenms.frontend }}
   replicas: {{ .replicas }}
   {{- end }}
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ .Release.Name }}
-      app.kubernetes.io/instance: frontend
+      {{- include "librenms.selectorLabels" (dict "root" . "component" "frontend") | nindent 6 }}
   template:
     metadata:
       annotations:
@@ -19,8 +20,7 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
       labels:
-        app.kubernetes.io/name: {{ .Release.Name }}
-        app.kubernetes.io/instance: frontend
+        {{- include "librenms.labels" (dict "root" . "component" "frontend") | nindent 8 }}
     spec:
       {{- with .Values.librenms.frontend.serviceAccountName }}
       serviceAccountName: {{ . }}
