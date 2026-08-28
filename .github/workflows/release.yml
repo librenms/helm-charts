@@ -8,6 +8,7 @@ jobs:
     permissions:
       contents: write
       packages: write
+      pull-requests: write
 
     runs-on: ubuntu-latest
     steps:
@@ -61,3 +62,13 @@ jobs:
             fi
             helm push "${pkg}" "oci://ghcr.io/${GITHUB_REPOSITORY_OWNER}/charts"
           done
+
+      # Runs after chart-releaser so the release it just published is visible as
+      # the starting point for the next changelog. release-please owns the chart
+      # version and CHANGELOG.md; chart-releaser owns tags and GitHub releases.
+      - name: Run release-please
+        uses: googleapis/release-please-action@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json

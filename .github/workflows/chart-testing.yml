@@ -37,32 +37,29 @@ jobs:
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
+      # The chart version is owned by release-please, so feature branches do not
+      # bump it. Version increments are asserted on the release pull request.
       - name: Run chart-testing (lint)
-        if: steps.list-changed.outputs.changed == 'true' && github.ref != 'refs/heads/develop'
+        if: steps.list-changed.outputs.changed == 'true'
         run: ct lint --target-branch ${{ github.event.repository.default_branch }} --check-version-increment=false
 
-      - name: Run chart-testing (lint & version)
-        if: github.event.pull_request.base.ref == 'main' 
-        run: ct lint --target-branch main
-
       - name: Create kind cluster
-        if: steps.list-changed.outputs.changed == 'true' || github.event.pull_request.base.ref == 'main' 
+        if: steps.list-changed.outputs.changed == 'true'
         uses: helm/kind-action@v1.14.0
 
       - name: Install Gateway API CRDs
-        if: steps.list-changed.outputs.changed == 'true' || github.event.pull_request.base.ref == 'main'
+        if: steps.list-changed.outputs.changed == 'true'
         run: kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.6.1/standard-install.yaml
 
-      - name: Run chart-testing (install)
-        if: steps.list-changed.outputs.changed == 'true' && github.ref != 'refs/heads/develop'
-        run: ct install --target-branch ${{ github.event.repository.default_branch }} --skip-clean-up
-      
-      - name: Run chart-testing (install & upgrades)
-        if: github.event.pull_request.base.ref == 'main' 
-        run: ct install --target-branch main --upgrade
+      # Upgrade testing installs the chart as it exists on the target branch and
+      # upgrades to the branch under test, so it is meaningful even when the
+      # chart version is unchanged.
+      - name: Run chart-testing (install & upgrade)
+        if: steps.list-changed.outputs.changed == 'true'
+        run: ct install --target-branch ${{ github.event.repository.default_branch }} --upgrade
 
       - name: Debug - Check pod status (on failure)
-        if: failure() && (steps.list-changed.outputs.changed == 'true' || github.event.pull_request.base.ref == 'main')
+        if: failure() && steps.list-changed.outputs.changed == 'true'
         run: |
           echo "=== Pod Status ==="
           kubectl get pods -A
@@ -70,7 +67,7 @@ jobs:
           kubectl get events -A --sort-by='.lastTimestamp' | tail -50
 
       - name: Debug - Pod logs (on failure)
-        if: failure() && (steps.list-changed.outputs.changed == 'true' || github.event.pull_request.base.ref == 'main')
+        if: failure() && steps.list-changed.outputs.changed == 'true'
         run: |
           echo "=== Logs from failed pods ==="
           for pod in $(kubectl get pods -A -o json | jq -r '.items[] | select(.status.containerStatuses[]?.ready == false) | "\(.metadata.namespace)/\(.metadata.name)"'); do
