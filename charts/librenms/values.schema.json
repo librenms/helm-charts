@@ -365,7 +365,7 @@
                                     "$ref": "#/definitions/probe"
                                 },
                                 {
-                                    "description": "Frontend readiness probe"
+                                    "description": "Frontend readiness probe. Defaults to Laravel's /up endpoint, which LibreNMS extends to check MySQL and Redis, so the pod leaves the Service while a dependency is down."
                                 }
                             ]
                         },

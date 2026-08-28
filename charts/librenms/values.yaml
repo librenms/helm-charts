@@ -73,23 +73,29 @@ librenms:
     enabled: true
     # -- Frontend replicas
     replicas: 1
+    # -- Frontend readiness probe. Targets Laravel's /up health endpoint, which
+    # LibreNMS extends with a DiagnosingHealth listener that opens a database
+    # connection and performs a cache round trip. The probe therefore fails
+    # whenever MySQL or Redis is unreachable, and the pod leaves the Service
+    # instead of serving a UI that cannot load any data. Traffic is restored
+    # automatically once the dependency returns. Set to null to disable.
     readinessProbe:
       httpGet:
         # -- Check endpoint path
-        path: /login
+        path: /up
         # -- Check endpoint port
         port: 8000
       initialDelaySeconds: 30
-      periodSeconds: 60
-      timeoutSeconds: 10
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
     # -- Frontend liveness probe. Restarts the container when PHP-FPM stops
     # answering, which a TCP check on port 8000 cannot detect because nginx and
-    # PHP-FPM are separate processes. Deliberately not Laravel's /up endpoint:
-    # LibreNMS registers a DiagnosingHealth listener that opens a database
-    # connection, so /up returns 500 whenever MySQL is down and would restart
-    # every frontend pod for the duration of a database outage. /login is
-    # rendered by PHP-FPM but does not query the database, so it fails only when
-    # PHP-FPM itself is unresponsive. Set to null to disable.
+    # PHP-FPM are separate processes. Uses /login rather than the /up endpoint
+    # the readiness probe targets: /login is rendered by PHP-FPM without
+    # touching MySQL or Redis, so it fails only when PHP-FPM itself is
+    # unresponsive, whereas /up fails on any dependency outage and would restart
+    # every frontend pod for its duration. Set to null to disable.
     livenessProbe:
       httpGet:
         # -- Check endpoint path
