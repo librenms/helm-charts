@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
@@ -25,7 +25,7 @@ jobs:
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
 
       - name: Install Helm
-        uses: azure/setup-helm@v5
+        uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
 
       - name: Add repositories
         run: |
@@ -34,7 +34,7 @@ jobs:
           done
           
       - name: Generate and commit helm docs
-        uses: losisin/helm-docs-github-action@v2
+        uses: losisin/helm-docs-github-action@3a4528e97c49a5e83de6b78c50c61c8ee5c9f944 # v2.0.0
         with:
           chart-search-root: ./charts/librenms
           template-files: README.md.gotmpl
@@ -63,7 +63,7 @@ jobs:
 
       - name: Run chart-releaser
         if: steps.release-check.outputs.new == 'true'
-        uses: helm/chart-releaser-action@v1.7.0
+        uses: helm/chart-releaser-action@cae68fefc6b5f367a0275617c9f83181ba54714f # v1.7.0
         with:
           skip_existing: true
         env:
@@ -72,7 +72,7 @@ jobs:
       # see https://github.com/helm/chart-releaser/issues/183
       - name: Login to GitHub Container Registry
         if: steps.release-check.outputs.new == 'true'
-        uses: docker/login-action@v4
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -141,7 +141,7 @@ jobs:
       - name: Mint a release-please app token
         id: release-please-token
         if: vars.RELEASE_APP_CLIENT_ID != ''
-        uses: actions/create-github-app-token@v3
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
           client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
           private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
@@ -150,7 +150,7 @@ jobs:
       # the starting point for the next changelog. release-please owns the chart
       # version and CHANGELOG.md; chart-releaser owns tags and GitHub releases.
       - name: Run release-please
-        uses: googleapis/release-please-action@v5
+        uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
         with:
           token: ${{ steps.release-please-token.outputs.token || secrets.GITHUB_TOKEN }}
           config-file: release-please-config.json
