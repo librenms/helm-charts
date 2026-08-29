@@ -128,13 +128,31 @@ jobs:
                 --add-label "autorelease: tagged" --remove-label "autorelease: pending"
             done
 
+      # release-please's pull request is authored by whichever identity its token
+      # belongs to. secrets.GITHUB_TOKEN authors as github-actions[bot], which holds
+      # no access to this repository, and Actions holds pull_request runs on such
+      # pull requests behind manual approval. Approving starts chart testing from
+      # cold, so the roughly eleven minutes it takes are spent at the point of merge
+      # rather than while the release pull request sits open. Runs on pull requests
+      # opened by an app installation identity start unheld.
+      #
+      # Falls back to secrets.GITHUB_TOKEN, and so to the current behaviour, when the
+      # app is not configured.
+      - name: Mint a release-please app token
+        id: release-please-token
+        if: vars.RELEASE_APP_CLIENT_ID != ''
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+
       # Runs after chart-releaser so the release it just published is visible as
       # the starting point for the next changelog. release-please owns the chart
       # version and CHANGELOG.md; chart-releaser owns tags and GitHub releases.
       - name: Run release-please
         uses: googleapis/release-please-action@v5
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ steps.release-please-token.outputs.token || secrets.GITHUB_TOKEN }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
           # release-please otherwise targets the repository default branch,
