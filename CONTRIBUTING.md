@@ -96,8 +96,25 @@ For a breaking change, append `!` to the type or add a `BREAKING CHANGE:` footer
 bumps major.
 
 Scope is optional and free-form: the component or template touched, such as `ingress`,
-`configmap`, `gateway`, `frontend` or `syslogng`. Renovate sets its own type and omits
-the scope.
+`configmap`, `gateway`, `frontend` or `syslogng`. Renovate omits the scope.
+
+### Renovate types
+
+`renovate.json` maps automated updates onto those types:
+
+| Update | Type |
+| --- | --- |
+| `librenms/librenms`, major or minor | `feat` |
+| `librenms/librenms`, patch or digest | `fix` |
+| anything else under `charts/` | `deps` |
+| workflow actions and tooling | `chore` |
+
+The LibreNMS image is what the chart ships rather than a dependency of it, so it drives
+the chart version. LibreNMS is CalVer: a minor update is a new monthly release, a patch
+update is an upstream hotfix.
+
+An upstream release that breaks existing installs needs the pull request title changed by
+hand to `feat!` with a `BREAKING CHANGE:` footer.
 
 ## Chart version
 
