@@ -14,6 +14,34 @@
         "charts/**"
       ],
       "semanticCommitType": "deps"
+    },
+    {
+      "description": "The LibreNMS image is what the chart ships, not a dependency of it. A new release train is a feature.",
+      "matchFileNames": [
+        "charts/**"
+      ],
+      "matchDepNames": [
+        "librenms/librenms"
+      ],
+      "matchUpdateTypes": [
+        "major",
+        "minor"
+      ],
+      "semanticCommitType": "feat"
+    },
+    {
+      "description": "An upstream LibreNMS hotfix is a fix.",
+      "matchFileNames": [
+        "charts/**"
+      ],
+      "matchDepNames": [
+        "librenms/librenms"
+      ],
+      "matchUpdateTypes": [
+        "patch",
+        "digest"
+      ],
+      "semanticCommitType": "fix"
     }
   ]
 }
