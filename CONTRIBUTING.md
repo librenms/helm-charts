@@ -110,5 +110,6 @@ GHCR package.
 
 CI does not require a version bump on your pull request.
 
-`appVersion` mirrors `librenms.image.tag`. Renovate updates the tag; a workflow syncs
-`appVersion` on `renovate/*` branches only. Change neither by hand.
+`appVersion` mirrors `librenms.image.tag`. A custom Renovate manager reads `appVersion`
+as the same `librenms/librenms` image, so both are updated in one commit. Change neither
+by hand.
