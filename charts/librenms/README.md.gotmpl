@@ -1,5 +1,5 @@
 {{ template "chart.header" . }}
-{{ template "chart.badgesSection" . }}
+{{ template "chart.typeBadge" . }}{{ template "chart.appVersionBadge" . }}
 
 {{ template "chart.description" . }}
 
@@ -526,7 +526,7 @@ librenms:
 
 ### Available values
 
-The following table lists the main configurable parameters of the {{ template "chart.name" . }} chart v{{ template "chart.version" . }} and their default values. Please, refer to [values.yaml](./values.yaml) for the full list of configurable parameters.
+The following table lists the main configurable parameters of the {{ template "chart.name" . }} chart and their default values. Please, refer to [values.yaml](./values.yaml) for the full list of configurable parameters.
 
 {{ template "chart.valuesSection" . }}
 
