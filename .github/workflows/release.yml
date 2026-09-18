@@ -1,10 +1,12 @@
 name: Release Charts
 
-on: push
+on:
+  push:
+    branches:
+      - main
 
 jobs:
   release:
-    if: github.ref == 'refs/heads/main'
     permissions:
       contents: write
       packages: write
@@ -28,11 +30,8 @@ jobs:
         uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
 
       - name: Add repositories
-        run: |
-          for dir in $(ls -d charts/*/); do
-            helm dependency list $dir 2> /dev/null | tail +2 | head -n -1 | awk '{ print "helm repo add " $1 " " $3 }' | while read cmd; do $cmd; done
-          done
-          
+        run: helm repo add helmforge https://repo.helmforge.dev
+
       - name: Generate and commit helm docs
         uses: losisin/helm-docs-github-action@9e0787c426fdec38be6288bb5c0559dcb388412c # v2.0.1
         with:
@@ -42,102 +41,12 @@ jobs:
           git-push: true
           git-commit-message: "docs: auto-update helm docs"
 
-      # release-please owns the chart version, so an ordinary merge to main
-      # changes chart files without changing the version. chart-releaser
-      # discovers changed charts by file diff rather than by version, so
-      # publishing has to be gated on the version itself: without this it
-      # repackages the released version and fails on the existing tag.
-      - name: Check whether the chart version is already released
-        id: release-check
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          version=$(grep -m1 '^version:' charts/librenms/Chart.yaml | awk '{print $2}')
-          if gh release view "librenms-${version}" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            echo "librenms-${version} is already released; skipping publication."
-            echo "new=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "new=true" >> "$GITHUB_OUTPUT"
-          fi
-          echo "version=${version}" >> "$GITHUB_OUTPUT"
-
-      - name: Run chart-releaser
-        if: steps.release-check.outputs.new == 'true'
-        uses: helm/chart-releaser-action@cae68fefc6b5f367a0275617c9f83181ba54714f # v1.7.0
-        with:
-          skip_existing: true
-        env:
-          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-
-      # see https://github.com/helm/chart-releaser/issues/183
-      - name: Login to GitHub Container Registry
-        if: steps.release-check.outputs.new == 'true'
-        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Push charts to GHCR
-        if: steps.release-check.outputs.new == 'true'
-        run: |
-          shopt -s nullglob
-          for pkg in .cr-release-packages/*; do
-            if [ -z "${pkg:-}" ]; then
-              break
-            fi
-            helm push "${pkg}" "oci://ghcr.io/${GITHUB_REPOSITORY_OWNER}/charts"
-          done
-
-      # chart-releaser sets the release body to the chart description. Replace it
-      # with the changelog section for this version, which release-please commits
-      # alongside the version bump and so is present in this checkout.
-      - name: Set release notes from the changelog
-        if: steps.release-check.outputs.new == 'true'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VERSION: ${{ steps.release-check.outputs.version }}
-        run: |
-          awk -v v="$VERSION" '
-            $0 ~ "^## \\[" v "\\]" { flag = 1; next }
-            /^## \[/ { flag = 0 }
-            flag' charts/librenms/CHANGELOG.md | sed '/./,$!d' > "${RUNNER_TEMP}/release-notes.md"
-          if [ ! -s "${RUNNER_TEMP}/release-notes.md" ]; then
-            echo "No changelog section for ${VERSION}; leaving the generated release body in place."
-            exit 0
-          fi
-          gh release edit "librenms-${VERSION}" \
-            --repo "$GITHUB_REPOSITORY" \
-            --notes-file "${RUNNER_TEMP}/release-notes.md"
-
-      # release-please marks a release finished by moving its release pull request
-      # from `autorelease: pending` to `autorelease: tagged`. skip-github-release
-      # hands tagging to chart-releaser, so release-please never relabels, and every
-      # later run aborts with "untagged, merged release PRs outstanding".
-      - name: Mark the release pull request as tagged
-        if: steps.release-check.outputs.new == 'true'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh label create "autorelease: tagged" --repo "$GITHUB_REPOSITORY" \
-            --color ededed --description "release-please: release has been tagged" --force
-          gh pr list --repo "$GITHUB_REPOSITORY" --state merged \
-            --label "autorelease: pending" --json number --jq '.[].number' \
-          | while read -r pr; do
-              gh pr edit "$pr" --repo "$GITHUB_REPOSITORY" \
-                --add-label "autorelease: tagged" --remove-label "autorelease: pending"
-            done
-
       # release-please's pull request is authored by whichever identity its token
       # belongs to. secrets.GITHUB_TOKEN authors as github-actions[bot], which holds
       # no access to this repository, and Actions holds pull_request runs on such
-      # pull requests behind manual approval. Approving starts chart testing from
-      # cold, so the roughly eleven minutes it takes are spent at the point of merge
-      # rather than while the release pull request sits open. Runs on pull requests
-      # opened by an app installation identity start unheld.
+      # pull requests behind manual approval.
       #
-      # Falls back to secrets.GITHUB_TOKEN, and so to the current behaviour, when the
-      # app is not configured.
+      # Falls back to secrets.GITHUB_TOKEN when the app is not configured.
       - name: Mint a release-please app token
         id: release-please-token
         if: vars.RELEASE_APP_CLIENT_ID != ''
@@ -146,15 +55,66 @@ jobs:
           client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
           private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
 
-      # Runs after chart-releaser so the release it just published is visible as
-      # the starting point for the next changelog. release-please owns the chart
-      # version and CHANGELOG.md; chart-releaser owns tags and GitHub releases.
+      # release-please owns the version, the changelog, the tag and the GitHub
+      # release. It therefore writes the release body from CHANGELOG.md and moves
+      # its own pull request from `autorelease: pending` to `autorelease: tagged`.
+      # chart-releaser is reduced to packaging and indexing.
       - name: Run release-please
+        id: release-please
         uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
         with:
           token: ${{ steps.release-please-token.outputs.token || secrets.GITHUB_TOKEN }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
           # release-please otherwise targets the repository default branch,
-          # which is not necessarily the branch this job is gated to.
+          # which is not necessarily the branch this workflow is filtered to.
           target-branch: main
+
+      # The action's own run always creates a GitHub release, so it is used here
+      # purely as an installer and cr is driven directly. install_only exports PATH
+      # inside the action's shell only, so install_dir is set and wired explicitly.
+      - name: Install chart-releaser
+        if: steps.release-please.outputs.releases_created == 'true'
+        uses: helm/chart-releaser-action@cae68fefc6b5f367a0275617c9f83181ba54714f # v1.7.0
+        with:
+          install_only: true
+          install_dir: ${{ runner.temp }}/cr
+          version: v1.8.1
+
+      - name: Package the chart
+        if: steps.release-please.outputs.releases_created == 'true'
+        run: ${{ runner.temp }}/cr/cr package charts/librenms --package-path .cr-release-packages
+
+      - name: Attach the package to the release
+        if: steps.release-please.outputs.releases_created == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.release-please.outputs['charts/librenms--tag_name'] }}
+        run: gh release upload "$TAG" .cr-release-packages/*.tgz --clobber --repo "$GITHUB_REPOSITORY"
+
+      # cr index resolves each package's release by name and indexes the asset URL
+      # off it, so the package must already be attached above.
+      - name: Update the chart repository index
+        if: steps.release-please.outputs.releases_created == 'true'
+        env:
+          CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p .cr-index
+          ${{ runner.temp }}/cr/cr index -o "${GITHUB_REPOSITORY_OWNER}" -r "${GITHUB_REPOSITORY#*/}" --push
+
+      # see https://github.com/helm/chart-releaser/issues/183
+      - name: Login to GitHub Container Registry
+        if: steps.release-please.outputs.releases_created == 'true'
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push charts to GHCR
+        if: steps.release-please.outputs.releases_created == 'true'
+        run: |
+          shopt -s nullglob
+          for pkg in .cr-release-packages/*.tgz; do
+            helm push "${pkg}" "oci://ghcr.io/${GITHUB_REPOSITORY_OWNER}/charts"
+          done

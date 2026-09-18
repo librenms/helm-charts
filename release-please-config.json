@@ -7,7 +7,6 @@
       "include-component-in-tag": true,
       "include-v-in-tag": false,
       "tag-separator": "-",
-      "skip-github-release": true,
       "changelog-path": "CHANGELOG.md",
       "changelog-sections": [
         { "type": "feat", "section": "Features" },
