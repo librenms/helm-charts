@@ -1,5 +1,12 @@
 # Changelog
 
+## [10.1.2](https://github.com/librenms/helm-charts/compare/librenms-10.1.1...librenms-10.1.2) (2026-09-18)
+
+
+### Dependencies
+
+* update helm release redis to v3 ([#283](https://github.com/librenms/helm-charts/issues/283)) ([222a0e4](https://github.com/librenms/helm-charts/commit/222a0e492d722346402b80830a07b2f86a3dbb5c))
+
 ## [10.1.1](https://github.com/librenms/helm-charts/compare/librenms-10.1.0...librenms-10.1.1) (2026-09-01)
 
 
