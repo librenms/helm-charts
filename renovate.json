@@ -18,11 +18,17 @@
         "appVersion:\\s*\"?(?<currentValue>[^\"\\s]+)\"?"
       ],
       "depNameTemplate": "librenms/librenms",
-      "datasourceTemplate": "docker",
-      "versioningTemplate": "docker"
+      "datasourceTemplate": "docker"
     }
   ],
   "packageRules": [
+    {
+      "description": "LibreNMS image tags are not always three-part: 26.9.1.1 has four. Docker versioning calls a different part count incompatible and drops the version before an update is computed, so this dependency uses loose versioning.",
+      "matchDepNames": [
+        "librenms/librenms"
+      ],
+      "versioning": "loose"
+    },
     {
       "description": "Updates under charts/ change what the chart deploys and are user-facing. CI actions and tooling stay chore.",
       "matchFileNames": [

@@ -113,6 +113,9 @@ The LibreNMS image is what the chart ships rather than a dependency of it, so it
 the chart version. LibreNMS is CalVer: a minor update is a new monthly release, a patch
 update is an upstream hotfix.
 
+Image tags are not always three-part — `26.9.1.1` is a hotfix on 26.9.1. The image
+uses `loose` versioning so those are not filtered out as incompatible.
+
 An upstream release that breaks existing installs needs the pull request title changed by
 hand to `feat!` with a `BREAKING CHANGE:` footer.
 
