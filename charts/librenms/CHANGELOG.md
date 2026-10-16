@@ -1,5 +1,12 @@
 # Changelog
 
+## [10.2.2](https://github.com/librenms/helm-charts/compare/librenms-10.2.1...librenms-10.2.2) (2026-10-16)
+
+
+### Dependencies
+
+* update helm release mysql to ~2.1.0 ([#298](https://github.com/librenms/helm-charts/issues/298)) ([13aef58](https://github.com/librenms/helm-charts/commit/13aef589dde60c20dbb106bcf91762885b3973dc))
+
 ## [10.2.1](https://github.com/librenms/helm-charts/compare/librenms-10.2.0...librenms-10.2.1) (2026-10-07)
 
 
