@@ -15,6 +15,11 @@ librenms:
         memory: 32Mi
         ephemeral-storage: 50Mi
   snmp_scanner:
+    tolerations:
+      - key: dedicated
+        operator: Equal
+        value: librenms
+        effect: NoSchedule
     enabled: true
     extraEnvs:
       - name: SCAN_DEBUG
@@ -29,6 +34,11 @@ librenms:
         memory: 128Mi
         ephemeral-storage: 100Mi
   frontend:
+    tolerations:
+      - key: dedicated
+        operator: Equal
+        value: librenms
+        effect: NoSchedule
     # the namespace default SA always exists, so ct install can schedule the pods
     serviceAccountName: default
     appUrl: "https://librenms.example.com"
@@ -51,6 +61,11 @@ librenms:
         memory: 256Mi
         ephemeral-storage: 250Mi
   poller:
+    tolerations:
+      - key: dedicated
+        operator: Equal
+        value: librenms
+        effect: NoSchedule
     # the namespace default SA always exists, so ct install can schedule the pods
     serviceAccountName: default
     extraEnvs:
@@ -70,6 +85,11 @@ librenms:
         memory: 256Mi
         ephemeral-storage: 250Mi
   syslogng:
+    tolerations:
+      - key: dedicated
+        operator: Equal
+        value: librenms
+        effect: NoSchedule
     enabled: true
     service:
       annotations:
@@ -87,6 +107,11 @@ librenms:
         memory: 128Mi
         ephemeral-storage: 100Mi
   snmptrapd:
+    tolerations:
+      - key: dedicated
+        operator: Equal
+        value: librenms
+        effect: NoSchedule
     enabled: true
     extraMibDirs: /opt/librenms/mibs
     service:
@@ -105,6 +130,11 @@ librenms:
         memory: 128Mi
         ephemeral-storage: 100Mi
   rrdcached:
+    tolerations:
+      - key: dedicated
+        operator: Equal
+        value: librenms
+        effect: NoSchedule
     # the namespace default SA always exists, so ct install can schedule the pods
     serviceAccountName: default
     extraEnvs:

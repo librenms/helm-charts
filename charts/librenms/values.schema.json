@@ -207,6 +207,13 @@
                 }
             }
         },
+        "tolerations": {
+            "type": "array",
+            "description": "Tolerations for pod assignment",
+            "items": {
+                "type": "object"
+            }
+        },
         "nodeSelector": {
             "type": "object",
             "description": "Node selector for pod assignment",
@@ -402,6 +409,9 @@
                             "description": "Run frontend pods as privileged",
                             "default": false
                         },
+                        "tolerations": {
+                            "$ref": "#/definitions/tolerations"
+                        },
                         "nodeSelector": {
                             "allOf": [
                                 {
@@ -498,6 +508,9 @@
                             "type": "boolean",
                             "description": "Run poller pods as privileged",
                             "default": false
+                        },
+                        "tolerations": {
+                            "$ref": "#/definitions/tolerations"
                         },
                         "nodeSelector": {
                             "allOf": [
@@ -599,6 +612,9 @@
                                     "description": "Computing resources for SNMP scanner containers"
                                 }
                             ]
+                        },
+                        "tolerations": {
+                            "$ref": "#/definitions/tolerations"
                         },
                         "nodeSelector": {
                             "$ref": "#/definitions/nodeSelector"
@@ -752,6 +768,9 @@
                             "description": "Extra envFrom sources for RRDCached containers",
                             "default": []
                         },
+                        "tolerations": {
+                            "$ref": "#/definitions/tolerations"
+                        },
                         "nodeSelector": {
                             "allOf": [
                                 {
@@ -819,6 +838,9 @@
                                     "description": "Computing resources for syslog-ng containers"
                                 }
                             ]
+                        },
+                        "tolerations": {
+                            "$ref": "#/definitions/tolerations"
                         },
                         "nodeSelector": {
                             "$ref": "#/definitions/nodeSelector"
@@ -1063,6 +1085,9 @@
                             "type": "string"
                         },
                         "default": {}
+                    },
+                    "tolerations": {
+                        "$ref": "#/definitions/tolerations"
                     },
                     "nodeSelector": {
                         "$ref": "#/definitions/nodeSelector"
