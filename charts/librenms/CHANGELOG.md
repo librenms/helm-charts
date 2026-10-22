@@ -1,5 +1,17 @@
 # Changelog
 
+## [10.4.0](https://github.com/librenms/helm-charts/compare/librenms-10.3.1...librenms-10.4.0) (2026-10-22)
+
+
+### Features
+
+* add tolerations for all workloads ([#300](https://github.com/librenms/helm-charts/issues/300)) ([f74ee77](https://github.com/librenms/helm-charts/commit/f74ee77092c2bffc5d3d4fee2d4247150a9dd12a))
+
+
+### Dependencies
+
+* update helm release redis to v3.1.0 ([#307](https://github.com/librenms/helm-charts/issues/307)) ([1ea7048](https://github.com/librenms/helm-charts/commit/1ea7048b902c3497bcab018863f9b31b336b4c99))
+
 ## [10.3.1](https://github.com/librenms/helm-charts/compare/librenms-10.3.0...librenms-10.3.1) (2026-10-22)
 
 
