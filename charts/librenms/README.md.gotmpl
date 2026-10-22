@@ -48,6 +48,12 @@ The PersistentVolumeClaims are separate objects and are not deleted, so RRD data
 database survive. The frontend and pollers are unavailable between the delete and the
 upgrade.
 
+## Scheduling on tainted nodes
+
+Set `librenms.<component>.tolerations` for each enabled component. Bundled MySQL and
+Redis require `mysql.tolerations` and `redis.tolerations` separately; otherwise their
+pods can remain Pending on tainted nodes.
+
 ## Database Configuration
 
 ### Internal Database (Default)

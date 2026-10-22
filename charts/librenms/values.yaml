@@ -127,6 +127,9 @@ librenms:
     # -- nodeSelector for frontend pods
     nodeSelector: {}
 
+    # -- tolerations for frontend pods
+    tolerations: []
+
     # -- Externally visible base URL of this instance, including scheme (e.g.
     # "https://librenms.example.com"). Written to Laravel's .env as APP_URL so
     # URLs are generated correctly when TLS is terminated at an ingress.
@@ -173,6 +176,9 @@ librenms:
 
     # -- nodeSelector for poller pods
     nodeSelector: {}
+
+    # -- tolerations for poller pods
+    tolerations: []
 
     # -- Extra volumes for poller pods
     extraVolumes: []
@@ -226,6 +232,9 @@ librenms:
     # -- nodeSelector for SNMP scanner pods
     nodeSelector: {}
 
+    # -- tolerations for SNMP scanner pods
+    tolerations: []
+
     # -- Extra environment variables for SNMP scanner containers
     extraEnvs: []
 
@@ -252,6 +261,9 @@ librenms:
 
     # -- nodeSelector for syslogng pods
     nodeSelector: {}
+
+    # -- tolerations for syslogng pods
+    tolerations: []
 
     service:
       # -- Service type for the syslog receiver. Devices outside the cluster need
@@ -359,6 +371,9 @@ librenms:
     # -- nodeSelector for snmptrapd pods
     nodeSelector: {}
 
+    # -- tolerations for snmptrapd pods
+    tolerations: []
+
     # -- snmptrapd liveness probe. TCP 162 is a real listener in the image, and
     # accepting a connection on it does not involve the database, so a failure
     # means the receiver itself is gone. Set to null to disable.
@@ -440,6 +455,9 @@ librenms:
 
     # -- nodeSelector for rrdcached pods
     nodeSelector: {}
+
+    # -- tolerations for rrdcached pods
+    tolerations: []
 
     # -- Extra volumes for rrdcached pods
     extraVolumes: []
