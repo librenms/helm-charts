@@ -1,5 +1,12 @@
 # Changelog
 
+## [10.3.1](https://github.com/librenms/helm-charts/compare/librenms-10.3.0...librenms-10.3.1) (2026-10-22)
+
+
+### Bug Fixes
+
+* update librenms/librenms docker tag to v26.10.2 ([#304](https://github.com/librenms/helm-charts/issues/304)) ([275cdf3](https://github.com/librenms/helm-charts/commit/275cdf359df0a7b0fc9d68b89b53e6a2ef4379f1))
+
 ## [10.3.0](https://github.com/librenms/helm-charts/compare/librenms-10.2.2...librenms-10.3.0) (2026-10-21)
 
 
