@@ -3,6 +3,30 @@ entries:
   librenms:
   - apiVersion: v2
     appVersion: 26.10.2
+    created: "2026-10-22T17:37:32.377748643Z"
+    dependencies:
+    - condition: redis.enabled
+      name: redis
+      repository: https://repo.helmforge.dev
+      version: 3.1.0
+    - condition: mysql.enabled
+      name: mysql
+      repository: https://repo.helmforge.dev
+      version: ~2.1.0
+    description: LibreNMS is an autodiscovering PHP/MySQL-based network monitoring
+      system.
+    digest: 9cd35f3d5e42a80379194691532bb9b469b99890199b7648af429b5acadf17ad
+    kubeVersion: '>=1.26.0-0'
+    maintainers:
+    - name: jacobw
+      url: https://github.com/jacobw
+    name: librenms
+    type: application
+    urls:
+    - https://github.com/librenms/helm-charts/releases/download/librenms-10.4.0/librenms-10.4.0.tgz
+    version: 10.4.0
+  - apiVersion: v2
+    appVersion: 26.10.2
     created: "2026-10-22T02:45:01.415350785Z"
     dependencies:
     - condition: redis.enabled
@@ -1421,4 +1445,4 @@ entries:
     urls:
     - https://github.com/librenms/helm-charts/releases/download/librenms-3.8.0/librenms-3.8.0.tgz
     version: 3.8.0
-generated: "2026-10-22T02:45:01.415437335Z"
+generated: "2026-10-22T17:37:32.37797673Z"
