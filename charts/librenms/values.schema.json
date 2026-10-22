@@ -410,7 +410,14 @@
                             "default": false
                         },
                         "tolerations": {
-                            "$ref": "#/definitions/tolerations"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/tolerations"
+                                },
+                                {
+                                    "description": "Tolerations for frontend pods"
+                                }
+                            ]
                         },
                         "nodeSelector": {
                             "allOf": [
@@ -510,7 +517,14 @@
                             "default": false
                         },
                         "tolerations": {
-                            "$ref": "#/definitions/tolerations"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/tolerations"
+                                },
+                                {
+                                    "description": "Tolerations for poller pods"
+                                }
+                            ]
                         },
                         "nodeSelector": {
                             "allOf": [
@@ -769,7 +783,14 @@
                             "default": []
                         },
                         "tolerations": {
-                            "$ref": "#/definitions/tolerations"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/tolerations"
+                                },
+                                {
+                                    "description": "Tolerations for rrdcached pods"
+                                }
+                            ]
                         },
                         "nodeSelector": {
                             "allOf": [

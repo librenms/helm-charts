@@ -25,7 +25,8 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- with .Values.librenms.snmptrapd.tolerations }}
-      tolerations: {{ toYaml . | nindent 8 }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
       {{- end }}
       volumes:
       - name: env-volume

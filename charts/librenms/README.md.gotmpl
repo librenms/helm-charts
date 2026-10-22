@@ -48,6 +48,33 @@ The PersistentVolumeClaims are separate objects and are not deleted, so RRD data
 database survive. The frontend and pollers are unavailable between the delete and the
 upgrade.
 
+## Scheduling on tainted nodes
+
+Set `librenms.<component>.tolerations` for each enabled LibreNMS component:
+`frontend`, `poller`, `rrdcached`, `snmp_scanner`, `syslogng`, and `snmptrapd`.
+
+The bundled MySQL and Redis subcharts have separate scheduling settings. Configure
+`mysql.tolerations` and `redis.tolerations` as well when using them on tainted nodes.
+Setting only the six `librenms.*.tolerations` values leaves the MySQL and Redis pods
+Pending if no node can accept them without those tolerations.
+
+For example, in addition to the LibreNMS component tolerations:
+
+```yaml
+mysql:
+  tolerations:
+    - key: dedicated
+      operator: Equal
+      value: librenms
+      effect: NoSchedule
+redis:
+  tolerations:
+    - key: dedicated
+      operator: Equal
+      value: librenms
+      effect: NoSchedule
+```
+
 ## Database Configuration
 
 ### Internal Database (Default)

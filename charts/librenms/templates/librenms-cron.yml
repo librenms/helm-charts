@@ -27,7 +27,8 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           {{- with .Values.librenms.snmp_scanner.tolerations }}
-          tolerations: {{ toYaml . | nindent 12 }}
+          tolerations:
+            {{- toYaml . | nindent 12 }}
           {{- end }}
           {{- with .Values.librenms.snmp_scanner.securityContext }}
           securityContext:
