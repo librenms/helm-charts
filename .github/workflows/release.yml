@@ -79,7 +79,7 @@ jobs:
         with:
           install_only: true
           install_dir: ${{ runner.temp }}/cr
-          version: v1.8.1
+          version: v1.9.0
 
       - name: Package the chart
         if: steps.release-please.outputs.releases_created == 'true'
