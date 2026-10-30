@@ -98,23 +98,10 @@ jobs:
         if: steps.release-please.outputs.releases_created == 'true'
         env:
           CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          mkdir -p .cr-index
-          ${{ runner.temp }}/cr/cr index -o "${GITHUB_REPOSITORY_OWNER}" -r "${GITHUB_REPOSITORY#*/}" --push
-
-      # see https://github.com/helm/chart-releaser/issues/183
-      - name: Login to GitHub Container Registry
-        if: steps.release-please.outputs.releases_created == 'true'
-        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+        run: ${{ runner.temp }}/cr/cr index -o "${GITHUB_REPOSITORY_OWNER}" -r "${GITHUB_REPOSITORY#*/}" --push
 
       - name: Push charts to GHCR
         if: steps.release-please.outputs.releases_created == 'true'
-        run: |
-          shopt -s nullglob
-          for pkg in .cr-release-packages/*.tgz; do
-            helm push "${pkg}" "oci://ghcr.io/${GITHUB_REPOSITORY_OWNER}/charts"
-          done
+        env:
+          CR_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+        run: ${{ runner.temp }}/cr/cr push -r "oci://ghcr.io/${GITHUB_REPOSITORY_OWNER}/charts" -u "${GITHUB_ACTOR}"
