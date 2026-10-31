@@ -73,13 +73,14 @@ jobs:
       # The action's own run always creates a GitHub release, so it is used here
       # purely as an installer and cr is driven directly. install_only exports PATH
       # inside the action's shell only, so install_dir is set and wired explicitly.
+      # cr is the action's default version; cr push needs v1.9.0, the default since
+      # action v1.8.0.
       - name: Install chart-releaser
         if: steps.release-please.outputs.releases_created == 'true'
         uses: helm/chart-releaser-action@df287104677278f869ca5480bd260358397cc3f9 # v1.8.0
         with:
           install_only: true
           install_dir: ${{ runner.temp }}/cr
-          version: v1.9.0
 
       - name: Package the chart
         if: steps.release-please.outputs.releases_created == 'true'
