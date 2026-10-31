@@ -19,6 +19,18 @@
       ],
       "depNameTemplate": "librenms/librenms",
       "datasourceTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      "description": "Gateway API CRDs installed into the kind cluster for chart-testing.",
+      "managerFilePatterns": [
+        ".github/workflows/chart-testing.yml"
+      ],
+      "matchStrings": [
+        "https://github\\.com/kubernetes-sigs/gateway-api/releases/download/(?<currentValue>v[^/\\s]+)/standard-install\\.yaml"
+      ],
+      "depNameTemplate": "kubernetes-sigs/gateway-api",
+      "datasourceTemplate": "github-releases"
     }
   ],
   "packageRules": [
