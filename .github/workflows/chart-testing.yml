@@ -49,7 +49,7 @@ jobs:
 
       - name: Install Gateway API CRDs
         if: steps.list-changed.outputs.changed == 'true'
-        run: kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.6.1/standard-install.yaml
+        run: kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.7.0/standard-install.yaml
 
       # Upgrade testing installs the chart as it exists on the target branch and
       # upgrades to the branch under test, so it is meaningful even when the
