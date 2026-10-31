@@ -77,7 +77,7 @@ jobs:
       # action v1.8.0.
       - name: Install chart-releaser
         if: steps.release-please.outputs.releases_created == 'true'
-        uses: helm/chart-releaser-action@df287104677278f869ca5480bd260358397cc3f9 # v1.8.0
+        uses: helm/chart-releaser-action@92c6b97fa9f664492a2592e0d1d80bc6bf378957 # v1.9.0
         with:
           install_only: true
           install_dir: ${{ runner.temp }}/cr
