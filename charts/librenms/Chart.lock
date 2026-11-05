@@ -4,6 +4,6 @@ dependencies:
   version: 3.2.0
 - name: mysql
   repository: https://repo.helmforge.dev
-  version: 2.2.0
-digest: sha256:4039f82ce9e8f033e43dd0e956f77e49a21c6042d7bbb2dc8d1173f0240e6b5e
-generated: "2026-11-04T17:25:43.249328702Z"
+  version: 2.3.0
+digest: sha256:648096ffffcd661deb9d7209c38749bb1123729a9c4c85db26a262b6ee08abd2
+generated: "2026-11-05T05:49:11.896719876Z"
