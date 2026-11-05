@@ -7,6 +7,7 @@
   ],
   "semanticCommits": "enabled",
   "semanticCommitType": "chore",
+  "prBodyTemplate": "{{{header}}}{{{table}}}{{{warnings}}}{{{notes}}}{{{replace '\\\\?\\[skip ci\\]' '' changelogs}}}{{{configDescription}}}{{{controls}}}{{{footer}}}",
   "customManagers": [
     {
       "customType": "regex",
