@@ -1,5 +1,15 @@
 # Changelog
 
+## [10.4.2](https://github.com/librenms/helm-charts/compare/librenms-10.4.1...librenms-10.4.2) (2026-11-06)
+
+
+### Dependencies
+
+* update helm release mysql to ~2.2.0 ([#323](https://github.com/librenms/helm-charts/issues/323)) ([0334c66](https://github.com/librenms/helm-charts/commit/0334c66de658c9faf2799abd2e31278948cff70e))
+* update helm release mysql to ~2.3.0 ([#324](https://github.com/librenms/helm-charts/issues/324)) ([2268750](https://github.com/librenms/helm-charts/commit/22687503076637ea32a5964638cc5787a3b1e8e1))
+* update helm release mysql to ~2.4.0 ([#326](https://github.com/librenms/helm-charts/issues/326)) ([b0c5627](https://github.com/librenms/helm-charts/commit/b0c5627b8ea7e79e3c6ec7408f4bf59b17ec2ddd))
+* update helm release redis to v3.2.0 ([#320](https://github.com/librenms/helm-charts/issues/320)) ([d6799cc](https://github.com/librenms/helm-charts/commit/d6799cc08d96409606318882a1ba84aa114f334a))
+
 ## [10.4.1](https://github.com/librenms/helm-charts/compare/librenms-10.4.0...librenms-10.4.1) (2026-10-30)
 
 
