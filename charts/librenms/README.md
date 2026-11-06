@@ -708,7 +708,7 @@ Kubernetes: `>=1.26.0-0`
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://repo.helmforge.dev | mysql | ~2.3.0 |
+| https://repo.helmforge.dev | mysql | ~2.4.0 |
 | https://repo.helmforge.dev | redis | 3.2.0 |
 
 ## Maintainers
