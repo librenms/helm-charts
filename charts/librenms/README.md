@@ -1,6 +1,6 @@
 # librenms
 
-![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 26.10.2](https://img.shields.io/badge/AppVersion-26.10.2-informational?style=flat-square)
+![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 26.11.0](https://img.shields.io/badge/AppVersion-26.11.0-informational?style=flat-square)
 
 LibreNMS is an autodiscovering PHP/MySQL-based network monitoring system.
 
@@ -590,7 +590,7 @@ The following table lists the main configurable parameters of the librenms chart
 | librenms.frontend.tolerations | list | `[]` | tolerations for frontend pods |
 | librenms.image.pullPolicy | string | `"Always"` | pullPolicy is the Kubernetes image pull policy for the main LibreNMS image. |
 | librenms.image.repository | string | `"librenms/librenms"` | repository is the image repository to pull from. |
-| librenms.image.tag | string | `"26.10.2"` | tag is image tag to pull. |
+| librenms.image.tag | string | `"26.11.0"` | tag is image tag to pull. |
 | librenms.initContainer | object | `{"image":{"pullPolicy":"Always","repository":"busybox","tag":"1.38"},"resources":{},"securityContext":{}}` | initContainer configuration options |
 | librenms.initContainer.image.pullPolicy | string | `"Always"` | pullPolicy is the Kubernetes image pull policy for the init container image. |
 | librenms.initContainer.image.repository | string | `"busybox"` | repository is the init container image repository to pull from. |
